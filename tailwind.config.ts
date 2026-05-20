@@ -9,8 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        "ud-burgundy": "#8a0e33",
+        "ud-burgundy-hover": "#6e0b28",
+        "ud-dark": "#1c1e22",
+        "ud-white": "#ffffff",
+        "ud-light-gray": "#f5f5f5",
+      },
+      fontFamily: {
+        neris: ["Neris", "Arial", "sans-serif"],
+      },
+      maxWidth: {
+        content: "1200px",
       },
     },
   },

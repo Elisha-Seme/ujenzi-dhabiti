@@ -1,0 +1,94 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Package, ShoppingBag, LogOut, ChevronRight } from "lucide-react";
+import { signOut } from "next-auth/react";
+
+const NAV = [
+  { href: "/seller/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/seller/products", label: "My Products", icon: Package },
+  { href: "/seller/orders", label: "Orders", icon: ShoppingBag },
+];
+
+export default function SellerLayout({ children }: { children: React.ReactNode }) {
+  const path = usePathname();
+
+  return (
+    <div className="min-h-screen bg-ud-light-gray flex">
+      {/* Sidebar */}
+      <aside className="w-60 bg-ud-dark text-white flex flex-col flex-shrink-0 hidden md:flex">
+        <div className="px-6 py-5 border-b border-white/10">
+          <Link href="/" className="text-sm font-semibold text-ud-burgundy tracking-wide">
+            Ujenzi Dhabiti
+          </Link>
+          <p className="text-white/40 text-xs mt-0.5">Seller Portal</p>
+        </div>
+
+        <nav className="flex-1 py-4 px-3 space-y-1">
+          {NAV.map(({ href, label, icon: Icon }) => {
+            const active = path === href || path.startsWith(href + "/");
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-colors ${
+                  active
+                    ? "bg-ud-burgundy text-white"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="px-3 py-4 border-t border-white/10">
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex items-center gap-3 px-3 py-2.5 w-full rounded text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-ud-dark text-white flex items-center gap-2 px-4 py-3 border-b border-white/10">
+        <Link href="/" className="text-sm font-semibold text-ud-burgundy">Ujenzi Dhabiti</Link>
+        <ChevronRight className="w-3 h-3 text-white/30" />
+        <span className="text-sm text-white/60">Seller</span>
+        <div className="ml-auto flex gap-1">
+          {NAV.map(({ href, label, icon: Icon }) => {
+            const active = path === href || path.startsWith(href + "/");
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`p-2 rounded transition-colors ${active ? "bg-ud-burgundy text-white" : "text-white/60 hover:text-white"}`}
+                title={label}
+              >
+                <Icon className="w-4 h-4" />
+              </Link>
+            );
+          })}
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="p-2 text-white/60 hover:text-white"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0 md:pt-0 pt-14">
+        {children}
+      </main>
+    </div>
+  );
+}
