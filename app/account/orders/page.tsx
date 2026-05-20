@@ -48,19 +48,19 @@ export default function AccountOrdersPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-ud-dark">My Orders</h1>
-          <p className="text-sm text-gray-500 mt-1">Track your purchases and reorder construction materials.</p>
+          <p className="text-sm text-ud-dark/50 mt-1">Track your purchases and reorder construction materials.</p>
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
+          <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-ud-dark/50">
             <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
             Loading orders...
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
-            <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="font-semibold text-gray-500">No orders yet</p>
-            <p className="text-sm text-gray-400 mt-1 mb-5">Orders placed while signed in will appear here.</p>
+            <ShoppingBag className="w-10 h-10 text-ud-dark/30 mx-auto mb-3" />
+            <p className="font-semibold text-ud-dark/50">No orders yet</p>
+            <p className="text-sm text-ud-dark/40 mt-1 mb-5">Orders placed while signed in will appear here.</p>
             <Link href="/shop" className="inline-flex items-center gap-2 bg-ud-burgundy text-white px-5 py-2.5 rounded text-sm font-semibold">
               Go to Marketplace
               <ArrowRight className="w-4 h-4" />
@@ -70,19 +70,19 @@ export default function AccountOrdersPage() {
           <div className="space-y-4">
             {orders.map((order) => (
               <div key={order.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="p-5 border-b border-ud-dark/8 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-mono font-bold text-ud-dark">{order.id}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${STATUS_CLASS[order.status]}`}>{order.status}</span>
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-ud-dark/40 mt-1">
                       {new Date(order.createdAt).toLocaleDateString("en-KE")} - {order.deliveryAddress}, {order.deliveryCity}
                     </p>
                   </div>
                   <div className="sm:text-right">
                     <p className="font-bold text-ud-dark">{fmt(order.totalKES)}</p>
-                    <p className="text-xs text-gray-400 capitalize">{order.paymentMethod === "flutterwave" ? "Card" : order.paymentMethod}</p>
+                    <p className="text-xs text-ud-dark/40 capitalize">{order.paymentMethod === "flutterwave" ? "Card" : order.paymentMethod}</p>
                   </div>
                 </div>
 
@@ -94,7 +94,7 @@ export default function AccountOrdersPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-ud-dark truncate">{item.productName}</p>
-                        <p className="text-xs text-gray-400">{item.sellerName} - Qty {item.quantity}</p>
+                        <p className="text-xs text-ud-dark/40">{item.sellerName} - Qty {item.quantity}</p>
                       </div>
                       <span className="text-sm font-semibold text-ud-dark">{fmt(item.priceKES * item.quantity)}</span>
                     </div>

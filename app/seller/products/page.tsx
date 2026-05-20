@@ -189,7 +189,7 @@ export default function SellerProductsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-ud-dark">My Products</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{products.length} product{products.length !== 1 ? "s" : ""} listed</p>
+          <p className="text-sm text-ud-dark/50 mt-0.5">{products.length} product{products.length !== 1 ? "s" : ""} listed</p>
         </div>
         <button
           onClick={openAdd}
@@ -205,17 +205,17 @@ export default function SellerProductsPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-white rounded-[4px] shadow-sm p-4 animate-pulse">
-              <div className="w-full h-36 bg-gray-200 rounded mb-3" />
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div className="w-full h-36 bg-ud-dark/10 rounded mb-3" />
+              <div className="h-4 bg-ud-dark/10 rounded w-3/4 mb-2" />
+              <div className="h-3 bg-ud-dark/10 rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : products.length === 0 ? (
         <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
-          <ImageIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="font-semibold text-gray-500">No products yet</p>
-          <p className="text-sm text-gray-400 mt-1 mb-4">Add your first product to start selling.</p>
+          <ImageIcon className="w-10 h-10 text-ud-dark/30 mx-auto mb-3" />
+          <p className="font-semibold text-ud-dark/50">No products yet</p>
+          <p className="text-sm text-ud-dark/40 mt-1 mb-4">Add your first product to start selling.</p>
           <button
             onClick={openAdd}
             className="inline-flex items-center gap-2 bg-ud-burgundy text-white px-4 py-2 rounded text-sm font-medium hover:bg-ud-burgundy-hover transition-colors"
@@ -227,13 +227,13 @@ export default function SellerProductsPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((p) => (
-            <div key={p.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden border border-gray-100">
-              <div className="relative w-full h-36 bg-gray-100">
+            <div key={p.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden border border-ud-dark/8">
+              <div className="relative w-full h-36 bg-ud-dark/5">
                 {p.images[0] ? (
                   <Image src={p.images[0]} alt={p.name} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-gray-300" />
+                    <ImageIcon className="w-8 h-8 text-ud-dark/30" />
                   </div>
                 )}
                 {!p.isActive && (
@@ -244,22 +244,22 @@ export default function SellerProductsPage() {
               </div>
               <div className="p-4">
                 <p className="font-semibold text-ud-dark text-sm leading-snug mb-0.5 line-clamp-2">{p.name}</p>
-                <p className="text-xs text-gray-400 mb-2">{p.category}</p>
+                <p className="text-xs text-ud-dark/40 mb-2">{p.category}</p>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-bold text-ud-burgundy">{fmt(p.priceKES)}</span>
-                  <span className="text-xs text-gray-400">Stock: {p.stock} {p.unit}</span>
+                  <span className="text-xs text-ud-dark/40">Stock: {p.stock} {p.unit}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEdit(p)}
-                    className="flex-1 flex items-center justify-center gap-1.5 border border-gray-200 hover:border-ud-burgundy text-gray-600 hover:text-ud-burgundy py-1.5 rounded text-xs transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 border border-ud-dark/20 hover:border-ud-burgundy text-ud-dark/60 hover:text-ud-burgundy py-1.5 rounded text-xs transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                     Edit
                   </button>
                   <button
                     onClick={() => toggleActive(p)}
-                    className="p-1.5 rounded border border-gray-200 hover:border-ud-burgundy text-gray-500 hover:text-ud-burgundy transition-colors"
+                    className="p-1.5 rounded border border-ud-dark/20 hover:border-ud-burgundy text-ud-dark/50 hover:text-ud-burgundy transition-colors"
                     title={p.isActive ? "Deactivate" : "Activate"}
                   >
                     {p.isActive ? <ToggleRight className="w-4 h-4 text-ud-burgundy" /> : <ToggleLeft className="w-4 h-4" />}
@@ -267,7 +267,7 @@ export default function SellerProductsPage() {
                   <button
                     onClick={() => handleDelete(p.id)}
                     disabled={deleting === p.id}
-                    className="p-1.5 rounded border border-gray-200 hover:border-red-400 text-gray-500 hover:text-red-500 transition-colors"
+                    className="p-1.5 rounded border border-ud-dark/20 hover:border-red-400 text-ud-dark/50 hover:text-red-500 transition-colors"
                     title="Delete"
                   >
                     {deleting === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
@@ -283,9 +283,9 @@ export default function SellerProductsPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white rounded-[4px] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-ud-dark/8">
               <h2 className="font-bold text-ud-dark">{editing ? "Edit Product" : "Add Product"}</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => setShowModal(false)} className="text-ud-dark/40 hover:text-ud-dark/60 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -300,11 +300,11 @@ export default function SellerProductsPage() {
 
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Product Name *</label>
+                <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Product Name *</label>
                 <input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                  className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                   placeholder="e.g. OPC Cement 50kg Bag"
                 />
               </div>
@@ -312,21 +312,21 @@ export default function SellerProductsPage() {
               {/* Category + Unit */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Category *</label>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Category *</label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                   >
                     {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Unit *</label>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Unit *</label>
                   <input
                     value={form.unit}
                     onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
-                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                     placeholder="e.g. bag, piece, litre, kg"
                   />
                 </div>
@@ -335,24 +335,24 @@ export default function SellerProductsPage() {
               {/* Price + Stock */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Price (KES) *</label>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Price (KES) *</label>
                   <input
                     type="number"
                     min="0"
                     value={form.priceKES}
                     onChange={(e) => setForm((f) => ({ ...f, priceKES: e.target.value }))}
-                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                     placeholder="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Stock Quantity</label>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Stock Quantity</label>
                   <input
                     type="number"
                     min="0"
                     value={form.stock}
                     onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value }))}
-                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                     placeholder="0"
                   />
                 </div>
@@ -360,22 +360,22 @@ export default function SellerProductsPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Description *</label>
+                <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Description *</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={3}
-                  className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy resize-none"
+                  className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy resize-none"
                   placeholder="Describe your product — grade, brand, specifications…"
                 />
               </div>
 
               {/* Images */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-2">Product Images</label>
+                <label className="block text-xs font-semibold text-ud-dark/60 mb-2">Product Images</label>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {form.images.map((url, idx) => (
-                    <div key={idx} className="relative w-20 h-20 rounded overflow-hidden border border-gray-200">
+                    <div key={idx} className="relative w-20 h-20 rounded overflow-hidden border border-ud-dark/20">
                       <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
                       <button
                         onClick={() => removeImage(idx)}
@@ -388,7 +388,7 @@ export default function SellerProductsPage() {
                   <button
                     onClick={() => fileRef.current?.click()}
                     disabled={uploadingImage}
-                    className="w-20 h-20 border-2 border-dashed border-gray-300 hover:border-ud-burgundy rounded flex flex-col items-center justify-center text-gray-400 hover:text-ud-burgundy transition-colors text-xs gap-1"
+                    className="w-20 h-20 border-2 border-dashed border-ud-dark/30 hover:border-ud-burgundy rounded flex flex-col items-center justify-center text-ud-dark/40 hover:text-ud-burgundy transition-colors text-xs gap-1"
                   >
                     {uploadingImage ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -401,15 +401,15 @@ export default function SellerProductsPage() {
                   </button>
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                 </div>
-                <p className="text-xs text-gray-400">JPEG, PNG, WEBP — max 8 MB each</p>
+                <p className="text-xs text-ud-dark/40">JPEG, PNG, WEBP — max 8 MB each</p>
               </div>
 
               {/* Active toggle */}
               {editing && (
-                <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                <div className="flex items-center justify-between py-3 border-t border-ud-dark/8">
                   <div>
                     <p className="text-sm font-semibold text-ud-dark">Active Listing</p>
-                    <p className="text-xs text-gray-500">Inactive products won&apos;t appear in the shop</p>
+                    <p className="text-xs text-ud-dark/50">Inactive products won&apos;t appear in the shop</p>
                   </div>
                   <button
                     onClick={() => setForm((f) => ({ ...f, isActive: !f.isActive }))}
@@ -418,17 +418,17 @@ export default function SellerProductsPage() {
                     {form.isActive ? (
                       <ToggleRight className="w-8 h-8 text-ud-burgundy" />
                     ) : (
-                      <ToggleLeft className="w-8 h-8 text-gray-400" />
+                      <ToggleLeft className="w-8 h-8 text-ud-dark/40" />
                     )}
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+            <div className="flex gap-3 px-6 py-4 border-t border-ud-dark/8">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 border border-gray-200 hover:border-gray-400 text-gray-600 py-2.5 rounded text-sm font-medium transition-colors"
+                className="flex-1 border border-ud-dark/20 hover:border-gray-400 text-ud-dark/60 py-2.5 rounded text-sm font-medium transition-colors"
               >
                 Cancel
               </button>

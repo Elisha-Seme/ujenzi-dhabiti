@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LogOut, Store } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, Store } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const NAV = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/sellers", label: "Sellers", icon: Store },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
 ];
@@ -59,6 +60,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Icon className="w-4 h-4" />
             </Link>
           ))}
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="p-2 rounded text-white/60 hover:text-white hover:bg-white/10"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

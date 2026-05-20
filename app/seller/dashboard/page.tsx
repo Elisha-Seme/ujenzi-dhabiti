@@ -80,7 +80,7 @@ export default function SellerDashboard() {
             <BadgeCheck className="w-5 h-5 text-ud-burgundy" aria-label="Verified Seller" />
           )}
         </div>
-        <p className="text-gray-500 text-sm">Here&apos;s how your store is performing.</p>
+        <p className="text-ud-dark/50 text-sm">Here&apos;s how your store is performing.</p>
       </div>
 
       {/* Pending approval banner */}
@@ -103,7 +103,7 @@ export default function SellerDashboard() {
           const inner = (
             <div className="bg-white rounded-[4px] shadow-sm p-5 border-t-2 border-ud-burgundy hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{card.label}</p>
+                <p className="text-xs font-semibold text-ud-dark/50 uppercase tracking-wide">{card.label}</p>
                 <Icon className={`w-4 h-4 ${card.color}`} />
               </div>
               <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
@@ -126,7 +126,7 @@ export default function SellerDashboard() {
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="font-semibold text-ud-dark mb-1">Add a Product</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-ud-dark/50 mb-4">
             List a new product to start selling on the marketplace.
           </p>
           <Link
@@ -140,7 +140,7 @@ export default function SellerDashboard() {
 
         <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="font-semibold text-ud-dark mb-1">Fulfil Orders</h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-ud-dark/50 mb-4">
             Mark orders as dispatched and add courier tracking numbers.
           </p>
           <Link

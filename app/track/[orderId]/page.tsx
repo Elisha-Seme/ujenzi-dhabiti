@@ -144,7 +144,7 @@ export default function TrackOrderPage() {
         <div className="bg-white rounded-[4px] shadow-md p-8 max-w-md w-full text-center">
           <AlertCircle className="w-12 h-12 text-ud-burgundy mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-ud-dark mb-2">Order Not Found</h1>
-          <p className="text-gray-500 text-sm mb-6">{error}</p>
+          <p className="text-ud-dark/50 text-sm mb-6">{error}</p>
           <Link href="/shop" className="inline-block bg-ud-burgundy text-white px-6 py-2.5 rounded text-sm font-medium hover:bg-ud-burgundy-hover transition-colors">
             Back to Shop
           </Link>
@@ -190,7 +190,7 @@ export default function TrackOrderPage() {
 
         {/* Status Timeline */}
         <div className="bg-white rounded-[4px] shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-6">Order Status</h2>
+          <h2 className="text-sm font-semibold text-ud-dark/50 uppercase tracking-wide mb-6">Order Status</h2>
 
           {isCancelled ? (
             <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded">
@@ -207,7 +207,7 @@ export default function TrackOrderPage() {
           ) : (
             <div className="relative">
               {/* Connector line */}
-              <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-gray-200" />
+              <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-ud-dark/10" />
 
               <div className="space-y-6">
                 {STATUS_STEPS.map((step, idx) => {
@@ -221,13 +221,13 @@ export default function TrackOrderPage() {
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 transition-colors ${
                           done
                             ? "bg-ud-burgundy border-ud-burgundy text-white"
-                            : "bg-white border-gray-300 text-gray-400"
+                            : "bg-white border-ud-dark/30 text-ud-dark/40"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="pt-2">
-                        <p className={`text-sm font-semibold ${done ? "text-ud-dark" : "text-gray-400"}`}>
+                        <p className={`text-sm font-semibold ${done ? "text-ud-dark" : "text-ud-dark/40"}`}>
                           {step.label}
                           {active && (
                             <span className="ml-2 text-xs bg-ud-burgundy text-white px-2 py-0.5 rounded-full">
@@ -236,13 +236,13 @@ export default function TrackOrderPage() {
                           )}
                         </p>
                         {step.key === "dispatched" && order.dispatchedAt && done && (
-                          <p className="text-xs text-gray-500 mt-0.5">{formatDate(order.dispatchedAt)}</p>
+                          <p className="text-xs text-ud-dark/50 mt-0.5">{formatDate(order.dispatchedAt)}</p>
                         )}
                         {step.key === "delivered" && order.deliveredAt && done && (
-                          <p className="text-xs text-gray-500 mt-0.5">{formatDate(order.deliveredAt)}</p>
+                          <p className="text-xs text-ud-dark/50 mt-0.5">{formatDate(order.deliveredAt)}</p>
                         )}
                         {step.key === "paid" && done && order.paymentMethod && (
-                          <p className="text-xs text-gray-500 mt-0.5">
+                          <p className="text-xs text-ud-dark/50 mt-0.5">
                             via {PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod}
                           </p>
                         )}
@@ -256,10 +256,10 @@ export default function TrackOrderPage() {
 
           {/* Tracking number */}
           {order.trackingNumber && (
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <p className="text-sm text-gray-500 mb-1">Courier Tracking Number</p>
+            <div className="mt-6 pt-6 border-t border-ud-dark/8">
+              <p className="text-sm text-ud-dark/50 mb-1">Courier Tracking Number</p>
               <p className="font-mono font-semibold text-ud-dark text-lg">{order.trackingNumber}</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-ud-dark/40 mt-1">
                 Use this number to track your parcel on the courier&apos;s website.
               </p>
             </div>
@@ -268,7 +268,7 @@ export default function TrackOrderPage() {
 
         {/* Order Items */}
         <div className="bg-white rounded-[4px] shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Items Ordered</h2>
+          <h2 className="text-sm font-semibold text-ud-dark/50 uppercase tracking-wide mb-4">Items Ordered</h2>
           <div className="divide-y divide-gray-100">
             {items.map((item) => (
               <div key={item.id} className="py-4 flex gap-4">
@@ -276,18 +276,18 @@ export default function TrackOrderPage() {
                   <img
                     src={item.productImage}
                     alt={item.productName}
-                    className="w-14 h-14 object-cover rounded border border-gray-100 flex-shrink-0"
+                    className="w-14 h-14 object-cover rounded border border-ud-dark/8 flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-14 h-14 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                    <Package className="w-6 h-6 text-gray-400" />
+                  <div className="w-14 h-14 bg-ud-dark/5 rounded flex items-center justify-center flex-shrink-0">
+                    <Package className="w-6 h-6 text-ud-dark/40" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-ud-dark text-sm leading-snug">{item.productName}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Sold by {item.sellerName}</p>
+                  <p className="text-xs text-ud-dark/50 mt-0.5">Sold by {item.sellerName}</p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500">Qty: {item.quantity}</span>
+                    <span className="text-xs text-ud-dark/50">Qty: {item.quantity}</span>
                     <span className="text-sm font-semibold text-ud-dark">
                       {fmt(item.priceKES * item.quantity)}
                     </span>
@@ -305,16 +305,16 @@ export default function TrackOrderPage() {
           </div>
 
           {/* Totals */}
-          <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
+          <div className="mt-4 pt-4 border-t border-ud-dark/8 space-y-2">
+            <div className="flex justify-between text-sm text-ud-dark/60">
               <span>Subtotal</span>
               <span>{fmt(order.subtotalKES)}</span>
             </div>
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-ud-dark/60">
               <span>Platform fee</span>
               <span>{fmt(order.platformFeeKES)}</span>
             </div>
-            <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-gray-100">
+            <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-ud-dark/8">
               <span>Total Paid</span>
               <span>{fmt(order.totalKES)}</span>
             </div>
@@ -323,7 +323,7 @@ export default function TrackOrderPage() {
 
         {/* Delivery Details */}
         <div className="bg-white rounded-[4px] shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Delivery Details</h2>
+          <h2 className="text-sm font-semibold text-ud-dark/50 uppercase tracking-wide mb-4">Delivery Details</h2>
           <div className="flex items-start gap-3">
             <MapPin className="w-4 h-4 text-ud-burgundy mt-0.5 flex-shrink-0" />
             <div>
@@ -335,20 +335,20 @@ export default function TrackOrderPage() {
             </div>
           </div>
           {(order.guestName || order.guestPhone || order.guestEmail) && (
-            <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+            <div className="mt-4 pt-4 border-t border-ud-dark/8 space-y-2">
               {order.guestName && (
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-ud-dark/60">
                   <span className="font-medium text-ud-dark">{order.guestName}</span>
                 </p>
               )}
               {order.guestPhone && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-ud-dark/60">
                   <Phone className="w-3.5 h-3.5 text-ud-burgundy" />
                   {order.guestPhone}
                 </div>
               )}
               {order.guestEmail && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-ud-dark/60">
                   <Mail className="w-3.5 h-3.5 text-ud-burgundy" />
                   {order.guestEmail}
                 </div>

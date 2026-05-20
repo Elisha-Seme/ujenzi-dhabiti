@@ -45,7 +45,7 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo />
+          <Logo variant="light" className="h-12 w-auto" />
         </div>
 
         <div className="bg-white rounded-[4px] shadow-sm p-8">
@@ -56,7 +56,7 @@ export default function SignUpPage() {
           </p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-[4px] mb-5">{error}</div>
+            <div className="bg-ud-burgundy/5 border border-ud-burgundy/30 text-ud-burgundy text-sm px-4 py-3 rounded-[4px] mb-5">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,14 +70,14 @@ export default function SignUpPage() {
               <div key={f.key}>
                 <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">{f.label}</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-dark/30">{f.icon}</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70">{f.icon}</span>
                   <input
                     type={f.type}
                     required={f.key !== "phone"}
                     value={form[f.key as keyof typeof form]}
                     onChange={(e) => set(f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-ud-dark/20 rounded-[4px] focus:outline-none focus:border-ud-burgundy transition-colors"
+                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors"
                   />
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function SignUpPage() {
               {loading ? <Loader2 size={16} className="animate-spin" /> : <><span>Create Account</span><ArrowRight size={14} /></>}
             </button>
 
-            <p className="text-[11px] text-ud-dark/40 text-center">
+            <p className="text-xs text-ud-dark/50 text-center">
               By signing up you agree to our{" "}
               <Link href="/terms" className="text-ud-burgundy hover:underline">Terms of Service</Link>
             </p>

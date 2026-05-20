@@ -104,34 +104,34 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-ud-dark">Orders</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Confirm bank payments and manage order status.</p>
+          <p className="text-sm text-ud-dark/50 mt-0.5">Confirm bank payments and manage order status.</p>
         </div>
         <div className="relative sm:w-80">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-ud-dark/40 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search orders..."
-            className="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded text-sm focus:outline-none focus:border-ud-burgundy"
+            className="w-full pl-9 pr-3 py-2.5 bg-white border border-ud-dark/20 rounded text-sm focus:outline-none focus:border-ud-burgundy"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
+        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-ud-dark/50">
           <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
           Loading orders...
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
-          <Package className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-500">No orders found.</p>
+          <Package className="w-10 h-10 text-ud-dark/30 mx-auto mb-3" />
+          <p className="text-sm text-ud-dark/50">No orders found.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filtered.map((order) => (
             <div key={order.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex flex-col lg:flex-row lg:items-start gap-4">
+              <div className="p-5 border-b border-ud-dark/8 flex flex-col lg:flex-row lg:items-start gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono font-bold text-ud-dark">{order.id}</span>
@@ -140,12 +140,12 @@ export default function AdminOrdersPage() {
                       {order.paymentMethod === "flutterwave" ? "Card" : order.paymentMethod}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">{order.customerName ?? "Guest"} - {order.customerEmail ?? "No email"}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{date(order.createdAt)} - {order.deliveryAddress}, {order.deliveryCity}</p>
+                  <p className="text-sm text-ud-dark/50 mt-1">{order.customerName ?? "Guest"} - {order.customerEmail ?? "No email"}</p>
+                  <p className="text-xs text-ud-dark/40 mt-0.5">{date(order.createdAt)} - {order.deliveryAddress}, {order.deliveryCity}</p>
                 </div>
                 <div className="text-left lg:text-right">
                   <p className="text-lg font-bold text-ud-dark">{fmt(order.totalKES)}</p>
-                  <p className="text-xs text-gray-400">Platform fee: {fmt(order.platformFeeKES)}</p>
+                  <p className="text-xs text-ud-dark/40">Platform fee: {fmt(order.platformFeeKES)}</p>
                 </div>
               </div>
 
@@ -155,7 +155,7 @@ export default function AdminOrdersPage() {
                     <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="font-medium text-ud-dark truncate">{item.productName}</p>
-                        <p className="text-xs text-gray-400">{item.sellerName} - Qty {item.quantity}</p>
+                        <p className="text-xs text-ud-dark/40">{item.sellerName} - Qty {item.quantity}</p>
                       </div>
                       <span className="font-semibold text-ud-dark flex-shrink-0">{fmt(item.priceKES * item.quantity)}</span>
                     </div>
@@ -187,14 +187,14 @@ export default function AdminOrdersPage() {
                     value={order.status}
                     onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
                     disabled={busy === order.id}
-                    className="w-full border border-gray-200 rounded px-3 py-2 text-xs font-semibold capitalize focus:outline-none focus:border-ud-burgundy"
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-xs font-semibold capitalize focus:outline-none focus:border-ud-burgundy"
                   >
                     {STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}
                   </select>
                   <Link
                     href={`/track/${order.id}`}
                     target="_blank"
-                    className="w-full inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-600 hover:text-ud-burgundy hover:border-ud-burgundy py-2 rounded text-xs font-semibold transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 border border-ud-dark/20 text-ud-dark/60 hover:text-ud-burgundy hover:border-ud-burgundy py-2 rounded text-xs font-semibold transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     Tracking Page

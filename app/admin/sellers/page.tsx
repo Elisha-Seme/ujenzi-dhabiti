@@ -66,28 +66,28 @@ export default function AdminSellersPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-ud-dark">Seller Applications</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Approve, reject, or suspend marketplace sellers.</p>
+          <p className="text-sm text-ud-dark/50 mt-0.5">Approve, reject, or suspend marketplace sellers.</p>
         </div>
         <div className="relative sm:w-72">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-ud-dark/40 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search sellers..."
-            className="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded text-sm focus:outline-none focus:border-ud-burgundy"
+            className="w-full pl-9 pr-3 py-2.5 bg-white border border-ud-dark/20 rounded-[4px] text-sm text-ud-dark placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
+        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-ud-dark/50">
           <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
           Loading sellers...
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
-          <ShieldAlert className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-sm text-gray-500">No sellers found.</p>
+          <ShieldAlert className="w-10 h-10 text-ud-dark/30 mx-auto mb-3" />
+          <p className="text-sm text-ud-dark/50">No sellers found.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -102,8 +102,8 @@ export default function AdminSellersPage() {
                       {seller.status}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500">{seller.userName} - {seller.userEmail}</p>
-                  <p className="text-sm text-gray-500">{seller.phone ?? "No phone"}{seller.location ? ` - ${seller.location}` : ""}</p>
+                  <p className="text-sm text-ud-dark/50">{seller.userName} - {seller.userEmail}</p>
+                  <p className="text-sm text-ud-dark/50">{seller.phone ?? "No phone"}{seller.location ? ` - ${seller.location}` : ""}</p>
                   {seller.description && <p className="text-sm text-ud-dark/60 mt-3 leading-relaxed">{seller.description}</p>}
                   <div className="flex flex-wrap gap-1.5 mt-3">
                     {seller.categories.map((cat) => (
@@ -114,24 +114,24 @@ export default function AdminSellersPage() {
                 <div className="flex flex-wrap gap-2 lg:justify-end">
                   <button
                     onClick={() => updateStatus(seller.id, "approved")}
-                    disabled={busy === seller.id}
-                    className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white px-3 py-2 rounded text-xs font-semibold disabled:opacity-60"
+                    disabled={busy === seller.id || seller.status === "approved"}
+                    className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white px-3 py-2 rounded-[4px] text-xs font-semibold disabled:opacity-50 hover:bg-ud-burgundy-hover transition-colors"
                   >
                     {busy === seller.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     Approve
                   </button>
                   <button
                     onClick={() => updateStatus(seller.id, "rejected")}
-                    disabled={busy === seller.id}
-                    className="inline-flex items-center gap-1.5 bg-red-600 text-white px-3 py-2 rounded text-xs font-semibold disabled:opacity-60"
+                    disabled={busy === seller.id || seller.status === "rejected"}
+                    className="inline-flex items-center gap-1.5 bg-ud-dark text-white px-3 py-2 rounded-[4px] text-xs font-semibold disabled:opacity-50 hover:bg-ud-dark/80 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                     Reject
                   </button>
                   <button
                     onClick={() => updateStatus(seller.id, "suspended")}
-                    disabled={busy === seller.id}
-                    className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-600 px-3 py-2 rounded text-xs font-semibold disabled:opacity-60"
+                    disabled={busy === seller.id || seller.status === "suspended"}
+                    className="inline-flex items-center gap-1.5 border border-ud-dark/20 text-ud-dark/70 hover:border-ud-burgundy hover:text-ud-burgundy px-3 py-2 rounded-[4px] text-xs font-semibold disabled:opacity-50 transition-colors"
                   >
                     Suspend
                   </button>

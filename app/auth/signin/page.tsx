@@ -78,7 +78,7 @@ function SignInContent() {
     <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo />
+          <Logo variant="light" className="h-12 w-auto" />
         </div>
 
         <div className="bg-white rounded-[4px] shadow-sm p-8">
@@ -105,7 +105,7 @@ function SignInContent() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-[4px] mb-5">
+            <div className="bg-ud-burgundy/5 border border-ud-burgundy/30 text-ud-burgundy text-sm px-4 py-3 rounded-[4px] mb-5">
               {error}
             </div>
           )}
@@ -115,20 +115,20 @@ function SignInContent() {
               <div>
                 <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">Email</label>
                 <div className="relative">
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-dark/30" />
+                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-ud-dark/20 rounded-[4px] focus:outline-none focus:border-ud-burgundy transition-colors" />
+                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors" />
                 </div>
               </div>
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="text-xs font-semibold text-ud-dark/60 uppercase tracking-wider">Password</label>
-                  <button type="button" onClick={() => setMode("magic")} className="text-xs text-ud-burgundy hover:underline">Forgot password?</button>
+                  <button type="button" onClick={() => setMode("magic")} className="text-xs text-ud-burgundy hover:underline">Sign in with link instead</button>
                 </div>
                 <div className="relative">
-                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-dark/30" />
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
                   <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-ud-dark/20 rounded-[4px] focus:outline-none focus:border-ud-burgundy transition-colors" />
+                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors" />
                 </div>
               </div>
               <button type="submit" disabled={loading}
@@ -151,9 +151,9 @@ function SignInContent() {
               <div>
                 <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">Email</label>
                 <div className="relative">
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-dark/30" />
+                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-ud-dark/20 rounded-[4px] focus:outline-none focus:border-ud-burgundy transition-colors" />
+                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors" />
                 </div>
               </div>
               <button type="submit" disabled={loading}

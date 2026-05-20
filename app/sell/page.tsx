@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Globe, CreditCard, Activity, ShieldCheck, Check, BadgeCheck, CheckCircle2 } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import Button from "@/components/ui/Button";
 import { SELLERS } from "@/lib/sellers";
-import { PLATFORM_FEE_PERCENT } from "@/lib/products";
+import { PLATFORM_FEE_PERCENT, PRODUCT_CATEGORIES } from "@/lib/products";
 
 const BENEFITS = [
   {
@@ -38,13 +39,30 @@ const STEPS = [
 ];
 
 export default function SellPage() {
+  const { data: session } = useSession();
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", business: "", county: "", category: "", message: "",
+    name: "", email: "", phone: "", business: "", county: "", message: "",
   });
+  const [categories, setCategories] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  // Pre-fill from session when logged in
+  useEffect(() => {
+    if (session?.user) {
+      setForm((p) => ({
+        ...p,
+        name: p.name || session.user?.name || "",
+        email: p.email || session.user?.email || "",
+      }));
+    }
+  }, [session]);
+
+  const toggleCategory = (cat: string) => {
+    setCategories((prev) => (prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +73,7 @@ export default function SellPage() {
       const res = await fetch("/api/sellers/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, categories }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -236,7 +254,6 @@ export default function SellPage() {
                     { k: "email", label: "Email", placeholder: "business@example.com", required: true },
                     { k: "phone", label: "Phone", placeholder: "+254...", required: true },
                     { k: "county", label: "County / Region", placeholder: "e.g. Nairobi", required: false },
-                    { k: "category", label: "Primary Category", placeholder: "e.g. Steel & Rebar", required: false },
                   ].map((f) => (
                     <div key={f.k}>
                       <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">{f.label}{f.required && " *"}</label>
@@ -249,6 +266,33 @@ export default function SellPage() {
                       />
                     </div>
                   ))}
+                </div>
+
+                {/* Multi-category select */}
+                <div>
+                  <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-2">Categories you sell</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PRODUCT_CATEGORIES.map((cat) => {
+                      const active = categories.includes(cat);
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => toggleCategory(cat)}
+                          className={`text-xs font-semibold px-3 py-2 rounded-[4px] border transition-colors ${
+                            active
+                              ? "bg-ud-burgundy border-ud-burgundy text-white"
+                              : "border-ud-dark/20 text-ud-dark/70 hover:border-ud-burgundy"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {categories.length === 0 && (
+                    <p className="text-xs text-ud-dark/40 mt-2">Select at least one category.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">Tell us about your business</label>
