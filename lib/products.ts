@@ -68,7 +68,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Solid concrete masonry blocks for load-bearing and partition walls. Cured 28 days.",
     unit: "per block",
-    priceKES: 65,
+    priceKES: 1,
     image:
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
     inStock: true,
