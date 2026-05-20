@@ -4,7 +4,7 @@
 
 // (col, row) pairs that are filled — 5 cols × 7 rows
 const FILLED = new Set([
-  "0,0","0,1","0,3","0,4","0,5",          // left column (gap at row 2 = growth)
+  "0,0","0,1","0,2","0,3","0,4","0,5",    // left column (full)
   "4,0","4,1","4,2","4,3","4,4","4,5",    // right column (full)
   "1,5","2,5","3,5",                       // base connector
   "1,6","2,6","3,6",                       // bottom inset row

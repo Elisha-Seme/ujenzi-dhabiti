@@ -74,18 +74,23 @@ export default function ContactPage() {
 
               <div>
                 <h3 className="text-base font-bold text-ud-dark mb-4">Find Us</h3>
-                <div className="rounded-[4px] overflow-hidden border border-ud-dark/10 h-64">
+                {/* Red pin on Manga House, Kiambare Rd, Upperhill */}
+                <div className="rounded-[4px] overflow-hidden border-2 border-ud-burgundy h-72 shadow-sm">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8188853895!2d36.81!3d-1.29!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d664e3b6cb%3A0xb75ff78e5d0f4f6b!2sUpperhill%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1700000000000!5m2!1sen!2ske"
+                    src="https://maps.google.com/maps?q=Manga+House,+Kiambare+Road,+Upperhill,+Nairobi,+Kenya&output=embed&z=17&markers=color:red%7CManga+House,+Kiambare+Road,+Upperhill,+Nairobi"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Ujenzi Dhabiti Office Location"
+                    title="Ujenzi Dhabiti — Manga House, Kiambare Rd, Upperhill, Nairobi"
                   />
                 </div>
+                <p className="text-xs text-ud-dark/50 mt-2 flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-ud-burgundy flex-shrink-0" />
+                  Manga House, Kiambare Rd, Upperhill, Nairobi
+                </p>
               </div>
             </div>
           </div>
