@@ -13,8 +13,13 @@ export async function notifyAfterPayment(orderId: string) {
       ? (await db.select().from(users).where(eq(users.id, order.buyerId)).limit(1))[0]
       : null;
 
+    // Prefer the contact details captured at checkout (guest_*), fall back to
+    // the linked user account if those are missing.
     const buyerEmail = order.guestEmail ?? buyer?.email ?? null;
     const buyerName = order.guestName ?? buyer?.name ?? null;
+    if (!buyerEmail) {
+      console.warn(`[notifyAfterPayment] No buyer email for order ${orderId} — buyer notification skipped`);
+    }
 
     if (buyerEmail && buyerName) {
       await sendOrderConfirmation(

@@ -117,13 +117,17 @@ export async function POST(req: NextRequest) {
     // Generate order ID: UD- + 6 uppercase alphanumeric chars
     const orderId = "UD-" + randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
 
-    // Insert order
+    // Always save the contact details that came in via the form, even when the
+    // user is logged in. That way notifications work even if the user account
+    // gets deleted later (guestEmail acts as a permanent record of where this
+    // order came from). buyerId still links to the user when available.
+    const loggedInUserId = session?.user?.id ?? null;
     await db.insert(orders).values({
       id: orderId,
-      buyerId: session?.user?.id ?? null,
-      guestName: session ? null : buyerName,
-      guestEmail: session ? null : buyerEmail,
-      guestPhone: session ? null : (guestPhone ?? null),
+      buyerId: loggedInUserId,
+      guestName: buyerName,
+      guestEmail: buyerEmail,
+      guestPhone: guestPhone ?? null,
       deliveryAddress,
       deliveryCity,
       deliveryCounty: deliveryCounty ?? null,
