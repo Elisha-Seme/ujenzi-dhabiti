@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "node --env-file=.env.local --require tsx/cjs lib/db/seed.ts",
-    "db:test-product": "node --env-file=.env.local --require tsx/cjs scripts/add-test-product.ts"
+    "db:test-product": "node --env-file=.env.local --require tsx/cjs scripts/add-test-product.ts",
+    "db:set-test-price": "node --env-file=.env.local --require tsx/cjs scripts/set-test-price.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
