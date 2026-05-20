@@ -21,7 +21,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
   const COLS = 5;
   const ROWS = 7;
   const STEP = 12;  // px between dot centres
-  const R = 4.5;    // dot radius (thicker)
+  const R = 5.5;    // dot radius — fatter dots, same grid height
 
   const color      = variant === "dark" ? "#ffffff" : "#8a0e33";
   const subColor   = variant === "dark" ? "rgba(255,255,255,0.55)" : "rgba(138,14,51,0.55)";
@@ -33,7 +33,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
   const textX  = symbolW + gap;
   const nameY  = symbolH * 0.44;
   const tagY   = nameY + 19;
-  const viewW  = textX + 190;
+  const viewW  = textX + 215;
 
   return (
     <svg
@@ -65,7 +65,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={nameY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="700"
-        fontSize="23"
+        fontSize="28"
         fill={color}
         letterSpacing="0.03em"
       >
@@ -76,7 +76,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={tagY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="600"
-        fontSize="10.5"
+        fontSize="12"
         fill={subColor}
         letterSpacing="0.22em"
       >
