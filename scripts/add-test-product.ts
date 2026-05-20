@@ -1,0 +1,31 @@
+import * as dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
+import { db } from "../lib/db";
+import { products } from "../lib/db/schema";
+
+async function run() {
+  await db
+    .insert(products)
+    .values({
+      id: "test-001",
+      sellerId: "sel-001",
+      name: "Test Product (1 KES)",
+      category: "Cement & Concrete",
+      description: "Test product for payment verification only. Do not order.",
+      unit: "per unit",
+      priceKES: 1,
+      stock: 999,
+      images: ["https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop"],
+      isActive: true,
+    })
+    .onConflictDoNothing();
+
+  console.log("✅ Test product added: 'Test Product (1 KES)' — id: test-001");
+  process.exit(0);
+}
+
+run().catch((err) => {
+  console.error("❌ Failed:", err);
+  process.exit(1);
+});
