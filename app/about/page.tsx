@@ -4,6 +4,7 @@ import SectionHero from "@/components/ui/SectionHero";
 import StatBlock from "@/components/ui/StatBlock";
 import { STATS, TEAM } from "@/lib/constants";
 import CTABanner from "@/components/sections/CTABanner";
+import Logo from "@/components/layout/Logo";
 
 const VALUES = [
   {
@@ -48,7 +49,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div>
-              <Image src="/logo-horizontal-light.jpg" alt="Ujenzi Dhabiti" width={200} height={67} className="h-10 w-auto object-contain mb-6" />
+              <Logo variant="light" className="h-10 w-auto mb-6" />
               <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-4">
                 Our Story
               </div>
