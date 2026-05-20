@@ -32,8 +32,8 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
   const gap    = 14;
   const textX  = symbolW + gap;
   const nameY  = symbolH * 0.44;
-  const tagY   = nameY + 19;
-  const viewW  = textX + 215;
+  const tagY   = nameY + 28;
+  const viewW  = textX + 320;
 
   return (
     <svg
@@ -65,7 +65,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={nameY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="700"
-        fontSize="28"
+        fontSize="36"
         fill={color}
         letterSpacing="0.03em"
       >
@@ -76,7 +76,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={tagY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="600"
-        fontSize="12"
+        fontSize="19"
         fill={subColor}
         letterSpacing="0.22em"
       >
