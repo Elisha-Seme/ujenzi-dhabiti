@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 const SUBJECTS = [
@@ -93,13 +93,12 @@ export default function ContactForm() {
         <textarea required name="message" value={form.message} onChange={handleChange} rows={5} placeholder="Tell us about your project..." className="w-full border border-ud-dark/20 rounded-[4px] px-4 py-2.5 text-sm text-ud-dark placeholder:text-ud-dark/30 focus:outline-none focus:border-ud-burgundy transition-colors resize-none" />
       </div>
       {error && (
-        <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded p-3 mb-5 text-sm text-red-700">
+        <div className="flex items-start gap-2 bg-ud-burgundy/5 border border-ud-burgundy/30 rounded-[4px] p-3 mb-5 text-sm text-ud-burgundy">
           <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
           {error}
         </div>
       )}
-      <Button type="submit" variant="primary" className="w-full py-3.5 flex items-center justify-center gap-2" disabled={loading}>
-        {loading && <Loader2 size={16} className="animate-spin" />}
+      <Button type="submit" variant="primary" className="w-full py-3.5" loading={loading} disabled={loading}>
         {loading ? "Sending…" : "Send Message"}
       </Button>
     </form>

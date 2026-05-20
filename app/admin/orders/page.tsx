@@ -33,13 +33,13 @@ interface AdminOrder {
 }
 
 const STATUS_CLASS: Record<OrderStatus, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  paid: "bg-blue-50 text-blue-700",
-  processing: "bg-yellow-50 text-yellow-700",
-  dispatched: "bg-purple-50 text-purple-700",
-  delivered: "bg-green-50 text-green-700",
-  cancelled: "bg-red-50 text-red-700",
-  refunded: "bg-red-50 text-red-700",
+  pending: "bg-ud-dark/5 text-ud-dark/60",
+  paid: "bg-ud-burgundy/10 text-ud-burgundy",
+  processing: "bg-ud-burgundy/20 text-ud-burgundy",
+  dispatched: "bg-ud-dark/10 text-ud-dark",
+  delivered: "bg-ud-burgundy text-white",
+  cancelled: "bg-ud-dark text-white",
+  refunded: "bg-ud-dark/10 text-ud-dark/70",
 };
 
 const STATUSES: OrderStatus[] = ["pending", "paid", "processing", "dispatched", "delivered", "cancelled", "refunded"];
@@ -118,19 +118,19 @@ export default function AdminOrdersPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-md shadow-sm p-8 text-center text-sm text-gray-500">
+        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
           <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
           Loading orders...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-md shadow-sm p-12 text-center">
+        <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
           <Package className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm text-gray-500">No orders found.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filtered.map((order) => (
-            <div key={order.id} className="bg-white rounded-md shadow-sm overflow-hidden">
+            <div key={order.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden">
               <div className="p-5 border-b border-gray-100 flex flex-col lg:flex-row lg:items-start gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -167,7 +167,7 @@ export default function AdminOrdersPage() {
                     <button
                       onClick={() => updateStatus(order.id, "paid")}
                       disabled={!!busy}
-                      className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white py-2.5 rounded text-xs font-semibold disabled:opacity-60"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-ud-burgundy text-white py-2.5 rounded-[4px] text-xs font-semibold disabled:opacity-60 hover:bg-ud-burgundy-hover transition-colors"
                     >
                       {busy === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                       Confirm Bank Payment
@@ -177,7 +177,7 @@ export default function AdminOrdersPage() {
                     <button
                       onClick={() => simulateMpesa(order.id)}
                       disabled={!!busy}
-                      className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white py-2.5 rounded text-xs font-semibold disabled:opacity-60"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-ud-dark text-white py-2.5 rounded-[4px] text-xs font-semibold disabled:opacity-60 hover:bg-ud-dark/80 transition-colors"
                     >
                       {busy === order.id + "-sim" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Smartphone className="w-4 h-4" />}
                       Simulate M-Pesa Paid

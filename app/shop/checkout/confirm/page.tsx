@@ -83,7 +83,7 @@ function ConfirmInner() {
   if (state === "loading") {
     return (
       <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
-        <div className="bg-white rounded-md shadow-md p-10 max-w-md w-full text-center">
+        <div className="bg-white rounded-[4px] shadow-md p-10 max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-full bg-ud-burgundy/10 flex items-center justify-center mx-auto mb-4">
             <Loader2 className="w-8 h-8 text-ud-burgundy animate-spin" />
           </div>
@@ -99,9 +99,9 @@ function ConfirmInner() {
   if (state === "success") {
     return (
       <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
-        <div className="bg-white rounded-md shadow-md p-10 max-w-md w-full text-center">
+        <div className="bg-white rounded-[4px] shadow-md p-10 max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
+            <CheckCircle2 className="w-8 h-8 text-ud-burgundy" />
           </div>
           <h1 className="text-2xl font-bold text-ud-dark mb-2">Payment Confirmed!</h1>
           <p className="text-gray-500 text-sm mb-1">
@@ -138,9 +138,9 @@ function ConfirmInner() {
   if (state === "pending") {
     return (
       <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
-        <div className="bg-white rounded-md shadow-md p-10 max-w-md w-full text-center">
+        <div className="bg-white rounded-[4px] shadow-md p-10 max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
-            <Loader2 className="w-8 h-8 text-yellow-600" />
+            <Loader2 className="w-8 h-8 text-ud-burgundy" />
           </div>
           <h1 className="text-xl font-bold text-ud-dark mb-2">Payment Processing</h1>
           <p className="text-gray-500 text-sm mb-4">
@@ -181,7 +181,7 @@ function ConfirmInner() {
   // failed
   return (
     <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
-      <div className="bg-white rounded-md shadow-md p-10 max-w-md w-full text-center">
+      <div className="bg-white rounded-[4px] shadow-md p-10 max-w-md w-full text-center">
         <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
           <XCircle className="w-8 h-8 text-red-500" />
         </div>

@@ -239,7 +239,18 @@ export default function ShopPage() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-white rounded-[4px] h-80 animate-pulse" />
+                <div key={i} className="bg-white rounded-[4px] shadow-sm overflow-hidden animate-pulse">
+                  <div className="h-44 bg-ud-dark/10" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-ud-dark/10 rounded w-3/4" />
+                    <div className="h-3 bg-ud-dark/8 rounded w-full" />
+                    <div className="h-3 bg-ud-dark/8 rounded w-2/3" />
+                    <div className="flex items-center justify-between pt-3 border-t border-ud-dark/8 mt-2">
+                      <div className="h-5 bg-ud-dark/10 rounded w-24" />
+                      <div className="h-8 bg-ud-burgundy/20 rounded-[4px] w-24" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : filtered.length > 0 ? (

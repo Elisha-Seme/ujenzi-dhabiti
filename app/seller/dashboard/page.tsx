@@ -50,21 +50,21 @@ export default function SellerDashboard() {
       value: loading ? "—" : fmt(stats?.totalRevenue ?? 0),
       icon: TrendingUp,
       href: null,
-      color: "text-green-600",
+      color: "text-ud-burgundy",
     },
     {
       label: "Items Sold",
       value: loading ? "—" : stats?.totalItemsSold ?? 0,
       icon: ShoppingBag,
       href: "/seller/orders",
-      color: "text-blue-600",
+      color: "text-ud-dark",
     },
     {
       label: "Pending Orders",
       value: loading ? "—" : stats?.pendingOrders ?? 0,
       icon: Clock,
       href: "/seller/orders",
-      color: "text-orange-500",
+      color: "text-ud-burgundy",
     },
   ];
 
@@ -85,11 +85,11 @@ export default function SellerDashboard() {
 
       {/* Pending approval banner */}
       {stats && stats.status !== "approved" && (
-        <div className="flex items-start gap-3 bg-yellow-50 border border-yellow-200 rounded p-4 mb-6">
-          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-4 mb-6">
+          <AlertCircle className="w-5 h-5 text-ud-burgundy flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-yellow-800">Account Under Review</p>
-            <p className="text-sm text-yellow-700 mt-0.5">
+            <p className="text-sm font-semibold text-ud-dark">Account Under Review</p>
+            <p className="text-sm text-ud-dark/70 mt-0.5">
               Your seller account is currently <strong>{stats.status}</strong>. You&apos;ll be able to list products once approved by our team.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function SellerDashboard() {
         {cards.map((card) => {
           const Icon = card.icon;
           const inner = (
-            <div className="bg-white rounded-md shadow-sm p-5 border-t-2 border-ud-burgundy hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-[4px] shadow-sm p-5 border-t-2 border-ud-burgundy hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{card.label}</p>
                 <Icon className={`w-4 h-4 ${card.color}`} />
@@ -124,7 +124,7 @@ export default function SellerDashboard() {
 
       {/* Quick actions */}
       <div className="grid sm:grid-cols-2 gap-4">
-        <div className="bg-white rounded-md shadow-sm p-6">
+        <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="font-semibold text-ud-dark mb-1">Add a Product</h2>
           <p className="text-sm text-gray-500 mb-4">
             List a new product to start selling on the marketplace.
@@ -138,7 +138,7 @@ export default function SellerDashboard() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-md shadow-sm p-6">
+        <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="font-semibold text-ud-dark mb-1">Fulfil Orders</h2>
           <p className="text-sm text-gray-500 mb-4">
             Mark orders as dispatched and add courier tracking numbers.

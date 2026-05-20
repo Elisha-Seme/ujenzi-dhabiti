@@ -25,7 +25,7 @@ function StarRating({ rating }: { rating: number }) {
           className={s <= Math.round(rating) ? "text-ud-burgundy fill-ud-burgundy" : "text-ud-burgundy"}
         />
       ))}
-      <span className="text-[10px] text-ud-dark/50 ml-1">{rating}</span>
+      <span className="text-xs text-ud-dark/50 ml-1">{rating}</span>
     </div>
   );
 }
@@ -56,11 +56,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="relative h-44 overflow-hidden">
         <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
         <div className="absolute inset-0 bg-ud-dark/25" />
-        <span className="absolute top-3 left-3 bg-ud-dark/70 text-white text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]">
+        <span className="absolute top-3 left-3 bg-ud-dark/70 text-white text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]">
           {product.category}
         </span>
         {!product.inStock && (
-          <span className="absolute top-3 right-3 bg-ud-dark text-white/60 text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]">
+          <span className="absolute top-3 right-3 bg-ud-dark text-white/60 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]">
             Pre-order
           </span>
         )}
@@ -73,9 +73,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         {product.sellerId && (
           <Link href={`/shop/seller/${product.sellerId}`} className="inline-flex items-center gap-1.5 mb-3 group">
             <div className="w-5 h-5 rounded-full bg-ud-burgundy/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-[8px] font-bold text-ud-burgundy">{sellerName[0]}</span>
+              <span className="text-xs font-bold text-ud-burgundy">{sellerName[0]}</span>
             </div>
-            <span className="text-[11px] text-ud-dark/60 group-hover:text-ud-burgundy transition-colors truncate">
+            <span className="text-xs text-ud-dark/60 group-hover:text-ud-burgundy transition-colors truncate">
               {sellerName}
             </span>
             {sellerVerified && <BadgeCheck size={12} className="text-ud-burgundy flex-shrink-0" />}
@@ -87,7 +87,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <dl className="grid grid-cols-2 gap-x-3 gap-y-1 mb-4">
             {Object.entries(product.specs).slice(0, 4).map(([k, v]) => (
               <div key={k}>
-                <dt className="text-[10px] uppercase tracking-wide text-ud-dark/35 font-semibold">{k}</dt>
+                <dt className="text-xs uppercase tracking-wide text-ud-dark/35 font-semibold">{k}</dt>
                 <dd className="text-xs text-ud-dark/70 font-medium">{v}</dd>
               </div>
             ))}
@@ -96,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-end justify-between mt-auto pt-3 border-t border-ud-dark/8">
           <div>
-            <div className="text-[10px] text-ud-dark/40 mb-0.5">{product.unit}</div>
+            <div className="text-xs text-ud-dark/40 mb-0.5">{product.unit}</div>
             <div className="text-lg font-bold text-ud-dark">KES {product.priceKES.toLocaleString()}</div>
           </div>
           <button

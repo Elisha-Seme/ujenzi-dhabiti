@@ -14,6 +14,17 @@
   box-sizing: border-box;
 }
 
+/* WCAG AA focus rings — visible for keyboard users, hidden for mouse */
+:focus-visible {
+  outline: 2px solid var(--ud-burgundy);
+  outline-offset: 2px;
+}
+
+/* Remove default outline only when :focus-visible is supported */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 body {
   font-family: "Neris", Arial, sans-serif;
   color: var(--ud-dark);

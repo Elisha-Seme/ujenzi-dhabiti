@@ -141,7 +141,7 @@ export default function TrackOrderPage() {
   if (error || !order) {
     return (
       <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
-        <div className="bg-white rounded-md shadow-md p-8 max-w-md w-full text-center">
+        <div className="bg-white rounded-[4px] shadow-md p-8 max-w-md w-full text-center">
           <AlertCircle className="w-12 h-12 text-ud-burgundy mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-ud-dark mb-2">Order Not Found</h1>
           <p className="text-gray-500 text-sm mb-6">{error}</p>
@@ -189,7 +189,7 @@ export default function TrackOrderPage() {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
 
         {/* Status Timeline */}
-        <div className="bg-white rounded-md shadow-sm p-6">
+        <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-6">Order Status</h2>
 
           {isCancelled ? (
@@ -267,7 +267,7 @@ export default function TrackOrderPage() {
         </div>
 
         {/* Order Items */}
-        <div className="bg-white rounded-md shadow-sm p-6">
+        <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Items Ordered</h2>
           <div className="divide-y divide-gray-100">
             {items.map((item) => (
@@ -295,7 +295,7 @@ export default function TrackOrderPage() {
                 </div>
                 {item.dispatched && (
                   <div className="flex-shrink-0 flex items-start">
-                    <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-ud-burgundy text-white border border-green-200 px-2 py-0.5 rounded-full">
                       Dispatched
                     </span>
                   </div>
@@ -322,7 +322,7 @@ export default function TrackOrderPage() {
         </div>
 
         {/* Delivery Details */}
-        <div className="bg-white rounded-md shadow-sm p-6">
+        <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Delivery Details</h2>
           <div className="flex items-start gap-3">
             <MapPin className="w-4 h-4 text-ud-burgundy mt-0.5 flex-shrink-0" />
@@ -358,7 +358,7 @@ export default function TrackOrderPage() {
         </div>
 
         {/* Help */}
-        <div className="bg-ud-dark text-white rounded-md p-6">
+        <div className="bg-ud-dark text-white rounded-[4px] p-6">
           <h2 className="font-semibold mb-1">Need Help?</h2>
           <p className="text-white/60 text-sm mb-4">
             Have questions about your order? Contact our support team.

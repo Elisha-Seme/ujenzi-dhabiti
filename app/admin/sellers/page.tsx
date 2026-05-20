@@ -21,10 +21,10 @@ interface AdminSeller {
 }
 
 const STATUS_CLASS: Record<SellerStatus, string> = {
-  pending: "bg-yellow-50 text-yellow-700",
-  approved: "bg-green-50 text-green-700",
-  rejected: "bg-red-50 text-red-700",
-  suspended: "bg-gray-100 text-gray-600",
+  pending: "bg-ud-burgundy/20 text-ud-burgundy",
+  approved: "bg-ud-burgundy text-white",
+  rejected: "bg-ud-dark text-white",
+  suspended: "bg-ud-dark/5 text-ud-dark/60",
 };
 
 export default function AdminSellersPage() {
@@ -80,19 +80,19 @@ export default function AdminSellersPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-md shadow-sm p-8 text-center text-sm text-gray-500">
+        <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
           <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
           Loading sellers...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-md shadow-sm p-12 text-center">
+        <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
           <ShieldAlert className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="text-sm text-gray-500">No sellers found.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filtered.map((seller) => (
-            <div key={seller.id} className="bg-white rounded-md shadow-sm p-5">
+            <div key={seller.id} className="bg-white rounded-[4px] shadow-sm p-5">
               <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -115,7 +115,7 @@ export default function AdminSellersPage() {
                   <button
                     onClick={() => updateStatus(seller.id, "approved")}
                     disabled={busy === seller.id}
-                    className="inline-flex items-center gap-1.5 bg-green-600 text-white px-3 py-2 rounded text-xs font-semibold disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white px-3 py-2 rounded text-xs font-semibold disabled:opacity-60"
                   >
                     {busy === seller.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     Approve

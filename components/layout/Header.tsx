@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants";
-import Logo from "./Logo";
 import CartButton from "@/components/shop/CartButton";
 
 // Pages that DON'T have a dark hero behind the header — header should be solid dark from the start
@@ -36,7 +36,9 @@ export default function Header() {
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${solid ? "bg-ud-dark/95 backdrop-blur-sm shadow-lg" : "bg-transparent"}`}>
         <div className="max-w-content mx-auto px-6 flex items-center justify-between h-16 md:h-20">
-          <Logo />
+          <Link href="/">
+            <Image src="/logo-horizontal-dark.jpg" alt="Ujenzi Dhabiti" width={180} height={60} className="h-10 w-auto object-contain" priority />
+          </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map((link) => (
@@ -79,7 +81,9 @@ export default function Header() {
       {/* Drawer */}
       <aside className={`fixed top-0 right-0 bottom-0 z-50 w-72 bg-ud-dark flex flex-col transition-transform duration-300 md:hidden ${drawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
-          <Logo />
+          <Link href="/">
+            <Image src="/logo-horizontal-dark.jpg" alt="Ujenzi Dhabiti" width={180} height={60} className="h-10 w-auto object-contain" priority />
+          </Link>
           <button onClick={() => setDrawerOpen(false)} aria-label="Close menu" className="text-white/60 hover:text-white transition-colors">
             <X size={22} />
           </button>

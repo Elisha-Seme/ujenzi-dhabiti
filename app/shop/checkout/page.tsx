@@ -340,7 +340,7 @@ export default function CheckoutPage() {
                 {/* Card via Flutterwave */}
                 {paymentMethod === "card" && (
                   <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-[4px] p-4 text-sm text-blue-800">
+                    <div className="bg-ud-burgundy/5 border border-blue-200 rounded-[4px] p-4 text-sm text-blue-800">
                       <strong>Secure card payment</strong> via Flutterwave. Accepts Visa, Mastercard, and local debit cards. You&apos;ll be redirected to a secure checkout page.
                     </div>
                     <button type="submit" disabled={loading}

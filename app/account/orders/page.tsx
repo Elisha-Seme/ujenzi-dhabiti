@@ -19,13 +19,13 @@ interface AccountOrder {
 }
 
 const STATUS_CLASS: Record<OrderStatus, string> = {
-  pending: "bg-gray-100 text-gray-600",
-  paid: "bg-blue-50 text-blue-700",
-  processing: "bg-yellow-50 text-yellow-700",
-  dispatched: "bg-purple-50 text-purple-700",
-  delivered: "bg-green-50 text-green-700",
-  cancelled: "bg-red-50 text-red-700",
-  refunded: "bg-red-50 text-red-700",
+  pending: "bg-ud-dark/5 text-ud-dark/60",
+  paid: "bg-ud-burgundy/10 text-ud-burgundy",
+  processing: "bg-ud-burgundy/20 text-ud-burgundy",
+  dispatched: "bg-ud-dark/10 text-ud-dark",
+  delivered: "bg-ud-burgundy text-white",
+  cancelled: "bg-ud-dark text-white",
+  refunded: "bg-ud-dark text-white",
 };
 
 function fmt(n: number) {
@@ -52,12 +52,12 @@ export default function AccountOrdersPage() {
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-md shadow-sm p-8 text-center text-sm text-gray-500">
+          <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-gray-500">
             <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-ud-burgundy" />
             Loading orders...
           </div>
         ) : orders.length === 0 ? (
-          <div className="bg-white rounded-md shadow-sm p-12 text-center">
+          <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
             <ShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-3" />
             <p className="font-semibold text-gray-500">No orders yet</p>
             <p className="text-sm text-gray-400 mt-1 mb-5">Orders placed while signed in will appear here.</p>
@@ -69,7 +69,7 @@ export default function AccountOrdersPage() {
         ) : (
           <div className="space-y-4">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-md shadow-sm overflow-hidden">
+              <div key={order.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">

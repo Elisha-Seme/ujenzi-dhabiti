@@ -1,7 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { NAV_LINKS, CONTACT_INFO, SERVICES } from "@/lib/constants";
-import Logo from "./Logo";
 
 function LinkedInIcon() {
   return (
@@ -35,7 +35,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <Logo />
+            <Link href="/">
+              <Image src="/logo-horizontal-dark.jpg" alt="Ujenzi Dhabiti" width={200} height={67} className="h-12 w-auto object-contain" />
+            </Link>
             <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
               Infrastructure development company based in Nairobi, Kenya — connecting Africa through quality construction and reliable logistics.
             </p>
@@ -114,7 +116,10 @@ export default function Footer() {
 
       <div className="bg-ud-burgundy">
         <div className="max-w-content mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-white/80">© 2025 Ujenzi Dhabiti. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <Image src="/logo-stacked-dark.jpg" alt="Ujenzi Dhabiti" width={32} height={32} className="h-8 w-8 object-contain rounded-sm" />
+            <p className="text-xs text-white/80">© 2025 Ujenzi Dhabiti. All rights reserved.</p>
+          </div>
           <p className="text-xs text-white/60">{CONTACT_INFO.website}</p>
         </div>
       </div>

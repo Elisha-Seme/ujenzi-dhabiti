@@ -204,7 +204,7 @@ export default function SellerProductsPage() {
       {loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-md shadow-sm p-4 animate-pulse">
+            <div key={i} className="bg-white rounded-[4px] shadow-sm p-4 animate-pulse">
               <div className="w-full h-36 bg-gray-200 rounded mb-3" />
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
               <div className="h-3 bg-gray-200 rounded w-1/2" />
@@ -212,7 +212,7 @@ export default function SellerProductsPage() {
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-white rounded-md shadow-sm p-12 text-center">
+        <div className="bg-white rounded-[4px] shadow-sm p-12 text-center">
           <ImageIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
           <p className="font-semibold text-gray-500">No products yet</p>
           <p className="text-sm text-gray-400 mt-1 mb-4">Add your first product to start selling.</p>
@@ -227,7 +227,7 @@ export default function SellerProductsPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map((p) => (
-            <div key={p.id} className="bg-white rounded-md shadow-sm overflow-hidden border border-gray-100">
+            <div key={p.id} className="bg-white rounded-[4px] shadow-sm overflow-hidden border border-gray-100">
               <div className="relative w-full h-36 bg-gray-100">
                 {p.images[0] ? (
                   <Image src={p.images[0]} alt={p.name} fill className="object-cover" />
@@ -262,7 +262,7 @@ export default function SellerProductsPage() {
                     className="p-1.5 rounded border border-gray-200 hover:border-ud-burgundy text-gray-500 hover:text-ud-burgundy transition-colors"
                     title={p.isActive ? "Deactivate" : "Activate"}
                   >
-                    {p.isActive ? <ToggleRight className="w-4 h-4 text-green-600" /> : <ToggleLeft className="w-4 h-4" />}
+                    {p.isActive ? <ToggleRight className="w-4 h-4 text-ud-burgundy" /> : <ToggleLeft className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={() => handleDelete(p.id)}
@@ -282,7 +282,7 @@ export default function SellerProductsPage() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-md shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-[4px] shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
               <h2 className="font-bold text-ud-dark">{editing ? "Edit Product" : "Add Product"}</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -416,7 +416,7 @@ export default function SellerProductsPage() {
                     className="flex-shrink-0"
                   >
                     {form.isActive ? (
-                      <ToggleRight className="w-8 h-8 text-green-600" />
+                      <ToggleRight className="w-8 h-8 text-ud-burgundy" />
                     ) : (
                       <ToggleLeft className="w-8 h-8 text-gray-400" />
                     )}
