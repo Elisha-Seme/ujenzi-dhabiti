@@ -20,20 +20,20 @@ interface LogoProps {
 export default function Logo({ variant = "dark", className = "" }: LogoProps) {
   const COLS = 5;
   const ROWS = 7;
-  const STEP = 9;   // px between dot centres
-  const R = 3;      // dot radius
+  const STEP = 12;  // px between dot centres
+  const R = 4.5;    // dot radius (thicker)
 
   const color      = variant === "dark" ? "#ffffff" : "#8a0e33";
   const subColor   = variant === "dark" ? "rgba(255,255,255,0.55)" : "rgba(138,14,51,0.55)";
 
-  const symbolW = (COLS - 1) * STEP + R * 2;  // 38
-  const symbolH = (ROWS - 1) * STEP + R * 2;  // 57
+  const symbolW = (COLS - 1) * STEP + R * 2;  // 57
+  const symbolH = (ROWS - 1) * STEP + R * 2;  // 81
 
-  const gap    = 11;
+  const gap    = 14;
   const textX  = symbolW + gap;
   const nameY  = symbolH * 0.44;
-  const tagY   = nameY + 15;
-  const viewW  = textX + 150;
+  const tagY   = nameY + 19;
+  const viewW  = textX + 190;
 
   return (
     <svg
@@ -65,7 +65,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={nameY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="700"
-        fontSize="17"
+        fontSize="23"
         fill={color}
         letterSpacing="0.03em"
       >
@@ -76,7 +76,7 @@ export default function Logo({ variant = "dark", className = "" }: LogoProps) {
         y={tagY}
         fontFamily="Neris, Arial, sans-serif"
         fontWeight="600"
-        fontSize="8"
+        fontSize="10.5"
         fill={subColor}
         letterSpacing="0.22em"
       >
