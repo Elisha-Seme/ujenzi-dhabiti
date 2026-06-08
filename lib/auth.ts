@@ -5,6 +5,9 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Trust the deployment host (we run behind a reverse proxy at ujenzidhabiti.co.ke).
+  // Without this, Auth.js v5 rejects /api/auth/* with "UntrustedHost" in production.
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/signin",
