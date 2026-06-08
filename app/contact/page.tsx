@@ -1,25 +1,32 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import ContactForm from "@/components/sections/ContactForm";
-import { CONTACT_INFO } from "@/lib/constants";
+import { CONTACT_INFO, EMAIL_DIRECTORY } from "@/lib/constants";
 
 const CONTACT_ITEMS = [
   {
     icon: <MapPin size={16} className="text-ud-burgundy" />,
-    label: "Address",
+    label: "Location",
     content: (
       <p className="text-sm text-ud-dark/70 leading-relaxed">
-        {CONTACT_INFO.address}<br />{CONTACT_INFO.poBox}
+        {CONTACT_INFO.address}
       </p>
     ),
   },
   {
     icon: <Mail size={16} className="text-ud-burgundy" />,
-    label: "Email",
+    label: "Emails",
     content: (
-      <a href={`mailto:${CONTACT_INFO.email}`} className="text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors break-all">
-        {CONTACT_INFO.email}
-      </a>
+      <ul className="space-y-2">
+        {EMAIL_DIRECTORY.map((item) => (
+          <li key={item.email}>
+            <span className="block text-[11px] uppercase tracking-wider text-ud-dark/40">{item.label}</span>
+            <a href={`mailto:${item.email}`} className="text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors break-all">
+              {item.email}
+            </a>
+          </li>
+        ))}
+      </ul>
     ),
   },
   {
@@ -74,22 +81,22 @@ export default function ContactPage() {
 
               <div>
                 <h3 className="text-base font-bold text-ud-dark mb-4">Find Us</h3>
-                {/* Red pin on Manga House, Kiambare Rd, Upperhill */}
+                {/* Red pin on Manga House, Kiambere Rd, Upper Hill */}
                 <div className="rounded-[4px] overflow-hidden border-2 border-ud-burgundy h-72 shadow-sm">
                   <iframe
-                    src="https://maps.google.com/maps?q=Manga+House,+Kiambare+Road,+Upperhill,+Nairobi,+Kenya&output=embed&z=17&markers=color:red%7CManga+House,+Kiambare+Road,+Upperhill,+Nairobi"
+                    src="https://maps.google.com/maps?q=Manga+House,+Kiambere+Road,+Upper+Hill,+Nairobi,+Kenya&output=embed&z=17&markers=color:red%7CManga+House,+Kiambere+Road,+Upper+Hill,+Nairobi"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Ujenzi Dhabiti — Manga House, Kiambare Rd, Upperhill, Nairobi"
+                    title="Ujenzi Dhabiti — B2-06, Manga House, Kiambere Rd, Upper Hill, Nairobi"
                   />
                 </div>
                 <p className="text-xs text-ud-dark/50 mt-2 flex items-center gap-1">
                   <span className="inline-block w-2 h-2 rounded-full bg-ud-burgundy flex-shrink-0" />
-                  Manga House, Kiambare Rd, Upperhill, Nairobi
+                  B2-06, Manga House, Kiambere Rd, Upper Hill, Nairobi
                 </p>
               </div>
             </div>

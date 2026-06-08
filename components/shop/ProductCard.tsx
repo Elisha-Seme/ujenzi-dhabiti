@@ -42,6 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleAdd = () => {
     addItem({
       productId: product.id,
+      kind: "material",
       name: product.name,
       unit: product.unit,
       priceKES: product.priceKES,

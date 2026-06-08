@@ -2,7 +2,8 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { db } from "./index";
-import { users, sellers, products } from "./schema";
+import { users, sellers, products, housePlans } from "./schema";
+import { HOUSE_PLANS } from "../house-plans";
 import bcrypt from "bcryptjs";
 
 // ─── Seed data mirrors lib/sellers.ts and lib/products.ts ────────────────────
@@ -173,7 +174,7 @@ async function seed() {
       unit: "per m³",
       priceKES: 14500,
       stock: 50,
-      images: ["https://images.unsplash.com/photo-1590687560989-c3c11c1a671a?w=500&q=70&auto=format&fit=crop"],
+      images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop"],
       specs: { Grades: "C20 / C25 / C30 / C35", "Lead time": "24 hrs", Delivery: "Included" },
     },
     {
@@ -305,7 +306,7 @@ async function seed() {
       unit: "per unit",
       priceKES: 185000,
       stock: 5,
-      images: ["https://images.unsplash.com/photo-1590687560989-c3c11c1a671a?w=500&q=70&auto=format&fit=crop"],
+      images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop"],
       specs: { Capacity: "350L", Engine: "10HP diesel", Output: "~10 batches/hr" },
     },
     {
@@ -377,10 +378,36 @@ async function seed() {
       .onConflictDoNothing();
   }
 
+  // ─── House plans (so admin can fully CRUD them, nothing hard-coded) ───
+  console.log("Creating house plans...");
+  for (const p of HOUSE_PLANS) {
+    await db
+      .insert(housePlans)
+      .values({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        planType: p.planType,
+        description: p.description,
+        priceDigitalKES: p.priceDigitalKES,
+        pricePrintKES: p.pricePrintKES,
+        image: p.image ?? null,
+        bedrooms: p.bedrooms ?? null,
+        bathrooms: p.bathrooms ?? null,
+        floors: p.floors,
+        plinthAreaSqM: p.plinthAreaSqM,
+        downloadFile: p.downloadFile ?? null,
+        downloadSizeBytes: p.downloadSizeBytes ?? null,
+        published: true,
+      })
+      .onConflictDoNothing();
+  }
+
   console.log("\n✅ Seed complete!");
   console.log(`   ${sellerUsers.length} seller users`);
   console.log(`   ${sellerProfiles.length} seller profiles`);
   console.log(`   ${productData.length} products`);
+  console.log(`   ${HOUSE_PLANS.length} house plans`);
   console.log("\n   Admin login: admin@ujenzidhabiti.co.ke / Admin@UjenziDhabiti2025!");
   console.log("   Change this password immediately after first login.\n");
 

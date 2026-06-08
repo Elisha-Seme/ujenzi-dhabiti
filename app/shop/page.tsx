@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { Search, Truck, ClipboardList, Lock, X, SlidersHorizontal } from "lucide-react";
+import Link from "next/link";
+import { Search, Truck, ClipboardList, Lock, X, SlidersHorizontal, Home, ArrowRight } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import ProductCard from "@/components/shop/ProductCard";
 import ShopFilters from "@/components/shop/ShopFilters";
@@ -140,6 +141,22 @@ export default function ShopPage() {
 
       <section className="bg-ud-light-gray min-h-screen py-14 md:py-20">
         <div className="max-w-content mx-auto px-6">
+
+          {/* House plans cross-link */}
+          <Link href="/shop/plans" className="group flex items-center justify-between gap-4 bg-ud-dark rounded-[4px] p-5 mb-6 hover:bg-ud-burgundy transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-[4px] bg-white/10 flex items-center justify-center flex-shrink-0">
+                <Home size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-white">Looking for house plans?</p>
+                <p className="text-xs text-white/60">Ready-to-build plans — digital download or printed copy.</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white whitespace-nowrap">
+              Browse plans <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
 
           {/* Search bar */}
           <div className="flex flex-col sm:flex-row gap-3 mb-5">

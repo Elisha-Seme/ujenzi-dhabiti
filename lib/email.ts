@@ -28,7 +28,8 @@ export async function sendOrderConfirmation(
   name: string,
   orderId: string,
   items: { productName: string; quantity: number; priceKES: number }[],
-  totalKES: number
+  totalKES: number,
+  downloads: { label: string; url: string }[] = []
 ) {
   const itemRows = items
     .map(
@@ -41,6 +42,18 @@ export async function sendOrderConfirmation(
     )
     .join("");
 
+  const downloadsBlock = downloads.length === 0 ? "" : `
+        <div style="margin:0 0 20px;padding:16px 20px;background:#fdf4f6;border:1px solid #8a0e33;border-radius:4px">
+          <p style="margin:0 0 10px;font-size:13px;font-weight:bold;color:#1c1e22;text-transform:uppercase;letter-spacing:0.05em">Your Digital Plans</p>
+          ${downloads.map((d) => `
+            <a href="${d.url}" style="display:inline-block;margin:4px 6px 4px 0;background:#8a0e33;color:#fff;font-size:13px;font-weight:bold;padding:10px 16px;border-radius:4px;text-decoration:none">
+              Download — ${d.label}
+            </a>
+          `).join("")}
+          <p style="margin:10px 0 0;font-size:11px;color:#777">Bookmark this email or your order page — these links stay valid as long as the order exists.</p>
+        </div>
+  `;
+
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -52,7 +65,8 @@ export async function sendOrderConfirmation(
           <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">${orderId}</p>
         </div>
         <p style="color:#333;font-size:15px">Hi ${name},</p>
-        <p style="color:#555;font-size:14px;margin-bottom:24px">Your payment was received. Sellers have been notified and will dispatch within their stated lead times.</p>
+        <p style="color:#555;font-size:14px;margin-bottom:24px">Your payment was received. ${downloads.length > 0 ? "Your digital downloads are ready below. " : ""}Any physical items will be dispatched within their stated lead times.</p>
+        ${downloadsBlock}
         <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
           <thead>
             <tr style="border-bottom:2px solid #eee">

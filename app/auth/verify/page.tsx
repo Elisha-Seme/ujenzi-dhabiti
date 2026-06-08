@@ -48,7 +48,7 @@ function VerifyContent() {
     <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4">
       <div className="w-full max-w-sm text-center">
         <div className="mb-8 flex justify-center">
-          <Logo />
+          <Logo variant="light" layout="stacked" className="h-16 w-auto" />
         </div>
         <div className="bg-white rounded-[4px] shadow-sm p-10">
           {status === "loading" && (

@@ -3,16 +3,29 @@ import { db, orders, orderItems, products, sellers, payments } from "@/lib/db";
 import { eq, and, inArray } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { auth } from "@/lib/auth";
+import { planPrice, planSnapshotName, DeliveryMode } from "@/lib/house-plans";
+import { getAllPlans } from "@/lib/plans-store";
 
 const PLATFORM_FEE_PERCENT = Number(process.env.PLATFORM_FEE_PERCENT ?? 3);
 
 interface CartItem {
   productId: string;
   quantity: number;
+  deliveryMode?: DeliveryMode;
 }
 
 type ClientPaymentMethod = "mpesa" | "card" | "flutterwave" | "bank";
 type StoredPaymentMethod = "mpesa" | "flutterwave" | "bank";
+
+interface ResolvedItem {
+  productId: string | null; // null for house plans (not in products table)
+  quantity: number;
+  priceKES: number;
+  productName: string;
+  productImage: string;
+  sellerId: string | null;
+  sellerName: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,14 +39,12 @@ export async function POST(req: NextRequest) {
       items,
     }: {
       guestName?: string; guestEmail?: string; guestPhone?: string;
-      deliveryAddress: string; deliveryCity: string; deliveryCounty?: string;
+      deliveryAddress?: string; deliveryCity?: string; deliveryCounty?: string;
       paymentMethod: ClientPaymentMethod;
       items: CartItem[];
     } = body;
 
-    // Validate
     if (!items?.length) return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
-    if (!deliveryAddress || !deliveryCity) return NextResponse.json({ error: "Delivery address required" }, { status: 400 });
     if (!paymentMethod) return NextResponse.json({ error: "Payment method required" }, { status: 400 });
     const storedPaymentMethod: StoredPaymentMethod =
       paymentMethod === "card" ? "flutterwave" : paymentMethod;
@@ -47,80 +58,112 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
     }
 
-    // Sanitize items: dedupe, validate quantities, drop bad entries
-    const validItems = items
-      .filter((i) => i?.productId && Number.isInteger(i.quantity) && i.quantity > 0 && i.quantity <= 999)
-      .reduce<Map<string, number>>((acc, i) => {
-        acc.set(i.productId, (acc.get(i.productId) ?? 0) + i.quantity);
-        return acc;
-      }, new Map());
-
-    if (validItems.size === 0) {
+    // ─── Sanitize + dedupe by product + delivery mode ─────────────
+    const dedup = new Map<string, CartItem>();
+    for (const i of items) {
+      if (!i?.productId) continue;
+      if (!Number.isInteger(i.quantity) || i.quantity < 1 || i.quantity > 999) continue;
+      const mode: DeliveryMode | undefined =
+        i.deliveryMode === "digital" || i.deliveryMode === "print" ? i.deliveryMode : undefined;
+      const key = `${i.productId}::${mode ?? "std"}`;
+      const existing = dedup.get(key);
+      dedup.set(key, { productId: i.productId, deliveryMode: mode, quantity: (existing?.quantity ?? 0) + i.quantity });
+    }
+    const sanitized = Array.from(dedup.values());
+    if (sanitized.length === 0) {
       return NextResponse.json({ error: "No valid items in cart" }, { status: 400 });
     }
 
-    // Fetch ONLY the requested products (never trust client-side prices)
-    const productIds = Array.from(validItems.keys());
-    const productRows = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        priceKES: products.priceKES,
-        stock: products.stock,
-        images: products.images,
-        sellerId: products.sellerId,
-        sellerName: sellers.businessName,
-        isActive: products.isActive,
-      })
-      .from(products)
-      .innerJoin(sellers, eq(products.sellerId, sellers.id))
-      .where(and(inArray(products.id, productIds), eq(products.isActive, true)));
+    // Split into house plans (server-trusted catalogue) and materials (DB).
+    const allPlans = await getAllPlans();
+    const planMap = new Map(allPlans.map((p) => [p.id, p]));
+    const planEntries = sanitized.filter((i) => planMap.has(i.productId));
+    const materialEntries = sanitized.filter((i) => !planMap.has(i.productId));
 
-    const productMap = Object.fromEntries(productRows.map((p) => [p.id, p]));
-
-    // Validate each item and calculate totals
+    const resolvedItems: ResolvedItem[] = [];
     let subtotalKES = 0;
-    const resolvedItems: {
-      productId: string; quantity: number; priceKES: number;
-      productName: string; productImage: string;
-      sellerId: string; sellerName: string;
-    }[] = [];
+    let hasPhysical = false;
 
-    for (const [productId, quantity] of Array.from(validItems.entries())) {
-      const product = productMap[productId];
-      if (!product) {
-        return NextResponse.json(
-          { error: `Product ${productId} is unavailable or out of stock` },
-          { status: 400 }
-        );
-      }
+    // ─── Resolve house plans (price comes from the server module) ──
+    for (const entry of planEntries) {
+      const plan = planMap.get(entry.productId)!;
+      const mode: DeliveryMode = entry.deliveryMode ?? "digital";
+      const qty = mode === "digital" ? 1 : entry.quantity; // digital = single copy
+      const price = planPrice(plan, mode);
+      if (mode === "print") hasPhysical = true;
       resolvedItems.push({
-        productId: product.id,
-        quantity,
-        priceKES: product.priceKES,
-        productName: product.name,
-        productImage: product.images[0] ?? "",
-        sellerId: product.sellerId,
-        sellerName: product.sellerName,
+        productId: null,
+        quantity: qty,
+        priceKES: price,
+        productName: planSnapshotName(plan, mode),
+        productImage: plan.image,
+        sellerId: null,
+        sellerName: "Ujenzi Dhabiti",
       });
-      subtotalKES += product.priceKES * quantity;
+      subtotalKES += price * qty;
     }
 
-    // Minimum amount check (Daraja and most gateways have a KES 1 minimum)
+    // ─── Resolve materials from the DB (never trust client prices) ─
+    if (materialEntries.length > 0) {
+      hasPhysical = true;
+      const productIds = materialEntries.map((i) => i.productId);
+      const productRows = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          priceKES: products.priceKES,
+          images: products.images,
+          sellerId: products.sellerId,
+          sellerName: sellers.businessName,
+        })
+        .from(products)
+        .innerJoin(sellers, eq(products.sellerId, sellers.id))
+        .where(and(inArray(products.id, productIds), eq(products.isActive, true)));
+
+      const productMap = Object.fromEntries(productRows.map((p) => [p.id, p]));
+
+      for (const entry of materialEntries) {
+        const product = productMap[entry.productId];
+        if (!product) {
+          return NextResponse.json(
+            { error: `Product ${entry.productId} is unavailable or out of stock` },
+            { status: 400 }
+          );
+        }
+        resolvedItems.push({
+          productId: product.id,
+          quantity: entry.quantity,
+          priceKES: product.priceKES,
+          productName: product.name,
+          productImage: product.images[0] ?? "",
+          sellerId: product.sellerId,
+          sellerName: product.sellerName,
+        });
+        subtotalKES += product.priceKES * entry.quantity;
+      }
+    }
+
     if (subtotalKES < 1) {
       return NextResponse.json({ error: "Order total must be at least KES 1" }, { status: 400 });
+    }
+
+    // ─── Delivery details: required only when something ships ──────
+    let finalAddress = deliveryAddress;
+    let finalCity = deliveryCity;
+    if (hasPhysical) {
+      if (!deliveryAddress || !deliveryCity) {
+        return NextResponse.json({ error: "Delivery address required" }, { status: 400 });
+      }
+    } else {
+      finalAddress = "Digital download — delivered by email";
+      finalCity = "N/A";
     }
 
     const platformFeeKES = Math.round(subtotalKES * PLATFORM_FEE_PERCENT / 100);
     const totalKES = subtotalKES + platformFeeKES;
 
-    // Generate order ID: UD- + 6 uppercase alphanumeric chars
     const orderId = "UD-" + randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
 
-    // Always save the contact details that came in via the form, even when the
-    // user is logged in. That way notifications work even if the user account
-    // gets deleted later (guestEmail acts as a permanent record of where this
-    // order came from). buyerId still links to the user when available.
     const loggedInUserId = session?.user?.id ?? null;
     await db.insert(orders).values({
       id: orderId,
@@ -128,8 +171,8 @@ export async function POST(req: NextRequest) {
       guestName: buyerName,
       guestEmail: buyerEmail,
       guestPhone: guestPhone ?? null,
-      deliveryAddress,
-      deliveryCity,
+      deliveryAddress: finalAddress!,
+      deliveryCity: finalCity!,
       deliveryCounty: deliveryCounty ?? null,
       subtotalKES,
       platformFeeKES,
@@ -138,7 +181,6 @@ export async function POST(req: NextRequest) {
       paymentMethod: storedPaymentMethod,
     });
 
-    // Insert order items
     await db.insert(orderItems).values(
       resolvedItems.map((item) => ({
         id: randomUUID(),
@@ -153,7 +195,6 @@ export async function POST(req: NextRequest) {
       }))
     );
 
-    // Create a pending payment record
     const paymentId = randomUUID();
     await db.insert(payments).values({
       id: paymentId,
@@ -172,7 +213,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("[POST /api/orders] FULL ERROR:", err);
-    // Drizzle wraps DB errors and stashes the real cause on `.cause`
     const cause = (err as { cause?: unknown })?.cause;
     if (cause) console.error("[POST /api/orders] DB CAUSE:", cause);
     const causeMessage = cause instanceof Error ? cause.message : null;

@@ -1,87 +1,49 @@
-// Dot-matrix U symbol + wordmark. No JPEG background — transparent by design.
-// variant="dark"  → white dots/text  (use on dark or burgundy backgrounds)
-// variant="light" → burgundy dots/text (use on white or light backgrounds)
+import Image from "next/image";
 
-// (col, row) pairs that are filled — 5 cols × 7 rows
-const FILLED = new Set([
-  "0,0","0,1","0,2","0,3","0,4","0,5",    // left column (full)
-  "4,0","4,1","4,2","4,3","4,4","4,5",    // right column (full)
-  "1,5","2,5","3,5",                       // base connector
-  "1,6","2,6","3,6",                       // bottom inset row
-]);
+// Authentic brand mark, background-keyed to transparent PNG so it sits cleanly on
+// any surface. Pick the variant that CONTRASTS the background it's placed on:
+//   variant="dark"  → white mark   → use on dark / burgundy backgrounds
+//   variant="light" → burgundy mark → use on white / light-gray backgrounds
+// layout="horizontal" (symbol + wordmark inline) or "stacked" (symbol over wordmark).
 
 interface LogoProps {
-  /** dark = white on transparent (navbar/footer); light = burgundy on transparent (light backgrounds) */
   variant?: "dark" | "light";
-  /** controls rendered height; width scales proportionally */
+  layout?: "horizontal" | "stacked";
+  /** controls rendered height; width scales proportionally (set w-auto in className) */
   className?: string;
+  priority?: boolean;
 }
 
-export default function Logo({ variant = "dark", className = "" }: LogoProps) {
-  const COLS = 5;
-  const ROWS = 7;
-  const STEP = 12;  // px between dot centres
-  const R = 5.5;    // dot radius — fatter dots, same grid height
+const SRC = {
+  horizontal: {
+    dark: "/logo-horizontal-dark.png",
+    light: "/logo-horizontal-light.png",
+    w: 1576,
+    h: 312,
+  },
+  stacked: {
+    dark: "/logo-stacked-dark.png",
+    light: "/logo-stacked-light.png",
+    w: 1296,
+    h: 808,
+  },
+} as const;
 
-  const color      = variant === "dark" ? "#ffffff" : "#8a0e33";
-  const subColor   = variant === "dark" ? "rgba(255,255,255,0.55)" : "rgba(138,14,51,0.55)";
-
-  const symbolW = (COLS - 1) * STEP + R * 2;  // 57
-  const symbolH = (ROWS - 1) * STEP + R * 2;  // 81
-
-  const gap    = 14;
-  const textX  = symbolW + gap;
-  const nameY  = symbolH * 0.44;
-  const tagY   = nameY + 28;
-  const viewW  = textX + 320;
-
+export default function Logo({
+  variant = "dark",
+  layout = "horizontal",
+  className = "",
+  priority = false,
+}: LogoProps) {
+  const cfg = SRC[layout];
   return (
-    <svg
-      viewBox={`0 0 ${viewW} ${symbolH}`}
+    <Image
+      src={cfg[variant]}
+      alt="Ujenzi Dhabiti — Connecting Africa"
+      width={cfg.w}
+      height={cfg.h}
+      priority={priority}
       className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Ujenzi Dhabiti"
-    >
-      {/* Dot-matrix U */}
-      {Array.from({ length: ROWS }, (_, row) =>
-        Array.from({ length: COLS }, (_, col) => {
-          if (!FILLED.has(`${col},${row}`)) return null;
-          return (
-            <circle
-              key={`${col}-${row}`}
-              cx={col * STEP + R}
-              cy={row * STEP + R}
-              r={R}
-              fill={color}
-            />
-          );
-        })
-      )}
-
-      {/* Wordmark */}
-      <text
-        x={textX}
-        y={nameY}
-        fontFamily="Neris, Arial, sans-serif"
-        fontWeight="700"
-        fontSize="36"
-        fill={color}
-        letterSpacing="0.03em"
-      >
-        Ujenzi Dhabiti
-      </text>
-      <text
-        x={textX + 1}
-        y={tagY}
-        fontFamily="Neris, Arial, sans-serif"
-        fontWeight="600"
-        fontSize="19"
-        fill={subColor}
-        letterSpacing="0.22em"
-      >
-        CONNECTING AFRICA
-      </text>
-    </svg>
+    />
   );
 }

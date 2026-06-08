@@ -52,33 +52,45 @@ export default function CartSidebar() {
             </div>
           ) : (
             <ul className="space-y-4">
-              {items.map((item) => (
-                <li key={item.productId} className="flex gap-4 pb-4 border-b border-ud-dark/8">
+              {items.map((item) => {
+                const isDigital = item.deliveryMode === "digital";
+                return (
+                <li key={item.lineId} className="flex gap-4 pb-4 border-b border-ud-dark/8">
                   <div className="relative w-16 h-16 rounded-[4px] overflow-hidden flex-shrink-0 bg-ud-light-gray">
                     <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold text-ud-dark leading-tight mb-0.5 truncate">{item.name}</h4>
                     <p className="text-[11px] text-ud-burgundy font-medium mb-1">by {item.sellerName}</p>
+                    {item.deliveryMode && (
+                      <span className="inline-block text-[10px] font-bold uppercase tracking-wide bg-ud-burgundy/10 text-ud-burgundy px-1.5 py-0.5 rounded mb-1">
+                        {isDigital ? "Digital download" : "Printed copy"}
+                      </span>
+                    )}
                     <p className="text-xs text-ud-dark/50 mb-2">KES {item.priceKES.toLocaleString()} {item.unit}</p>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => updateQty(item.productId, item.quantity - 1)} className="w-6 h-6 rounded border border-ud-dark/20 flex items-center justify-center text-ud-dark/60 hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
-                        <Minus size={10} />
-                      </button>
-                      <span className="text-sm font-semibold text-ud-dark w-5 text-center">{item.quantity}</span>
-                      <button onClick={() => updateQty(item.productId, item.quantity + 1)} className="w-6 h-6 rounded border border-ud-dark/20 flex items-center justify-center text-ud-dark/60 hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
-                        <Plus size={10} />
-                      </button>
-                    </div>
+                    {isDigital ? (
+                      <span className="text-xs text-ud-dark/40">Qty 1</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => updateQty(item.lineId, item.quantity - 1)} className="w-6 h-6 rounded border border-ud-dark/20 flex items-center justify-center text-ud-dark/60 hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
+                          <Minus size={10} />
+                        </button>
+                        <span className="text-sm font-semibold text-ud-dark w-5 text-center">{item.quantity}</span>
+                        <button onClick={() => updateQty(item.lineId, item.quantity + 1)} className="w-6 h-6 rounded border border-ud-dark/20 flex items-center justify-center text-ud-dark/60 hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
+                          <Plus size={10} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span className="text-sm font-bold text-ud-dark">KES {(item.priceKES * item.quantity).toLocaleString()}</span>
-                    <button onClick={() => removeItem(item.productId)} className="text-ud-dark/30 hover:text-ud-burgundy transition-colors" aria-label="Remove">
+                    <button onClick={() => removeItem(item.lineId)} className="text-ud-dark/30 hover:text-ud-burgundy transition-colors" aria-label="Remove">
                       <Trash2 size={14} />
                     </button>
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>
@@ -101,7 +113,7 @@ export default function CartSidebar() {
               Proceed to Checkout
             </button>
             <p className="text-[11px] text-ud-dark/40 text-center">
-              Sold & fulfilled by individual sellers. Ujenzi Dhabiti is the marketplace platform.
+              House plans are sold by Ujenzi Dhabiti. Materials are fulfilled by individual sellers.
             </p>
           </div>
         )}

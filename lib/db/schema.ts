@@ -193,7 +193,70 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// ─── CMS: Projects ("What We've Built") ──────────────────────────────────────
+
+export const projects = pgTable("projects", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  location: text("location"),
+  category: text("category").notNull().default("Building"), // Building | Civil | Interior | Architectural
+  propertyType: text("property_type"), // Residential | Commercial | Institutional
+  description: text("description").notNull(),
+  scope: text("scope"),
+  coverImage: text("cover_image"),
+  images: text("images").array().notNull().default([]),
+  materialsUsed: text("materials_used").array().notNull().default([]),
+  featured: boolean("featured").notNull().default(false),
+  published: boolean("published").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── CMS: Architectural services ─────────────────────────────────────────────
+
+export const architecturalServices = pgTable("architectural_services", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  summary: text("summary"),
+  body: text("body").notNull(),
+  image: text("image"),
+  published: boolean("published").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── CMS: House plans (admin-managed catalogue; static module is the seed/fallback) ──
+
+export const housePlans = pgTable("house_plans", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(), // Bungalow | Townhouse | Maisonette | Villa | Apartment | Commercial
+  planType: text("plan_type").notNull(),
+  description: text("description").notNull(),
+  priceDigitalKES: integer("price_digital_kes").notNull(),
+  pricePrintKES: integer("price_print_kes").notNull(),
+  image: text("image"),
+  bedrooms: integer("bedrooms"),
+  bathrooms: integer("bathrooms"),
+  floors: integer("floors").notNull().default(1),
+  plinthAreaSqM: integer("plinth_area_sqm").notNull().default(0),
+  downloadFile: text("download_file"),
+  downloadSizeBytes: integer("download_size_bytes"),
+  published: boolean("published").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;
+export type ArchitecturalService = typeof architecturalServices.$inferSelect;
+export type NewArchitecturalService = typeof architecturalServices.$inferInsert;
+export type HousePlanRow = typeof housePlans.$inferSelect;
+export type NewHousePlanRow = typeof housePlans.$inferInsert;
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

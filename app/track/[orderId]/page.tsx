@@ -16,6 +16,7 @@ import {
   Loader2,
   Copy,
   Check,
+  Download,
 } from "lucide-react";
 
 type OrderStatus =
@@ -37,6 +38,11 @@ interface OrderItem {
   dispatched: boolean;
   dispatchedAt: string | null;
   trackingNumber: string | null;
+  isPlan?: boolean;
+  deliveryMode?: "digital" | "print" | null;
+  downloadAvailable?: boolean;
+  downloadPending?: boolean;
+  downloadUrl?: string | null;
 }
 
 interface Order {
@@ -292,14 +298,38 @@ export default function TrackOrderPage() {
                       {fmt(item.priceKES * item.quantity)}
                     </span>
                   </div>
+
+                  {item.downloadAvailable && item.downloadUrl && (
+                    <a
+                      href={item.downloadUrl}
+                      className="mt-3 inline-flex items-center gap-1.5 bg-ud-burgundy text-white text-xs font-bold px-3 py-2 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Download Plan (PDF)
+                    </a>
+                  )}
+                  {item.downloadPending && (
+                    <p className="mt-3 text-[11px] text-ud-dark/50 italic">
+                      Download will be available once your payment is confirmed.
+                    </p>
+                  )}
                 </div>
-                {item.dispatched && (
-                  <div className="flex-shrink-0 flex items-start">
-                    <span className="text-xs bg-ud-burgundy text-white border border-green-200 px-2 py-0.5 rounded-full">
+                <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+                  {item.deliveryMode === "digital" && (
+                    <span className="text-[10px] font-bold uppercase tracking-wide bg-ud-burgundy/10 text-ud-burgundy px-2 py-0.5 rounded-full">
+                      Digital
+                    </span>
+                  )}
+                  {item.deliveryMode === "print" && (
+                    <span className="text-[10px] font-bold uppercase tracking-wide bg-ud-dark/10 text-ud-dark/70 px-2 py-0.5 rounded-full">
+                      Printed
+                    </span>
+                  )}
+                  {item.dispatched && (
+                    <span className="text-xs bg-ud-burgundy text-white px-2 py-0.5 rounded-full">
                       Dispatched
                     </span>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -365,11 +395,11 @@ export default function TrackOrderPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="tel:+254725403001"
+              href="tel:+254782999100"
               className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded text-sm transition-colors"
             >
               <Phone className="w-4 h-4" />
-              +254 725 403 001
+              +254 782 999 100
             </a>
             <a
               href="mailto:ujenzi@ujenzidhabiti.co.ke"

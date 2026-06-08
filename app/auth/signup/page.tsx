@@ -45,7 +45,7 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex justify-center">
-          <Logo variant="light" className="h-12 w-auto" />
+          <Logo variant="light" layout="stacked" className="h-16 w-auto" />
         </div>
 
         <div className="bg-white rounded-[4px] shadow-sm p-8">

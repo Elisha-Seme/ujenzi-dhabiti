@@ -56,7 +56,7 @@ export const PRODUCTS: Product[] = [
     unit: "per m³",
     priceKES: 14500,
     image:
-      "https://images.unsplash.com/photo-1590687560989-c3c11c1a671a?w=500&q=70&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
     inStock: true,
     specs: { Grades: "C20 / C25 / C30 / C35", "Lead time": "24 hrs", Delivery: "Included" },
   },
@@ -214,7 +214,7 @@ export const PRODUCTS: Product[] = [
     unit: "per unit",
     priceKES: 185000,
     image:
-      "https://images.unsplash.com/photo-1590687560989-c3c11c1a671a?w=500&q=70&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
     inStock: true,
     specs: { Capacity: "350L", Engine: "10HP diesel", Output: "~10 batches/hr" },
   },

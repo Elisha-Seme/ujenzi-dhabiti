@@ -1,16 +1,7 @@
-import SectionHero from "@/components/ui/SectionHero";
-import ProjectsGrid from "@/components/sections/ProjectsGrid";
-import CTABanner from "@/components/sections/CTABanner";
+import { redirect } from "next/navigation";
 
+// Legacy route from the original pan-African infrastructure brief.
+// The current site uses "What We've Built" — redirect to keep old links alive.
 export default function ProjectsPage() {
-  return (
-    <>
-      <SectionHero
-        title="Our Projects"
-        subtitle="Delivering infrastructure that connects communities, drives commerce, and builds nations."
-      />
-      <ProjectsGrid />
-      <CTABanner />
-    </>
-  );
+  redirect("/what-we-built");
 }

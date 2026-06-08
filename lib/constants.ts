@@ -1,105 +1,77 @@
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Services", href: "/services" },
-  { label: "Projects", href: "/projects" },
+  { label: "About Us", href: "/about" },
   { label: "Shop", href: "/shop" },
-  { label: "Sell", href: "/sell" },
-  { label: "Contact", href: "/contact" },
+  { label: "Our Services", href: "/services" },
+  { label: "What We've Built", href: "/what-we-built" },
+  { label: "Request a Quote", href: "/request-a-quote" },
+  { label: "Help", href: "/help" },
+  { label: "Contact Us", href: "/contact" },
 ];
 
 export const CONTACT_INFO = {
-  phone: ["+254725403001", "+254782999100"],
+  phone: ["+254782999100", "+254739999100"],
+  // Four specialized inboxes — route enquiries by the area they concern.
+  emails: {
+    customerService: "ujenzi@ujenzidhabiti.co.ke",
+    construction: "build@ujenzidhabiti.co.ke",
+    interiorDesign: "design@ujenzidhabiti.co.ke",
+    architectural: "architect@ujenzidhabiti.co.ke",
+  },
+  // Primary / general inbox (used for plain mailto links and form fallbacks)
   email: "ujenzi@ujenzidhabiti.co.ke",
-  address: "Manga House, Kiambare Rd, Upperhill, Nairobi, Kenya",
-  poBox: "P.O. Box 14404-00100",
+  address: "B2-06, Manga House, Kiambere Road, Upper Hill, Nairobi, Kenya",
   website: "www.ujenzidhabiti.co.ke",
 };
 
-export const SERVICES = [
+// WhatsApp business line (digits only, no "+"). Defaults to the primary phone.
+// TODO(client): confirm the dedicated WhatsApp number if different from the main line.
+export const WHATSAPP_NUMBER = "254782999100";
+
+/** Build a wa.me deep link with an optional pre-filled message. */
+export function whatsappLink(message?: string): string {
+  const base = `https://wa.me/${WHATSAPP_NUMBER}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
+
+// Labelled email directory for the footer / contact page.
+export const EMAIL_DIRECTORY = [
+  { label: "Customer Service", email: CONTACT_INFO.emails.customerService },
+  { label: "Construction Inquiries", email: CONTACT_INFO.emails.construction },
+  { label: "Interior Design Inquiries", email: CONTACT_INFO.emails.interiorDesign },
+  { label: "Architectural Inquiries", email: CONTACT_INFO.emails.architectural },
+];
+
+// Social profiles — hrefs are placeholders until the real profile URLs are supplied.
+export const SOCIAL_LINKS = [
+  { label: "LinkedIn", href: "#", icon: "linkedin" },
+  { label: "Facebook", href: "#", icon: "facebook" },
+  { label: "Instagram", href: "#", icon: "instagram" },
+  { label: "Twitter", href: "#", icon: "twitter" },
+  { label: "TikTok", href: "#", icon: "tiktok" },
+] as const;
+
+// Top-level service pillars. Architectural content is still pending from the brief.
+export const SERVICE_PILLARS = [
   {
-    id: 1,
-    title: "Road Construction & Rehabilitation",
-    icon: "🛣️",
-    description:
-      "Building and restoring roads that connect communities, markets, and nations across Africa.",
-    bullets: [
-      "New road construction",
-      "Road rehabilitation and maintenance",
-      "Bridge construction",
-      "Drainage systems",
-      "Road marking and safety features",
-    ],
+    label: "Building Works",
+    href: "/services/building-works",
+    blurb: "Residential and commercial construction, renovation, and boundary walls.",
   },
   {
-    id: 2,
-    title: "Civil & Structural Engineering",
-    icon: "🏗️",
-    description:
-      "Precision engineering solutions for complex infrastructure challenges that stand the test of time.",
-    bullets: [
-      "Structural design and analysis",
-      "Foundation engineering",
-      "Retaining walls and earthworks",
-      "Reinforced concrete structures",
-      "Geotechnical investigations",
-    ],
+    label: "Civil Works",
+    href: "/services/civil-works",
+    blurb: "Murram roads, cabro paving, and road drainage systems.",
   },
   {
-    id: 3,
-    title: "Water & Sanitation Infrastructure",
-    icon: "💧",
-    description:
-      "Delivering clean water and sanitation to communities — because infrastructure begins with the basics.",
-    bullets: [
-      "Water supply pipelines",
-      "Borehole drilling and development",
-      "Sewage and wastewater treatment",
-      "Irrigation infrastructure",
-      "Water storage facilities",
-    ],
+    label: "Interior Design",
+    href: "/services/interior-design",
+    blurb: "Office partitioning and glass & aluminum works.",
   },
   {
-    id: 4,
-    title: "Building & Construction",
-    icon: "🏢",
-    description:
-      "From commercial complexes to residential estates, we build structures that define skylines and communities.",
-    bullets: [
-      "Commercial and industrial buildings",
-      "Residential construction",
-      "Institutional buildings",
-      "Interior fit-outs",
-      "Renovation and refurbishment",
-    ],
-  },
-  {
-    id: 5,
-    title: "Logistics & Heavy Transport",
-    icon: "🚛",
-    description:
-      "Moving materials and equipment across borders — keeping Africa's infrastructure projects supplied and on schedule.",
-    bullets: [
-      "Heavy haulage transport",
-      "Construction equipment logistics",
-      "Cross-border freight",
-      "Fleet management",
-      "Port and cargo handling",
-    ],
-  },
-  {
-    id: 6,
-    title: "Project Management & Consultancy",
-    icon: "📋",
-    description:
-      "Expert oversight from concept to commissioning — ensuring every project is delivered on time and within budget.",
-    bullets: [
-      "Project planning and scheduling",
-      "Cost estimation and quantity surveying",
-      "Site supervision and quality control",
-      "Regulatory compliance",
-      "Feasibility studies",
-    ],
+    label: "Architectural",
+    href: "/services/architectural",
+    blurb: "Architectural design and consultancy.",
   },
 ];
 

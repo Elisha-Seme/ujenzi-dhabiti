@@ -5,12 +5,11 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 const SUBJECTS = [
-  "Road Construction",
-  "Civil & Structural Engineering",
-  "Water & Sanitation",
-  "Building & Construction",
-  "Logistics & Heavy Transport",
-  "Project Management",
+  "Construction Inquiry (Building Works)",
+  "Civil Works",
+  "Interior Design Inquiry",
+  "Architectural Inquiry",
+  "House Plans / Shop Order",
   "General Inquiry",
 ];
 

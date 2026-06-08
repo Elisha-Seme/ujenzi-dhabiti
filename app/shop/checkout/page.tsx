@@ -12,7 +12,7 @@ import { PaymentMethod } from "@/lib/types";
 type Step = "details" | "payment" | "confirm";
 
 export default function CheckoutPage() {
-  const { items, subtotalKES, platformFeeKES, totalKES, clearCart } = useCart();
+  const { items, subtotalKES, platformFeeKES, totalKES, clearCart, hasPhysicalItems } = useCart();
   const router = useRouter();
 
   const [step, setStep] = useState<Step>("details");
@@ -58,7 +58,7 @@ export default function CheckoutPage() {
           deliveryCity: form.city,
           deliveryCounty: form.county,
           paymentMethod,
-          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, deliveryMode: i.deliveryMode })),
         }),
       });
 
@@ -261,15 +261,25 @@ export default function CheckoutPage() {
             {/* ─── Step 1: Delivery Details ─────────────────────── */}
             {step === "details" && (
               <form onSubmit={handleDetailsSubmit} className="bg-white rounded-[4px] shadow-sm p-5 sm:p-8 space-y-5">
-                <h2 className="text-lg font-bold text-ud-dark mb-6">Delivery Details</h2>
+                <h2 className="text-lg font-bold text-ud-dark mb-6">{hasPhysicalItems ? "Delivery Details" : "Your Details"}</h2>
                 <div className="grid sm:grid-cols-2 gap-5">
                   <Field label="Full Name" value={form.name} onChange={(v) => set("name", v)} required placeholder="John Doe" />
                   <Field label="Email" type="email" value={form.email} onChange={(v) => set("email", v)} required placeholder="you@example.com" />
                   <Field label="Phone" value={form.phone} onChange={(v) => set("phone", v)} required placeholder="+254..." />
-                  <Field label="City" value={form.city} onChange={(v) => set("city", v)} required placeholder="Nairobi" />
+                  {hasPhysicalItems && (
+                    <Field label="City" value={form.city} onChange={(v) => set("city", v)} required placeholder="Nairobi" />
+                  )}
                 </div>
-                <Field label="Delivery Address" value={form.address} onChange={(v) => set("address", v)} required placeholder="Street, estate or area" />
-                <Field label="County" value={form.county} onChange={(v) => set("county", v)} placeholder="e.g. Nairobi, Mombasa" />
+                {hasPhysicalItems ? (
+                  <>
+                    <Field label="Delivery Address" value={form.address} onChange={(v) => set("address", v)} required placeholder="Street, estate or area" />
+                    <Field label="County" value={form.county} onChange={(v) => set("county", v)} placeholder="e.g. Nairobi, Mombasa" />
+                  </>
+                ) : (
+                  <div className="bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-4 text-sm text-ud-dark/65">
+                    Your order is digital only — your plans will be sent to the email above. No delivery address needed.
+                  </div>
+                )}
 
                 <div>
                   <p className="text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-3">Payment Method</p>
@@ -390,12 +400,17 @@ export default function CheckoutPage() {
               <h3 className="text-sm font-bold text-ud-dark mb-4">Order Summary</h3>
               <ul className="space-y-3 mb-4">
                 {items.map((item) => (
-                  <li key={item.productId} className="flex gap-3">
+                  <li key={item.lineId} className="flex gap-3">
                     <div className="relative w-12 h-12 rounded-[4px] overflow-hidden flex-shrink-0">
                       <Image src={item.image} alt={item.name} fill className="object-cover" sizes="48px" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-ud-dark truncate">{item.name}</p>
+                      {item.deliveryMode && (
+                        <span className="inline-block text-[9px] font-bold uppercase tracking-wide bg-ud-burgundy/10 text-ud-burgundy px-1.5 py-0.5 rounded mb-0.5">
+                          {item.deliveryMode === "digital" ? "Digital" : "Printed"}
+                        </span>
+                      )}
                       <p className="text-[11px] text-ud-dark/50">Qty: {item.quantity} × KES {item.priceKES.toLocaleString()}</p>
                       <p className="text-[11px] text-ud-burgundy">{item.sellerName}</p>
                     </div>
