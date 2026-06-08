@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, orders, orderItems, payments } from "@/lib/db";
+import { db, orders, orderItems, payments, products } from "@/lib/db";
+import { and, inArray, eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { auth } from "@/lib/auth";
 import { planPrice, planSnapshotName, DeliveryMode } from "@/lib/house-plans";
@@ -71,22 +72,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No valid items in cart" }, { status: 400 });
     }
 
-    // Single-vendor: every line must be a house plan from our server-trusted catalogue.
+    // Single-vendor: split into house plans (server-trusted catalogue) and
+    // materials (DB). Everything is sold by Ujenzi Dhabiti.
     const allPlans = await getAllPlans();
     const planMap = new Map(allPlans.map((p) => [p.id, p]));
+    const planEntries = sanitized.filter((i) => planMap.has(i.productId));
+    const materialEntries = sanitized.filter((i) => !planMap.has(i.productId));
 
     const resolvedItems: ResolvedItem[] = [];
     let subtotalKES = 0;
     let hasPhysical = false;
 
-    for (const entry of sanitized) {
-      const plan = planMap.get(entry.productId);
-      if (!plan) {
-        return NextResponse.json(
-          { error: `Plan ${entry.productId} is no longer available` },
-          { status: 400 }
-        );
-      }
+    // ─── House plans (price comes from the server module) ──────────
+    for (const entry of planEntries) {
+      const plan = planMap.get(entry.productId)!;
       const mode: DeliveryMode = entry.deliveryMode ?? "digital";
       const qty = mode === "digital" ? 1 : entry.quantity; // digital = single copy
       const price = planPrice(plan, mode);
@@ -101,6 +100,42 @@ export async function POST(req: NextRequest) {
         sellerName: "Ujenzi Dhabiti",
       });
       subtotalKES += price * qty;
+    }
+
+    // ─── Materials from the DB (never trust client prices) ─────────
+    if (materialEntries.length > 0) {
+      hasPhysical = true;
+      const productIds = materialEntries.map((i) => i.productId);
+      const productRows = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          priceKES: products.priceKES,
+          images: products.images,
+        })
+        .from(products)
+        .where(and(inArray(products.id, productIds), eq(products.isActive, true)));
+      const productMap = Object.fromEntries(productRows.map((p) => [p.id, p]));
+
+      for (const entry of materialEntries) {
+        const product = productMap[entry.productId];
+        if (!product) {
+          return NextResponse.json(
+            { error: `Product ${entry.productId} is unavailable or out of stock` },
+            { status: 400 }
+          );
+        }
+        resolvedItems.push({
+          productId: product.id,
+          quantity: entry.quantity,
+          priceKES: product.priceKES,
+          productName: product.name,
+          productImage: product.images[0] ?? "",
+          sellerId: null,
+          sellerName: "Ujenzi Dhabiti",
+        });
+        subtotalKES += product.priceKES * entry.quantity;
+      }
     }
 
     if (subtotalKES < 1) {

@@ -106,8 +106,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Single-vendor: no marketplace platform fee.
   const platformFeeKES = 0;
   const totalKES = subtotalKES + platformFeeKES;
-  // Only printed plans ship; all-digital carts skip delivery details.
-  const hasPhysicalItems = items.some((i) => i.deliveryMode === "print");
+  // Physical = materials, or printed plans. All-digital carts skip delivery details.
+  const hasPhysicalItems = items.some((i) => i.kind === "material" || i.deliveryMode === "print");
 
   return (
     <CartContext.Provider

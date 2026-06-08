@@ -2,6 +2,7 @@ import Button from "@/components/ui/Button";
 import DotMatrix from "@/components/ui/DotMatrix";
 import BlueprintBg from "@/components/ui/BlueprintBg";
 import HomeAuthTabs from "@/components/home/HomeAuthTabs";
+import HomeProducts from "@/components/home/HomeProducts";
 import HomePlans from "@/components/home/HomePlans";
 import MissionVision from "@/components/sections/MissionVision";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
@@ -40,15 +41,15 @@ export default function HomePage() {
                 Connecting Africa
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-ud-white leading-tight mb-5">
-                Build It. Plan It.<br />
-                <span className="text-white/75">Furnish It.</span>
+                Building Materials &amp; Construction<br />
+                <span className="text-white/75">Services Under One Roof</span>
               </h1>
               <p className="text-base md:text-lg text-white/75 font-light leading-relaxed mb-8 max-w-md">
-                Shop construction materials and ready-to-build house plans, or partner with us for building, civil, and interior works across Africa.
+                From foundation to finishing — we supply and build.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button href="/shop" variant="primary">Shop Now</Button>
-                <Button href="/services" variant="ghost">Our Services</Button>
+                <Button href="/shop" variant="primary">Shop Materials</Button>
+                <Button href="/request-a-quote" variant="ghost">Request a Quote</Button>
               </div>
             </div>
 
@@ -65,6 +66,7 @@ export default function HomePage() {
         {/* Fade into the solid-dark Mission section below */}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-ud-dark z-[1] pointer-events-none" />
         <div className="relative z-10">
+          <HomeProducts />
           <HomePlans />
         </div>
       </div>
