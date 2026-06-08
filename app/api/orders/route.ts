@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, orders, orderItems, products, sellers, payments } from "@/lib/db";
-import { eq, and, inArray } from "drizzle-orm";
+import { db, orders, orderItems, payments } from "@/lib/db";
 import { randomUUID } from "crypto";
 import { auth } from "@/lib/auth";
 import { planPrice, planSnapshotName, DeliveryMode } from "@/lib/house-plans";
 import { getAllPlans } from "@/lib/plans-store";
-
-const PLATFORM_FEE_PERCENT = Number(process.env.PLATFORM_FEE_PERCENT ?? 3);
 
 interface CartItem {
   productId: string;
@@ -74,19 +71,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No valid items in cart" }, { status: 400 });
     }
 
-    // Split into house plans (server-trusted catalogue) and materials (DB).
+    // Single-vendor: every line must be a house plan from our server-trusted catalogue.
     const allPlans = await getAllPlans();
     const planMap = new Map(allPlans.map((p) => [p.id, p]));
-    const planEntries = sanitized.filter((i) => planMap.has(i.productId));
-    const materialEntries = sanitized.filter((i) => !planMap.has(i.productId));
 
     const resolvedItems: ResolvedItem[] = [];
     let subtotalKES = 0;
     let hasPhysical = false;
 
-    // ─── Resolve house plans (price comes from the server module) ──
-    for (const entry of planEntries) {
-      const plan = planMap.get(entry.productId)!;
+    for (const entry of sanitized) {
+      const plan = planMap.get(entry.productId);
+      if (!plan) {
+        return NextResponse.json(
+          { error: `Plan ${entry.productId} is no longer available` },
+          { status: 400 }
+        );
+      }
       const mode: DeliveryMode = entry.deliveryMode ?? "digital";
       const qty = mode === "digital" ? 1 : entry.quantity; // digital = single copy
       const price = planPrice(plan, mode);
@@ -101,46 +101,6 @@ export async function POST(req: NextRequest) {
         sellerName: "Ujenzi Dhabiti",
       });
       subtotalKES += price * qty;
-    }
-
-    // ─── Resolve materials from the DB (never trust client prices) ─
-    if (materialEntries.length > 0) {
-      hasPhysical = true;
-      const productIds = materialEntries.map((i) => i.productId);
-      const productRows = await db
-        .select({
-          id: products.id,
-          name: products.name,
-          priceKES: products.priceKES,
-          images: products.images,
-          sellerId: products.sellerId,
-          sellerName: sellers.businessName,
-        })
-        .from(products)
-        .innerJoin(sellers, eq(products.sellerId, sellers.id))
-        .where(and(inArray(products.id, productIds), eq(products.isActive, true)));
-
-      const productMap = Object.fromEntries(productRows.map((p) => [p.id, p]));
-
-      for (const entry of materialEntries) {
-        const product = productMap[entry.productId];
-        if (!product) {
-          return NextResponse.json(
-            { error: `Product ${entry.productId} is unavailable or out of stock` },
-            { status: 400 }
-          );
-        }
-        resolvedItems.push({
-          productId: product.id,
-          quantity: entry.quantity,
-          priceKES: product.priceKES,
-          productName: product.name,
-          productImage: product.images[0] ?? "",
-          sellerId: product.sellerId,
-          sellerName: product.sellerName,
-        });
-        subtotalKES += product.priceKES * entry.quantity;
-      }
     }
 
     if (subtotalKES < 1) {
@@ -159,8 +119,8 @@ export async function POST(req: NextRequest) {
       finalCity = "N/A";
     }
 
-    const platformFeeKES = Math.round(subtotalKES * PLATFORM_FEE_PERCENT / 100);
-    const totalKES = subtotalKES + platformFeeKES;
+    const platformFeeKES = 0; // single-vendor: no marketplace fee
+    const totalKES = subtotalKES;
 
     const orderId = "UD-" + randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
 

@@ -1,6 +1,6 @@
-import { db, orders, orderItems, sellers, users } from "@/lib/db";
+import { db, orders, orderItems, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
-import { sendOrderConfirmation, sendSellerNewOrder } from "@/lib/email";
+import { sendOrderConfirmation } from "@/lib/email";
 import { findPlanByOrderItemAsync } from "@/lib/plans-store";
 import { buildDownloadUrl } from "@/lib/download-tokens";
 
@@ -48,27 +48,6 @@ export async function notifyAfterPayment(orderId: string) {
         })),
         order.totalKES,
         downloads
-      );
-    }
-
-    const sellerIds = Array.from(new Set(items.map((i) => i.sellerId).filter(Boolean) as string[]));
-    for (const sellerId of sellerIds) {
-      const [seller] = await db.select().from(sellers).where(eq(sellers.id, sellerId)).limit(1);
-      if (!seller) continue;
-
-      const [sellerUser] = await db.select().from(users).where(eq(users.id, seller.userId)).limit(1);
-      if (!sellerUser?.email) continue;
-
-      const sellerItems = items.filter((i) => i.sellerId === sellerId);
-      await sendSellerNewOrder(
-        sellerUser.email,
-        seller.businessName,
-        orderId,
-        sellerItems.map((i) => ({
-          productName: i.productName,
-          quantity: i.quantity,
-          priceKES: i.priceKES,
-        }))
       );
     }
   } catch (err) {

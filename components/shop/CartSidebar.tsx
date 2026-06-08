@@ -5,10 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { X, ShoppingCart, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { PLATFORM_FEE_PERCENT } from "@/lib/products";
 
 export default function CartSidebar() {
-  const { items, isOpen, closeCart, removeItem, updateQty, totalItems, subtotalKES, platformFeeKES, totalKES } = useCart();
+  const { items, isOpen, closeCart, removeItem, updateQty, totalItems, subtotalKES, totalKES } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function CartSidebar() {
                 <ShoppingCart size={24} className="text-ud-burgundy" strokeWidth={1.5} />
               </div>
               <h3 className="text-base font-bold text-ud-dark mb-1">Your cart is empty</h3>
-              <p className="text-sm text-ud-dark/50">Browse the marketplace to add products.</p>
+              <p className="text-sm text-ud-dark/50">Browse our house plans to get started.</p>
             </div>
           ) : (
             <ul className="space-y-4">
@@ -60,8 +59,7 @@ export default function CartSidebar() {
                     <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-ud-dark leading-tight mb-0.5 truncate">{item.name}</h4>
-                    <p className="text-[11px] text-ud-burgundy font-medium mb-1">by {item.sellerName}</p>
+                    <h4 className="text-sm font-semibold text-ud-dark leading-tight mb-1 truncate">{item.name}</h4>
                     {item.deliveryMode && (
                       <span className="inline-block text-[10px] font-bold uppercase tracking-wide bg-ud-burgundy/10 text-ud-burgundy px-1.5 py-0.5 rounded mb-1">
                         {isDigital ? "Digital download" : "Printed copy"}
@@ -102,9 +100,6 @@ export default function CartSidebar() {
               <div className="flex justify-between text-ud-dark/60">
                 <span>Subtotal</span><span>KES {subtotalKES.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-ud-dark/60">
-                <span>Platform fee ({PLATFORM_FEE_PERCENT}%)</span><span>KES {platformFeeKES.toLocaleString()}</span>
-              </div>
               <div className="flex justify-between font-bold text-ud-dark pt-1 border-t border-ud-dark/10">
                 <span>Total</span><span>KES {totalKES.toLocaleString()}</span>
               </div>
@@ -113,7 +108,7 @@ export default function CartSidebar() {
               Proceed to Checkout
             </button>
             <p className="text-[11px] text-ud-dark/40 text-center">
-              House plans are sold by Ujenzi Dhabiti. Materials are fulfilled by individual sellers.
+              Digital plans are delivered by email. Printed copies are shipped to you.
             </p>
           </div>
         )}

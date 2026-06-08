@@ -10,7 +10,7 @@ export async function middleware(req: NextRequest) {
   });
 
   if (!token) {
-    if (path.startsWith("/seller") || path.startsWith("/admin") || path.startsWith("/account")) {
+    if (path.startsWith("/admin") || path.startsWith("/account")) {
       return NextResponse.redirect(
         new URL(`/auth/signin?callbackUrl=${encodeURIComponent(path)}`, req.nextUrl)
       );
@@ -24,13 +24,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
-  if (path.startsWith("/seller") && role !== "seller" && role !== "admin") {
-    return NextResponse.redirect(new URL("/sell", req.nextUrl));
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/seller/:path*", "/admin/:path*", "/account/:path*"],
+  matcher: ["/admin/:path*", "/account/:path*"],
 };

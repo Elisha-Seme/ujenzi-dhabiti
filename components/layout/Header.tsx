@@ -3,21 +3,28 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Menu, X, Search, User } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants";
 import CartButton from "@/components/shop/CartButton";
 import Logo from "@/components/layout/Logo";
 
 // Pages that DON'T have a dark hero behind the header — header should be solid dark from the start
-const SOLID_HEADER_PATHS = ["/shop", "/track", "/auth", "/seller", "/admin", "/account"];
+const SOLID_HEADER_PATHS = ["/shop", "/track", "/auth", "/admin", "/account"];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const forceSolid = SOLID_HEADER_PATHS.some((p) => pathname.startsWith(p));
   const solid = forceSolid || scrolled;
+
+  // Account icon routes to the right place for who's signed in.
+  const role = session?.user?.role;
+  const accountHref = !session ? "/auth/signin" : role === "admin" ? "/admin" : "/account/orders";
+  const accountLabel = role === "admin" ? "Admin panel" : "My account";
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -61,7 +68,7 @@ export default function Header() {
             <Link href="/shop" aria-label="Search products" className="text-white/80 hover:text-ud-white transition-colors p-1">
               <Search size={18} />
             </Link>
-            <Link href="/account/orders" aria-label="My account" className="text-white/80 hover:text-ud-white transition-colors p-1">
+            <Link href={accountHref} aria-label={accountLabel} className="text-white/80 hover:text-ud-white transition-colors p-1">
               <User size={18} />
             </Link>
             <CartButton />
@@ -74,7 +81,7 @@ export default function Header() {
             <Link href="/shop" aria-label="Search products" className="text-white/80 hover:text-ud-white transition-colors p-1.5">
               <Search size={20} />
             </Link>
-            <Link href="/account/orders" aria-label="My account" className="text-white/80 hover:text-ud-white transition-colors p-1.5">
+            <Link href={accountHref} aria-label={accountLabel} className="text-white/80 hover:text-ud-white transition-colors p-1.5">
               <User size={20} />
             </Link>
             <CartButton />

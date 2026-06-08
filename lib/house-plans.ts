@@ -40,8 +40,6 @@ export interface HousePlan {
   downloadSizeBytes?: number;
 }
 
-export const PLATFORM_FEE_PERCENT = 3;
-
 export const HOUSE_PLANS: HousePlan[] = [
   // ─── Bungalows ──────────────────────────────────────────────
   {

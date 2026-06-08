@@ -340,10 +340,6 @@ export default function TrackOrderPage() {
               <span>Subtotal</span>
               <span>{fmt(order.subtotalKES)}</span>
             </div>
-            <div className="flex justify-between text-sm text-ud-dark/60">
-              <span>Platform fee</span>
-              <span>{fmt(order.platformFeeKES)}</span>
-            </div>
             <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-ud-dark/8">
               <span>Total Paid</span>
               <span>{fmt(order.totalKES)}</span>

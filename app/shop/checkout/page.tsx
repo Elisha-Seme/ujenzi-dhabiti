@@ -6,13 +6,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Check, Smartphone, CreditCard, Building2, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { PLATFORM_FEE_PERCENT } from "@/lib/products";
 import { PaymentMethod } from "@/lib/types";
 
 type Step = "details" | "payment" | "confirm";
 
 export default function CheckoutPage() {
-  const { items, subtotalKES, platformFeeKES, totalKES, clearCart, hasPhysicalItems } = useCart();
+  const { items, subtotalKES, totalKES, clearCart, hasPhysicalItems } = useCart();
   const router = useRouter();
 
   const [step, setStep] = useState<Step>("details");
@@ -185,9 +184,9 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-ud-light-gray flex items-center justify-center px-6 pt-24">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-ud-dark mb-3">Your cart is empty</h2>
-          <p className="text-ud-dark/50 mb-6">Add products from the marketplace first.</p>
+          <p className="text-ud-dark/50 mb-6">Browse our house plans to get started.</p>
           <button onClick={() => router.push("/shop")} className="bg-ud-burgundy text-white text-sm font-bold px-6 py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
-            Go to Marketplace
+            Browse House Plans
           </button>
         </div>
       </div>
@@ -208,7 +207,7 @@ export default function CheckoutPage() {
           <p className="text-sm text-ud-dark/60 leading-relaxed mb-6">
             {paymentMethod === "bank"
               ? `Complete the bank transfer using the details below. Use your order ID as reference. Your order will be confirmed once payment reflects.`
-              : `Your payment was received. Sellers have been notified and will dispatch within their stated lead times. A receipt has been sent to `}
+              : `Your payment was received. Digital plans are ready to download and a receipt — with any download links — has been sent to `}
             {paymentMethod !== "bank" && <strong>{form.email}</strong>}
           </p>
           <div className="bg-ud-light-gray rounded-[4px] p-4 text-left text-xs text-ud-dark/60 mb-6 space-y-1">
@@ -368,7 +367,7 @@ export default function CheckoutPage() {
                       <p className="font-bold text-ud-dark mb-3">Bank Transfer Details</p>
                       {[
                         ["Bank", "Equity Bank Kenya"],
-                        ["Account Name", "Ujenzi Dhabiti Marketplace Ltd"],
+                        ["Account Name", "Ujenzi Dhabiti Limited"],
                         ["Account Number", "0123456789012"],
                         ["Branch", "Upperhill, Nairobi"],
                         ["Swift Code", "EQBLKENA"],
@@ -412,7 +411,6 @@ export default function CheckoutPage() {
                         </span>
                       )}
                       <p className="text-[11px] text-ud-dark/50">Qty: {item.quantity} × KES {item.priceKES.toLocaleString()}</p>
-                      <p className="text-[11px] text-ud-burgundy">{item.sellerName}</p>
                     </div>
                     <span className="text-xs font-bold text-ud-dark flex-shrink-0">KES {(item.priceKES * item.quantity).toLocaleString()}</span>
                   </li>
@@ -420,12 +418,11 @@ export default function CheckoutPage() {
               </ul>
               <div className="border-t border-ud-dark/10 pt-3 space-y-1.5 text-xs">
                 <div className="flex justify-between text-ud-dark/60"><span>Subtotal</span><span>KES {subtotalKES.toLocaleString()}</span></div>
-                <div className="flex justify-between text-ud-dark/60"><span>Platform fee ({PLATFORM_FEE_PERCENT}%)</span><span>KES {platformFeeKES.toLocaleString()}</span></div>
                 <div className="flex justify-between font-bold text-ud-dark text-sm pt-1 border-t border-ud-dark/10"><span>Total</span><span>KES {totalKES.toLocaleString()}</span></div>
               </div>
             </div>
             <div className="bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-4 text-xs text-ud-dark/60 leading-relaxed">
-              <strong className="text-ud-dark">Marketplace notice:</strong> Products are sold by independent sellers. Ujenzi Dhabiti facilitates the transaction and charges a {PLATFORM_FEE_PERCENT}% platform fee.
+              <strong className="text-ud-dark">How delivery works:</strong> Digital plans are emailed to you instantly after payment. Printed copies are professionally produced and shipped to your delivery address.
             </div>
           </div>
         </div>

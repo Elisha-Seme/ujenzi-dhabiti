@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { whatsappLink } from "@/lib/constants";
 
 // Floating WhatsApp action — present on every public page (hidden on dashboard areas).
-const HIDDEN_PREFIXES = ["/seller", "/admin", "/auth"];
+const HIDDEN_PREFIXES = ["/admin", "/auth"];
 
 export default function WhatsAppButton() {
   const pathname = usePathname();

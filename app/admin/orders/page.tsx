@@ -145,7 +145,6 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="text-left lg:text-right">
                   <p className="text-lg font-bold text-ud-dark">{fmt(order.totalKES)}</p>
-                  <p className="text-xs text-ud-dark/40">Platform fee: {fmt(order.platformFeeKES)}</p>
                 </div>
               </div>
 

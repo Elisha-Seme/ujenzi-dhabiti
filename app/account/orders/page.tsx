@@ -48,7 +48,7 @@ export default function AccountOrdersPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-ud-dark">My Orders</h1>
-          <p className="text-sm text-ud-dark/50 mt-1">Track your purchases and reorder construction materials.</p>
+          <p className="text-sm text-ud-dark/50 mt-1">Track your house-plan purchases and downloads.</p>
         </div>
 
         {loading ? (
@@ -62,7 +62,7 @@ export default function AccountOrdersPage() {
             <p className="font-semibold text-ud-dark/50">No orders yet</p>
             <p className="text-sm text-ud-dark/40 mt-1 mb-5">Orders placed while signed in will appear here.</p>
             <Link href="/shop" className="inline-flex items-center gap-2 bg-ud-burgundy text-white px-5 py-2.5 rounded text-sm font-semibold">
-              Go to Marketplace
+              Browse House Plans
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

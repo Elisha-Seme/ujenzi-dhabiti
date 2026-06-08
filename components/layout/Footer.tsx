@@ -57,10 +57,19 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <Link href="/" aria-label="Ujenzi Dhabiti Home" className="inline-block">
-              <Logo variant="dark" className="h-11 w-auto" />
+            <Link href="/" aria-label="Ujenzi Dhabiti Home" className="relative inline-flex">
+              {/* Burgundy field (brand-red, like the logo plate) that feathers seamlessly into the dark footer */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -left-2 -right-20 -top-5 -bottom-5"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at 33% 50%, rgba(138,14,51,0.92) 0%, rgba(138,14,51,0.6) 40%, rgba(138,14,51,0.22) 72%, rgba(138,14,51,0) 100%)",
+                }}
+              />
+              <Logo variant="dark" layout="stacked" className="relative z-10 h-20 w-auto" />
             </Link>
-            <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
+            <p className="mt-7 text-sm text-white/60 leading-relaxed max-w-xs">
               A construction and infrastructure company connecting Africa — a proud subsidiary of Ardhi Safi Limited.
             </p>
             <div className="mt-6">

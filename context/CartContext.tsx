@@ -9,7 +9,6 @@ import {
   ReactNode,
 } from "react";
 import { CartItem } from "@/lib/types";
-import { PLATFORM_FEE_PERCENT } from "@/lib/products";
 
 const CART_KEY = "ujenzi:cart:v2";
 
@@ -104,10 +103,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const totalItems = items.reduce((acc, i) => acc + i.quantity, 0);
   const subtotalKES = items.reduce((acc, i) => acc + i.priceKES * i.quantity, 0);
-  const platformFeeKES = Math.round(subtotalKES * PLATFORM_FEE_PERCENT / 100);
+  // Single-vendor: no marketplace platform fee.
+  const platformFeeKES = 0;
   const totalKES = subtotalKES + platformFeeKES;
-  // Physical = materials, or printed plans. All-digital carts skip delivery details.
-  const hasPhysicalItems = items.some((i) => i.kind === "material" || i.deliveryMode === "print");
+  // Only printed plans ship; all-digital carts skip delivery details.
+  const hasPhysicalItems = items.some((i) => i.deliveryMode === "print");
 
   return (
     <CartContext.Provider

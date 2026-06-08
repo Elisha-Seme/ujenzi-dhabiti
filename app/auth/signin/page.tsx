@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
@@ -45,12 +45,19 @@ function SignInContent() {
     const res = await signIn("credentials", {
       email, password, redirect: false,
     });
-    setLoading(false);
     if (res?.error) {
+      setLoading(false);
       setError("Invalid email or password.");
-    } else {
-      router.push(callbackUrl);
+      return;
     }
+    // Route by role: admins → admin panel, everyone else → home.
+    // An explicit callbackUrl (e.g. came from a protected page) always wins.
+    const session = await getSession();
+    const role = session?.user?.role;
+    const explicit = callbackUrl && callbackUrl !== "/";
+    const dest = explicit ? callbackUrl : role === "admin" ? "/admin" : "/";
+    router.push(dest);
+    router.refresh();
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {

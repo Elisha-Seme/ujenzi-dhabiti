@@ -22,10 +22,10 @@ const SRC = {
     h: 312,
   },
   stacked: {
-    dark: "/logo-stacked-dark.png",
+    dark: "/logo-stacked-white.png",
     light: "/logo-stacked-light.png",
-    w: 1296,
-    h: 808,
+    w: 1290,
+    h: 803,
   },
 } as const;
 

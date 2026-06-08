@@ -82,7 +82,7 @@ export async function initFlutterwavePayment(
       },
       meta: { orderId },
       customizations: {
-        title: "Ujenzi Dhabiti Marketplace",
+        title: "Ujenzi Dhabiti",
         description: `Order ${orderId}`,
         logo: "https://ujenzidhabiti.co.ke/logo.png",
       },
