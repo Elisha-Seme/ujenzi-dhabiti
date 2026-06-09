@@ -15,8 +15,8 @@ export default function HomePage() {
           smoothly to dark over more than a screen — no seams, dark all the way down. */}
       <div aria-hidden className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute inset-0 bg-cover bg-center opacity-[0.13]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 72% 52% at 55% 30%, rgba(138,14,51,0.34), transparent 68%)" }} />
-        <div className="absolute inset-x-0 top-0 h-[175vh]" style={{ background: "linear-gradient(to bottom, rgba(138,14,51,0.52) 0%, rgba(138,14,51,0.28) 22%, rgba(138,14,51,0.09) 44%, rgba(28,30,34,0) 66%)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 72% 52% at 55% 32%, rgba(160,22,58,0.45), transparent 68%)" }} />
+        <div className="absolute inset-x-0 top-0 h-[175vh]" style={{ background: "linear-gradient(to bottom, rgba(138,14,51,0.85) 0%, rgba(138,14,51,0.55) 20%, rgba(138,14,51,0.22) 42%, rgba(28,30,34,0) 66%)" }} />
       </div>
 
       {/* ─── Hero ─────────────────────────────────────────────── */}
