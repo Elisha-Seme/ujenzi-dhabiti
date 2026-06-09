@@ -16,10 +16,10 @@ interface LogoProps {
 
 const SRC = {
   horizontal: {
-    dark: "/logo-horizontal-dark.png",
+    dark: "/logo-horizontal-white.png",
     light: "/logo-horizontal-light.png",
-    w: 1576,
-    h: 312,
+    w: 1565,
+    h: 309,
   },
   stacked: {
     dark: "/logo-stacked-white.png",
