@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, HardHat, Hammer, Layers, PaintRoller, Grid3x3, Waves } from "lucide-react";
+import SectionPatches from "@/components/ui/SectionPatches";
 
 // Services Snapshot — six headline services, each linking to its service page.
 const SERVICES = [
@@ -13,8 +14,9 @@ const SERVICES = [
 
 export default function HomeServices() {
   return (
-    <section className="bg-white/70 py-16 md:py-24">
-      <div className="max-w-content mx-auto px-6">
+    <section className="bg-white/60 py-16 md:py-24 relative isolate overflow-hidden">
+      <SectionPatches />
+      <div className="relative z-10 max-w-content mx-auto px-6">
         <div className="text-center mb-12">
           <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">Our Services</div>
           <h2 className="text-3xl md:text-4xl font-bold text-ud-dark">From Materials to Finished Build</h2>

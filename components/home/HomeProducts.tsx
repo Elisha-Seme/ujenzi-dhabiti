@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import ProductCard from "@/components/shop/ProductCard";
+import SectionPatches from "@/components/ui/SectionPatches";
 import { ProductCategory } from "@/lib/products";
 
 interface ApiProduct {
@@ -41,8 +42,9 @@ export default function HomeProducts() {
   }, []);
 
   return (
-    <section className="bg-ud-light-gray/60 py-16 md:py-24">
-      <div className="max-w-content mx-auto px-6">
+    <section className="bg-ud-light-gray/50 py-16 md:py-24 relative isolate overflow-hidden">
+      <SectionPatches />
+      <div className="relative z-10 max-w-content mx-auto px-6">
         <div className="flex items-end justify-between mb-10">
           <div>
             <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-2">Shop</div>
