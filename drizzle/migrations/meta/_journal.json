@@ -15,6 +15,13 @@
       "when": 1780915256762,
       "tag": "0001_lively_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780938803127,
+      "tag": "0002_skinny_wild_child",
+      "breakpoints": true
     }
   ]
 }

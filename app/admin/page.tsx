@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { db, orders, users, housePlans } from "@/lib/db";
+import { db, orders, users, housePlans, products } from "@/lib/db";
 import { eq, sql } from "drizzle-orm";
-import { ClipboardList, Users, Home, HardHat, ArrowRight } from "lucide-react";
+import { ClipboardList, Users, Home, HardHat, ArrowRight, Package } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +14,17 @@ async function getStats() {
 
     const [totalUsers] = await db.select({ count: sql<number>`count(*)` }).from(users);
     const [totalPlans] = await db.select({ count: sql<number>`count(*)` }).from(housePlans);
+    const [totalProducts] = await db.select({ count: sql<number>`count(*)` }).from(products);
 
     return {
       pendingOrders: Number(pendingOrders?.count ?? 0),
       totalUsers: Number(totalUsers?.count ?? 0),
       totalPlans: Number(totalPlans?.count ?? 0),
+      totalProducts: Number(totalProducts?.count ?? 0),
     };
   } catch (err) {
     console.error("[admin] stats failed:", err);
-    return { pendingOrders: 0, totalUsers: 0, totalPlans: 0 };
+    return { pendingOrders: 0, totalUsers: 0, totalPlans: 0, totalProducts: 0 };
   }
 }
 
@@ -35,6 +37,13 @@ export default async function AdminDashboardPage() {
       value: stats.pendingOrders,
       icon: ClipboardList,
       href: "/admin/orders",
+      cta: "Manage",
+    },
+    {
+      label: "Materials",
+      value: stats.totalProducts,
+      icon: Package,
+      href: "/admin/products",
       cta: "Manage",
     },
     {
@@ -60,7 +69,7 @@ export default async function AdminDashboardPage() {
         <p className="text-sm text-ud-dark/50 mt-0.5">Ujenzi Dhabiti overview</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {cards.map(({ label, value, icon: Icon, href, cta }) => {
           const inner = (
             <div className="bg-white rounded-[4px] shadow-sm p-5 border-t-2 border-ud-burgundy hover:shadow-md transition-shadow h-full flex flex-col">
@@ -84,11 +93,16 @@ export default async function AdminDashboardPage() {
         })}
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link href="/admin/orders" className="bg-white rounded-[4px] shadow-sm p-6 hover:shadow-md transition-shadow">
           <ClipboardList className="w-6 h-6 text-ud-burgundy mb-3" />
           <h2 className="font-semibold text-ud-dark mb-1">Manage Orders</h2>
           <p className="text-sm text-ud-dark/55">Confirm bank payments and update order status.</p>
+        </Link>
+        <Link href="/admin/products" className="bg-white rounded-[4px] shadow-sm p-6 hover:shadow-md transition-shadow">
+          <Package className="w-6 h-6 text-ud-burgundy mb-3" />
+          <h2 className="font-semibold text-ud-dark mb-1">Materials</h2>
+          <p className="text-sm text-ud-dark/55">Add, edit, and publish building-material products.</p>
         </Link>
         <Link href="/admin/plans" className="bg-white rounded-[4px] shadow-sm p-6 hover:shadow-md transition-shadow">
           <Home className="w-6 h-6 text-ud-burgundy mb-3" />

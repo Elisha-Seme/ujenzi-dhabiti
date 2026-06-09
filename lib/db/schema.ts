@@ -107,9 +107,9 @@ export const sellers = pgTable("sellers", {
 
 export const products = pgTable("products", {
   id: text("id").primaryKey(),
-  sellerId: text("seller_id")
-    .notNull()
-    .references(() => sellers.id, { onDelete: "cascade" }),
+  // Nullable: single-vendor catalogue (products are Ujenzi Dhabiti's own).
+  // Legacy rows may still carry a sellerId; new admin-created ones are null.
+  sellerId: text("seller_id").references(() => sellers.id, { onDelete: "set null" }),
   name: text("name").notNull(),
   category: text("category").notNull(),
   description: text("description").notNull(),
