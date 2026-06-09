@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2, X, Loader2, Check } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import Link from "next/link";
+import { Plus, Pencil, Trash2, X, Loader2, Check, ExternalLink, Upload } from "lucide-react";
 
 export type FieldType = "text" | "textarea" | "number" | "select" | "checkbox" | "tags" | "image";
 
@@ -16,6 +17,8 @@ export interface FieldDef {
   default?: string | number | boolean;
 }
 
+type Row = Record<string, unknown> & { id: string; _static?: boolean };
+
 interface ResourceManagerProps {
   title: string;
   subtitle?: string;
@@ -24,17 +27,39 @@ interface ResourceManagerProps {
   fields: FieldDef[];
   /** field names to show as table columns */
   columns: string[];
+  /** Optional public page to preview what was created (header link). */
+  viewHref?: string;
+  /** Optional per-row public URL — adds a "view on site" link to the row. */
+  rowHref?: (row: Row) => string | null;
 }
 
-type Row = Record<string, unknown> & { id: string; _static?: boolean };
-
-export default function ResourceManager({ title, subtitle, endpoint, fields, columns }: ResourceManagerProps) {
+export default function ResourceManager({ title, subtitle, endpoint, fields, columns, viewHref, rowHref }: ResourceManagerProps) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Row | null>(null); // null = closed; {} with no id = new
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const uploadImage = async (fieldName: string, file: File) => {
+    setUploadingField(fieldName);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "cms");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Upload failed");
+      const { url } = await res.json();
+      setEditing((prev) => (prev ? { ...prev, [fieldName]: url } : prev));
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploadingField(null);
+    }
+  };
 
   const load = useCallback(() => {
     setLoading(true);
@@ -127,9 +152,16 @@ export default function ResourceManager({ title, subtitle, endpoint, fields, col
           <h1 className="text-xl md:text-2xl font-bold text-ud-dark">{title}</h1>
           {subtitle && <p className="text-sm text-ud-dark/50 mt-1">{subtitle}</p>}
         </div>
-        <button onClick={openNew} className="inline-flex items-center gap-2 bg-ud-burgundy text-white text-sm font-semibold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap">
-          <Plus size={16} /> Add New
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {viewHref && (
+            <Link href={viewHref} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ud-burgundy border border-ud-burgundy/30 px-3 py-2.5 rounded-[4px] hover:bg-ud-burgundy/5 transition-colors whitespace-nowrap">
+              <ExternalLink size={15} /> View on site
+            </Link>
+          )}
+          <button onClick={openNew} className="inline-flex items-center gap-2 bg-ud-burgundy text-white text-sm font-semibold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap">
+            <Plus size={16} /> Add New
+          </button>
+        </div>
       </div>
 
       {error && !open && (
@@ -165,6 +197,9 @@ export default function ResourceManager({ title, subtitle, endpoint, fields, col
                         <span className="text-[11px] text-ud-dark/40 italic">Built-in</span>
                       ) : (
                         <div className="flex items-center justify-end gap-1">
+                          {rowHref && rowHref(row) && (
+                            <Link href={rowHref(row)!} target="_blank" className="p-1.5 text-ud-dark/40 hover:text-ud-burgundy transition-colors" title="View on site"><ExternalLink size={15} /></Link>
+                          )}
                           <button onClick={() => openEdit(row)} className="p-1.5 text-ud-dark/40 hover:text-ud-burgundy transition-colors" title="Edit"><Pencil size={15} /></button>
                           <button onClick={() => remove(row)} className="p-1.5 text-ud-dark/40 hover:text-ud-burgundy transition-colors" title="Delete"><Trash2 size={15} /></button>
                         </div>
@@ -228,6 +263,26 @@ export default function ResourceManager({ title, subtitle, endpoint, fields, col
                         onChange={(e) => setField(f.name, e.target.value)}
                         className={cls}
                       />
+                    )}
+                    {f.type === "image" && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => fileRefs.current[f.name]?.click()}
+                          disabled={uploadingField === f.name}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-ud-burgundy border border-ud-burgundy/30 px-3 py-1.5 rounded-[4px] hover:bg-ud-burgundy/5 transition-colors disabled:opacity-50"
+                        >
+                          {uploadingField === f.name ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />} Upload
+                        </button>
+                        <input
+                          ref={(el) => { fileRefs.current[f.name] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => { const file = e.target.files?.[0]; if (file) uploadImage(f.name, file); e.target.value = ""; }}
+                        />
+                        <span className="text-[11px] text-ud-dark/40">or paste a URL above</span>
+                      </div>
                     )}
                     {f.type === "image" && v ? (
                       // eslint-disable-next-line @next/next/no-img-element

@@ -26,6 +26,8 @@ export default function AdminPlansPage() {
       endpoint="/api/admin/plans"
       fields={FIELDS}
       columns={["name", "category", "priceDigitalKES", "published"]}
+      viewHref="/shop/plans"
+      rowHref={(row) => `/shop/plans/${row.id}`}
     />
   );
 }

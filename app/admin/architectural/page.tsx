@@ -19,6 +19,7 @@ export default function AdminArchitecturalPage() {
       endpoint="/api/admin/architectural"
       fields={FIELDS}
       columns={["title", "summary", "published"]}
+      viewHref="/services/architectural"
     />
   );
 }

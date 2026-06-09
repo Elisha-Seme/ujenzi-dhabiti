@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Plus,
   Pencil,
@@ -13,6 +14,7 @@ import {
   ToggleLeft,
   ToggleRight,
   AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import { PRODUCT_CATEGORIES } from "@/lib/products";
 
@@ -178,13 +180,18 @@ export default function SellerProductsPage() {
           <h1 className="text-2xl font-bold text-ud-dark">Materials</h1>
           <p className="text-sm text-ud-dark/50 mt-0.5">{products.length} product{products.length !== 1 ? "s" : ""} in the shop</p>
         </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 bg-ud-burgundy hover:bg-ud-burgundy-hover text-white px-4 py-2 rounded text-sm font-semibold transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Product
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Link href="/shop" target="_blank" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ud-burgundy border border-ud-burgundy/30 px-3 py-2 rounded hover:bg-ud-burgundy/5 transition-colors whitespace-nowrap">
+            <ExternalLink className="w-4 h-4" /> View shop
+          </Link>
+          <button
+            onClick={openAdd}
+            className="flex items-center gap-2 bg-ud-burgundy hover:bg-ud-burgundy-hover text-white px-4 py-2 rounded text-sm font-semibold transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Product list */}
@@ -244,6 +251,14 @@ export default function SellerProductsPage() {
                     <Pencil className="w-3.5 h-3.5" />
                     Edit
                   </button>
+                  <Link
+                    href={`/shop/${p.id}`}
+                    target="_blank"
+                    className="p-1.5 rounded border border-ud-dark/20 hover:border-ud-burgundy text-ud-dark/50 hover:text-ud-burgundy transition-colors"
+                    title="View on site"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
                   <button
                     onClick={() => toggleActive(p)}
                     className="p-1.5 rounded border border-ud-dark/20 hover:border-ud-burgundy text-ud-dark/50 hover:text-ud-burgundy transition-colors"

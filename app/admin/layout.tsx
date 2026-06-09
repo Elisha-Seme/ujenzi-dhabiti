@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck, Mail } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/delivery", label: "Delivery", icon: Truck },
   { href: "/admin/projects", label: "What We've Built", icon: HardHat },
   { href: "/admin/architectural", label: "Architectural", icon: PencilRuler },
+  { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

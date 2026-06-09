@@ -26,6 +26,8 @@ export async function POST(req: NextRequest) {
       description: b.description,
       scope: b.scope ?? null,
       coverImage: b.coverImage ?? null,
+      beforeImage: b.beforeImage ?? null,
+      afterImage: b.afterImage ?? null,
       images: Array.isArray(b.images) ? b.images : [],
       materialsUsed: Array.isArray(b.materialsUsed) ? b.materialsUsed : [],
       featured: !!b.featured,

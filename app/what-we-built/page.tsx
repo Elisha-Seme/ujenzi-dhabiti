@@ -3,6 +3,7 @@ import { HardHat, MapPin } from "lucide-react";
 import { db, projects } from "@/lib/db";
 import { eq, desc } from "drizzle-orm";
 import SectionHero from "@/components/ui/SectionHero";
+import BeforeAfter from "@/components/ui/BeforeAfter";
 import CTABanner from "@/components/sections/CTABanner";
 
 export const metadata = {
@@ -56,7 +57,9 @@ export default async function WhatWeBuiltPage() {
               {rows.map((p) => (
                 <article key={p.id} className="group rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-ud-dark/8 bg-white flex flex-col">
                   <div className="relative h-52 bg-ud-dark/5 overflow-hidden">
-                    {p.coverImage ? (
+                    {p.beforeImage && p.afterImage ? (
+                      <BeforeAfter before={p.beforeImage} after={p.afterImage} alt={p.title} />
+                    ) : p.coverImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
@@ -64,9 +67,11 @@ export default async function WhatWeBuiltPage() {
                         <HardHat className="w-10 h-10" />
                       </div>
                     )}
-                    <span className="absolute top-3 left-3 bg-ud-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[4px]">
-                      {p.category}
-                    </span>
+                    {!(p.beforeImage && p.afterImage) && (
+                      <span className="absolute top-3 left-3 bg-ud-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[4px]">
+                        {p.category}
+                      </span>
+                    )}
                   </div>
                   <div className="p-6 flex flex-col flex-1">
                     <h3 className="text-base font-bold text-ud-dark mb-1.5">{p.title}</h3>

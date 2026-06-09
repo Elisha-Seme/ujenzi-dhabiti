@@ -209,6 +209,8 @@ export const projects = pgTable("projects", {
   description: text("description").notNull(),
   scope: text("scope"),
   coverImage: text("cover_image"),
+  beforeImage: text("before_image"),
+  afterImage: text("after_image"),
   images: text("images").array().notNull().default([]),
   materialsUsed: text("materials_used").array().notNull().default([]),
   featured: boolean("featured").notNull().default(false),

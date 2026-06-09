@@ -9,7 +9,9 @@ const FIELDS: FieldDef[] = [
   { name: "location", label: "Location", type: "text" },
   { name: "description", label: "Description", type: "textarea", required: true },
   { name: "scope", label: "Scope of Work", type: "textarea" },
-  { name: "coverImage", label: "Cover Image URL", type: "image", help: "Paste an image URL (e.g. from Cloudinary or Unsplash)." },
+  { name: "coverImage", label: "Cover Image", type: "image", help: "Upload, or paste an image URL." },
+  { name: "beforeImage", label: "Before Image", type: "image", help: "Optional. When both Before & After are set, the site shows a before/after slider." },
+  { name: "afterImage", label: "After Image", type: "image", help: "Optional 'after' photo for the before/after slider." },
   { name: "images", label: "Gallery Images", type: "tags", help: "Comma-separated image URLs." },
   { name: "materialsUsed", label: "Materials Used", type: "tags", help: "Comma-separated, e.g. Cement, Gypsum boards." },
   { name: "featured", label: "Featured on homepage", type: "checkbox", default: false },
@@ -25,6 +27,7 @@ export default function AdminProjectsPage() {
       endpoint="/api/admin/projects"
       fields={FIELDS}
       columns={["title", "category", "location", "published"]}
+      viewHref="/what-we-built"
     />
   );
 }

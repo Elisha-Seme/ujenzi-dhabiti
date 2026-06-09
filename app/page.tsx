@@ -4,6 +4,7 @@ import BlueprintBg from "@/components/ui/BlueprintBg";
 import HomeCategories from "@/components/home/HomeCategories";
 import HomeServices from "@/components/home/HomeServices";
 import HomeProducts from "@/components/home/HomeProducts";
+import HomePlansBand from "@/components/home/HomePlansBand";
 import HomeProjects from "@/components/home/HomeProjects";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import CTABanner from "@/components/sections/CTABanner";
@@ -53,6 +54,9 @@ export default function HomePage() {
 
       {/* ─── Featured Products ────────────────────────────────── */}
       <HomeProducts />
+
+      {/* ─── House Plans entry point ──────────────────────────── */}
+      <HomePlansBand />
 
       {/* ─── Projects ─────────────────────────────────────────── */}
       <HomeProjects />
