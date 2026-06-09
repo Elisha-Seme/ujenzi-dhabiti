@@ -22,12 +22,18 @@ export default function HomeAuthTabs() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await signIn("credentials", { ...signinForm, redirect: false });
-    setLoading(false);
-    if (res?.error) {
-      setError("Invalid email or password.");
-    } else {
-      router.refresh();
+    try {
+      const res = await signIn("credentials", { ...signinForm, redirect: false });
+      setLoading(false);
+      if (res?.error) {
+        setError("Invalid email or password.");
+      } else {
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Homepage sign-in failed:", err);
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -35,24 +41,30 @@ export default function HomeAuthTabs() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(registerForm),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Sign up failed. Please try again.");
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(registerForm),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Sign up failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+      await signIn("credentials", {
+        email: registerForm.email,
+        password: registerForm.password,
+        redirect: false,
+      });
       setLoading(false);
-      return;
+      router.refresh();
+    } catch (err) {
+      console.error("Homepage registration failed:", err);
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
-    await signIn("credentials", {
-      email: registerForm.email,
-      password: registerForm.password,
-      redirect: false,
-    });
-    setLoading(false);
-    router.refresh();
   };
 
   const inputClass =
@@ -61,6 +73,9 @@ export default function HomeAuthTabs() {
   // Signed-in state
   if (status === "authenticated" && session?.user) {
     const firstName = session.user.name?.split(" ")[0] ?? "there";
+    // Check if the user is an admin
+    const isAdmin = session?.user?.role === "admin";
+
     return (
       <div className="bg-white/95 backdrop-blur-sm rounded-[4px] shadow-lg p-7 w-full max-w-sm">
         <div className="flex items-center gap-3 mb-5">
@@ -73,12 +88,25 @@ export default function HomeAuthTabs() {
           </div>
         </div>
         <div className="space-y-2.5">
-          <Link href="/shop" className="block w-full text-center bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
-            Go to Shop
-          </Link>
-          <Link href="/account/orders" className="block w-full text-center border border-ud-dark/20 text-ud-dark text-sm font-semibold py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
-            My Orders
-          </Link>
+          {isAdmin ? (
+            <>
+              <Link href="/admin" className="block w-full text-center bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
+                Go to Admin Panel
+              </Link>
+              <Link href="/admin/orders" className="block w-full text-center border border-ud-dark/20 text-ud-dark text-sm font-semibold py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
+                Manage Orders
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link href="/shop" className="block w-full text-center bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
+                Go to Shop
+              </Link>
+              <Link href="/account/orders" className="block w-full text-center border border-ud-dark/20 text-ud-dark text-sm font-semibold py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors">
+                My Orders
+              </Link>
+            </>
+          )}
           <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full text-xs text-ud-dark/50 hover:text-ud-burgundy transition-colors pt-1">
             Sign out
           </button>

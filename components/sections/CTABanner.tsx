@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import DotMatrix from "@/components/ui/DotMatrix";
-import { whatsappLink } from "@/lib/constants";
 
 export default function CTABanner() {
   const ref = useRef<HTMLElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.id) {
+          setSettings(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -21,6 +33,11 @@ export default function CTABanner() {
     return () => observer.disconnect();
   }, []);
 
+  const title = settings?.ctaTitle || "Need materials for your project?";
+  const subtitle = settings?.ctaSubtitle || "Get a tailored quote, or send us your list on WhatsApp — we'll sort the rest.";
+  const whatsappNum = settings?.whatsappNumber || "254782999100";
+  const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent("Hello Ujenzi Dhabiti, I'd like to place an order / get a quote.")}`;
+
   return (
     <section ref={ref} className="section-fade relative bg-ud-burgundy py-20 overflow-hidden">
       <div className="absolute right-0 bottom-0 opacity-20">
@@ -28,17 +45,17 @@ export default function CTABanner() {
       </div>
       <div className="relative max-w-content mx-auto px-6 text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-ud-white mb-4">
-          Need materials for your project?
+          {title}
         </h2>
         <p className="text-white/70 font-light text-lg mb-10 max-w-lg mx-auto">
-          Get a tailored quote, or send us your list on WhatsApp — we&apos;ll sort the rest.
+          {subtitle}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Button href="/request-a-quote" variant="ghost" className="text-base px-8 py-4">
             Request a Quote
           </Button>
           <a
-            href={whatsappLink("Hello Ujenzi Dhabiti, I'd like to place an order / get a quote.")}
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-white text-ud-burgundy text-base font-semibold px-8 py-4 rounded-[4px] hover:bg-white/90 transition-colors"

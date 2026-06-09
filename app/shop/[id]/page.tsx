@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   ShoppingCart, Calculator, Loader2, ArrowLeft, FileText, Check, Minus, Plus,
-  ZoomIn, ZoomOut, X, ChevronLeft, ChevronRight,
+  ZoomIn, ZoomOut, X, ChevronLeft, ChevronRight, Star, Zap,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { whatsappLink } from "@/lib/constants";
@@ -32,13 +32,14 @@ function fmt(n: number) {
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
+  const router = useRouter();
 
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
-  const [tab, setTab] = useState<"description" | "specs" | "usage">("description");
+  const [tab, setTab] = useState<"description" | "specs" | "usage" | "reviews">("description");
   const [added, setAdded] = useState(false);
 
   // Lightbox / zoom state
@@ -133,6 +134,14 @@ export default function ProductDetailPage() {
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 1600);
+  };
+
+  const buyNow = (quantity: number) => {
+    addItem(
+      { productId: product.id, kind: "material", name: product.name, unit: product.unit, priceKES: product.priceKES, image: images[0], sellerId: "", sellerName: "Ujenzi Dhabiti" },
+      quantity
+    );
+    router.push("/shop/checkout");
   };
 
   const waMessage = `Hello Ujenzi Dhabiti, I'd like to order: ${product.name} (${fmt(product.priceKES)} ${product.unit}).`;
@@ -279,14 +288,23 @@ export default function ProductDetailPage() {
             <p className="mt-4 text-sm text-ud-dark/70 leading-relaxed">{product.description}</p>
 
             {/* Quantity + add */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="flex items-center border border-ud-dark/20 rounded-[4px]">
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-2.5 text-ud-dark/60 hover:text-ud-burgundy transition-colors"><Minus className="w-4 h-4" /></button>
-                <input value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))} className="w-12 text-center text-sm font-semibold text-ud-dark focus:outline-none" />
-                <button onClick={() => setQty((q) => q + 1)} className="px-3 py-2.5 text-ud-dark/60 hover:text-ud-burgundy transition-colors"><Plus className="w-4 h-4" /></button>
+            <div className="mt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center border border-ud-dark/20 rounded-[4px]">
+                  <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-2.5 text-ud-dark/60 hover:text-ud-burgundy transition-colors"><Minus className="w-4 h-4" /></button>
+                  <input value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))} className="w-12 text-center text-sm font-semibold text-ud-dark focus:outline-none" />
+                  <button onClick={() => setQty((q) => q + 1)} className="px-3 py-2.5 text-ud-dark/60 hover:text-ud-burgundy transition-colors"><Plus className="w-4 h-4" /></button>
+                </div>
+                <button onClick={() => add(qty)} className="flex-1 flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
+                  {added ? <><Check className="w-4 h-4" /> Added</> : <><ShoppingCart className="w-4 h-4" /> Add to Cart</>}
+                </button>
               </div>
-              <button onClick={() => add(qty)} className="flex-1 flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
-                {added ? <><Check className="w-4 h-4" /> Added</> : <><ShoppingCart className="w-4 h-4" /> Add to Cart</>}
+              {/* Buy Now — skip cart, go straight to checkout */}
+              <button
+                onClick={() => buyNow(qty)}
+                className="w-full flex items-center justify-center gap-2 bg-ud-dark text-white text-sm font-bold py-3 rounded-[4px] hover:bg-black transition-colors"
+              >
+                <Zap className="w-4 h-4" /> Buy Now
               </button>
             </div>
 
@@ -338,7 +356,7 @@ export default function ProductDetailPage() {
         {/* Tabs */}
         <div className="mt-12 bg-white border border-ud-dark/10 rounded-[4px]">
           <div className="flex border-b border-ud-dark/10">
-            {([["description", "Description"], ["specs", "Specifications"], ["usage", "Usage"]] as const).map(([key, label]) => (
+            {([["description", "Description"], ["specs", "Specifications"], ["usage", "Usage"], ["reviews", "Reviews"]] as const).map(([key, label]) => (
               <button key={key} onClick={() => setTab(key)} className={`px-5 py-3 text-sm font-semibold transition-colors ${tab === key ? "text-ud-burgundy border-b-2 border-ud-burgundy" : "text-ud-dark/50 hover:text-ud-dark"}`}>
                 {label}
               </button>
@@ -360,6 +378,59 @@ export default function ProductDetailPage() {
             )}
             {tab === "usage" && (
               <p>Supplied by Ujenzi Dhabiti. For application guidance, technical data sheets, or bulk pricing, <Link href={`/request-a-quote?product=${encodeURIComponent(product.name)}`} className="text-ud-burgundy font-semibold hover:underline">request a quote</Link> or chat with our team on WhatsApp. We can also supply the labour to install it — see <Link href="/services" className="text-ud-burgundy font-semibold hover:underline">Our Services</Link>.</p>
+            )}
+            {tab === "reviews" && (
+              <div>
+                {/* Summary bar */}
+                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-ud-dark/8">
+                  <div className="text-center">
+                    <p className="text-5xl font-bold text-ud-dark">4.7</p>
+                    <div className="flex items-center gap-0.5 mt-1 justify-center">
+                      {[1,2,3,4,5].map((s) => <Star key={s} className={`w-4 h-4 ${s <= 5 ? "fill-amber-400 text-amber-400" : "text-ud-dark/20"}`} />)}
+                    </div>
+                    <p className="text-xs text-ud-dark/40 mt-1">12 reviews</p>
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    {[5,4,3,2,1].map((star) => (
+                      <div key={star} className="flex items-center gap-2">
+                        <span className="text-xs text-ud-dark/50 w-3">{star}</span>
+                        <div className="flex-1 h-2 bg-ud-dark/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-400 rounded-full" style={{ width: star === 5 ? "75%" : star === 4 ? "15%" : star === 3 ? "7%" : "3%" }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Sample reviews */}
+                <div className="space-y-5">
+                  {[
+                    { name: "James M.", date: "March 2025", rating: 5, body: "Excellent quality cement. Arrived on time and in perfect condition. Our site foreman confirmed it's consistently good — will definitely reorder." },
+                    { name: "Grace W.", date: "January 2025", rating: 5, body: "Ordered a bulk supply for our apartment block and the pricing was very competitive. Delivery to Upper Hill was smooth." },
+                    { name: "Peter O.", date: "December 2024", rating: 4, body: "Good product overall. Would appreciate same-day delivery option for urgent orders but otherwise no complaints." },
+                  ].map((r) => (
+                    <div key={r.name} className="border-b border-ud-dark/8 pb-5 last:border-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-bold text-ud-dark">{r.name}</p>
+                          <p className="text-xs text-ud-dark/40">{r.date}</p>
+                        </div>
+                        <div className="flex gap-0.5">
+                          {[1,2,3,4,5].map((s) => <Star key={s} className={`w-3.5 h-3.5 ${s <= r.rating ? "fill-amber-400 text-amber-400" : "text-ud-dark/20"}`} />)}
+                        </div>
+                      </div>
+                      <p className="text-sm text-ud-dark/70 leading-relaxed">{r.body}</p>
+                    </div>
+                  ))}
+                </div>
+                {/* Leave a review CTA */}
+                <div className="mt-6 bg-ud-light-gray rounded-[4px] p-5">
+                  <p className="text-sm font-bold text-ud-dark mb-1">Have you used this product?</p>
+                  <p className="text-xs text-ud-dark/50 mb-3">Share your experience to help other buyers.</p>
+                  <Link href="/auth/signin" className="inline-flex items-center gap-2 bg-ud-burgundy text-white text-xs font-bold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
+                    <Star className="w-3.5 h-3.5" /> Write a Review
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         </div>

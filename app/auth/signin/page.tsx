@@ -1,10 +1,10 @@
 "use client";
 
 import { Suspense } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession, useSession } from "next-auth/react";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
@@ -30,6 +30,7 @@ function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const { data: session, status } = useSession();
 
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [email, setEmail] = useState("");
@@ -38,27 +39,72 @@ function SignInContent() {
   const [error, setError] = useState("");
   const [magicSent, setMagicSent] = useState(false);
 
+  // Automatically redirect if already logged in or session updates
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const role = session.user.role;
+      const explicit = callbackUrl && callbackUrl !== "/";
+      const dest = explicit ? callbackUrl : role === "admin" ? "/admin" : "/";
+      router.push(dest);
+      router.refresh();
+    }
+  }, [status, session, callbackUrl, router]);
+
   const handlePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await signIn("credentials", {
-      email, password, redirect: false,
-    });
-    if (res?.error) {
+
+    try {
+      const res = await signIn("credentials", {
+        email, password, redirect: false,
+      });
+
+      if (res?.error) {
+        setLoading(false);
+        setError("Invalid email or password.");
+        return;
+      }
+
+      // Route by role: admins → admin panel, everyone else → home.
+      // An explicit callbackUrl (e.g. came from a protected page) always wins.
+      let role = "buyer";
+      try {
+        const sessionRes = await getSession();
+        if (sessionRes?.user?.role) {
+          role = sessionRes.user.role;
+        }
+      } catch (sessErr) {
+        console.error("Failed to get session during login handler:", sessErr);
+      }
+
+      const explicit = callbackUrl && callbackUrl !== "/";
+      const dest = explicit ? callbackUrl : role === "admin" ? "/admin" : "/";
+      router.push(dest);
+      router.refresh();
+    } catch (err: unknown) {
+      console.error("Sign-in execution failed:", err);
+      // Fallback: check if the session cookie was still successfully set
+      try {
+        const sessionRes = await getSession();
+        if (sessionRes?.user) {
+          const role = sessionRes.user.role;
+          const explicit = callbackUrl && callbackUrl !== "/";
+          const dest = explicit ? callbackUrl : role === "admin" ? "/admin" : "/";
+          router.push(dest);
+          router.refresh();
+          return;
+        }
+      } catch (sessErr) {
+        console.error("Session recovery check failed:", sessErr);
+      }
+
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setError(message);
       setLoading(false);
-      setError("Invalid email or password.");
-      return;
     }
-    // Route by role: admins → admin panel, everyone else → home.
-    // An explicit callbackUrl (e.g. came from a protected page) always wins.
-    const session = await getSession();
-    const role = session?.user?.role;
-    const explicit = callbackUrl && callbackUrl !== "/";
-    const dest = explicit ? callbackUrl : role === "admin" ? "/admin" : "/";
-    router.push(dest);
-    router.refresh();
   };
+
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -3,12 +3,12 @@ import { ArrowRight, HardHat, Hammer, Layers, PaintRoller, Grid3x3, Waves } from
 
 // Services Snapshot — six headline services, each linking to its service page.
 const SERVICES = [
-  { name: "Construction", blurb: "Residential, commercial & institutional builds.", icon: HardHat, href: "/services/building-works" },
-  { name: "Renovation", blurb: "Remodels, extensions & refurbishments.", icon: Hammer, href: "/services/building-works" },
-  { name: "Gypsum Works", blurb: "Partitioning & suspended ceilings.", icon: Layers, href: "/services/interior-design" },
-  { name: "Painting", blurb: "Interior & exterior finishing.", icon: PaintRoller, href: "/services/building-works" },
-  { name: "Flooring", blurb: "Tiling, screeds & floor finishes.", icon: Grid3x3, href: "/services/interior-design" },
-  { name: "Cabro & Drainage", blurb: "Paving, access roads & drainage.", icon: Waves, href: "/services/civil-works" },
+  { name: "Construction", blurb: "Residential, commercial & institutional builds.", icon: HardHat, href: "/services" },
+  { name: "Renovation", blurb: "Remodels, extensions & refurbishments.", icon: Hammer, href: "/services" },
+  { name: "Gypsum Works", blurb: "Partitioning & suspended ceilings.", icon: Layers, href: "/services#gypsum-ceilings" },
+  { name: "Painting", blurb: "Interior & exterior finishing.", icon: PaintRoller, href: "/services#paint-finishes" },
+  { name: "Flooring", blurb: "Tiling, screeds & floor finishes.", icon: Grid3x3, href: "/services#flooring" },
+  { name: "Cabro & Drainage", blurb: "Paving, access roads & drainage.", icon: Waves, href: "/services#cabro-road-works" },
 ];
 
 export default function HomeServices() {

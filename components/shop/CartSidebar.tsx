@@ -1,15 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { X, ShoppingCart, Minus, Plus, Trash2 } from "lucide-react";
+import { X, ShoppingCart, Minus, Plus, Trash2, Tag, FileText } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { whatsappLink } from "@/lib/constants";
 
 export default function CartSidebar() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalItems, subtotalKES, totalKES } = useCart();
   const router = useRouter();
+
+  // Discount code state (UI-only; real validation would be server-side)
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [discountError, setDiscountError] = useState("");
+
+  const applyDiscount = () => {
+    if (discountCode.trim().toUpperCase() === "UJENZI10") {
+      setDiscountApplied(true);
+      setDiscountError("");
+    } else {
+      setDiscountApplied(false);
+      setDiscountError("Invalid or expired code.");
+    }
+  };
+
+  const discountKES = discountApplied ? Math.round(subtotalKES * 0.1) : 0;
+  const finalTotal = totalKES - discountKES;
 
   const waMessage = items.length
     ? `Hello Ujenzi Dhabiti, I'd like to order:\n${items
@@ -103,12 +122,39 @@ export default function CartSidebar() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-ud-dark/10 px-6 py-5 space-y-3">
+            {/* Delivery estimate */}
+            <div className="bg-ud-light-gray rounded-[4px] px-4 py-3 text-xs text-ud-dark/60">
+              🚚 Estimated delivery: <span className="font-semibold text-ud-dark">KES 500 – 2,500</span> depending on location. Final cost at checkout.
+            </div>
+
+            {/* Discount code */}
+            <div>
+              <div className="flex gap-2">
+                <input
+                  value={discountCode}
+                  onChange={(e) => { setDiscountCode(e.target.value); setDiscountError(""); setDiscountApplied(false); }}
+                  placeholder="Discount code"
+                  className="flex-1 border border-ud-dark/20 rounded-[4px] px-3 py-2 text-xs text-ud-dark focus:outline-none focus:border-ud-burgundy"
+                />
+                <button onClick={applyDiscount} className="flex items-center gap-1 bg-ud-dark text-white text-xs font-bold px-3 py-2 rounded-[4px] hover:bg-black transition-colors">
+                  <Tag size={12} /> Apply
+                </button>
+              </div>
+              {discountApplied && <p className="text-xs text-green-600 mt-1 font-semibold">✓ 10% discount applied!</p>}
+              {discountError && <p className="text-xs text-red-500 mt-1">{discountError}</p>}
+            </div>
+
             <div className="space-y-1.5 text-sm">
               <div className="flex justify-between text-ud-dark/60">
                 <span>Subtotal</span><span>KES {subtotalKES.toLocaleString()}</span>
               </div>
+              {discountApplied && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount (10%)</span><span>- KES {discountKES.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold text-ud-dark pt-1 border-t border-ud-dark/10">
-                <span>Total</span><span>KES {totalKES.toLocaleString()}</span>
+                <span>Total</span><span>KES {finalTotal.toLocaleString()}</span>
               </div>
             </div>
             <button onClick={handleCheckout} className="w-full bg-ud-burgundy text-white text-sm font-bold py-3.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
@@ -123,6 +169,14 @@ export default function CartSidebar() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" /></svg>
               Order via WhatsApp
             </a>
+            {/* Request Quote Instead shortcut */}
+            <Link
+              href="/request-a-quote"
+              onClick={closeCart}
+              className="flex items-center justify-center gap-1.5 w-full border border-ud-dark/20 text-ud-dark/60 text-xs font-semibold py-2.5 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors"
+            >
+              <FileText size={13} /> Request a Quote Instead
+            </Link>
             <p className="text-[11px] text-ud-dark/40 text-center">
               Digital plans are delivered by email. Printed copies are shipped to you.
             </p>

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { CheckCircle2, AlertCircle, Paperclip } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useCart } from "@/context/CartContext";
-import { whatsappLink } from "@/lib/constants";
 
 export const PROJECT_TYPES = [
   "Building Works — Residential",
@@ -42,9 +41,31 @@ export default function QuoteForm({ defaultProjectType = "", defaultMessage = ""
     timeline: "",
     message: defaultMessage,
   });
+  const [drawing, setDrawing] = useState<{ name: string; base64: string; type: string } | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File size must be under 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setDrawing({
+        name: file.name,
+        base64: reader.result as string,
+        type: file.type,
+      });
+      setError(null);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -89,6 +110,7 @@ export default function QuoteForm({ defaultProjectType = "", defaultMessage = ""
           email: form.email,
           subject: `Quote Request — ${form.projectType || "General"}`,
           message: composedMessage,
+          drawing: drawing,
         }),
       });
       if (!res.ok) {
@@ -178,15 +200,33 @@ export default function QuoteForm({ defaultProjectType = "", defaultMessage = ""
         </div>
       )}
 
-      {/* Drawings: the upload endpoint requires an account, so route attachments via WhatsApp/email. */}
-      <a
-        href={whatsappLink("Hello Ujenzi Dhabiti, I'd like to send drawings for a quote.")}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 text-xs font-semibold text-ud-burgundy hover:underline mb-6"
-      >
-        <Paperclip size={14} /> Have drawings? Send them to us on WhatsApp
-      </a>
+      {/* Upload drawings */}
+      <div className="mb-6">
+        <label className={labelCls}>Upload Drawings (Optional, Max 5MB)</label>
+        {!drawing ? (
+          <div className="border-2 border-dashed border-ud-dark/15 hover:border-ud-burgundy/50 rounded-[4px] p-5 text-center cursor-pointer transition-colors relative">
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={handleFileChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+            <Paperclip className="w-5 h-5 text-ud-dark/40 mx-auto mb-2" />
+            <p className="text-xs font-semibold text-ud-dark/60">Click or drag PDF or image to upload</p>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between border border-ud-dark/10 bg-ud-light-gray rounded-[4px] p-3 text-xs font-semibold">
+            <span className="text-ud-dark/80 truncate max-w-[80%]">{drawing.name}</span>
+            <button
+              type="button"
+              onClick={() => setDrawing(null)}
+              className="text-ud-burgundy hover:text-ud-burgundy-hover transition-colors"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
 
       {error && (
         <div className="flex items-start gap-2 bg-ud-burgundy/5 border border-ud-burgundy/30 rounded-[4px] p-3 mb-5 text-sm text-ud-burgundy">

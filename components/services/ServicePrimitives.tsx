@@ -101,3 +101,46 @@ export function ServiceSection({
     </section>
   );
 }
+
+/**
+ * "View Materials" + "Request Service Quote" bar.
+ * Drop at the end of a service section to cross-link to the relevant shop category.
+ */
+export function ServiceMaterialsBar({
+  category,
+  quoteType,
+  label,
+}: {
+  /** Shop category to filter by, e.g. "Gypsum & Ceilings" */
+  category: string;
+  /** Quote form project-type pre-fill, e.g. "Interior Design — Office Partitioning" */
+  quoteType: string;
+  /** Optional human label, defaults to category name */
+  label?: string;
+}) {
+  const display = label ?? category;
+  return (
+    <div className="mt-10 rounded-[4px] border border-ud-burgundy/20 bg-ud-burgundy/[0.04] p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <div className="flex-1">
+        <p className="text-sm font-bold text-ud-dark">Need the materials for this service?</p>
+        <p className="text-xs text-ud-dark/55 mt-0.5 leading-relaxed">
+          We supply the {display.toLowerCase()} materials you need — order online or request a bulk quote.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-3 flex-shrink-0">
+        <Link
+          href={`/shop?category=${encodeURIComponent(category)}`}
+          className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white text-xs font-bold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap"
+        >
+          View Materials <ArrowRight size={13} />
+        </Link>
+        <Link
+          href={`/request-a-quote?projectType=${encodeURIComponent(quoteType)}`}
+          className="inline-flex items-center gap-1.5 border border-ud-burgundy text-ud-burgundy text-xs font-bold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy hover:text-white transition-colors whitespace-nowrap"
+        >
+          Request Service Quote
+        </Link>
+      </div>
+    </div>
+  );
+}

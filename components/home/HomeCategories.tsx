@@ -39,7 +39,7 @@ export default function HomeCategories() {
             return (
               <Link
                 key={cat}
-                href={`/shop?category=${encodeURIComponent(cat)}`}
+                href={`/shop/category/${cat.toLowerCase().replace(/\s+&\s+/g, "-").replace(/\s+/g, "-")}`}
                 className="group flex flex-col gap-2 rounded-[4px] border border-white/10 bg-white/[0.03] hover:bg-ud-burgundy hover:border-ud-burgundy p-4 transition-colors"
               >
                 <div className="w-10 h-10 rounded-[4px] bg-ud-burgundy/20 group-hover:bg-white/15 flex items-center justify-center transition-colors">

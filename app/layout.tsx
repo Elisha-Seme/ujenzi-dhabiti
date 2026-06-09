@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { CartProvider } from "@/context/CartContext";
-import CartSidebar from "@/components/shop/CartSidebar";
-import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import LoadingScreen from "@/components/layout/LoadingScreen";
 import AuthProvider from "@/components/providers/AuthProvider";
+import SiteLayoutWrapper from "@/components/layout/SiteLayoutWrapper";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.ujenzidhabiti.co.ke"),
@@ -51,11 +48,9 @@ export default function RootLayout({
         <LoadingScreen />
         <AuthProvider>
           <CartProvider>
-            <Header />
-            <CartSidebar />
-            <main>{children}</main>
-            <WhatsAppButton />
-            <Footer />
+            <SiteLayoutWrapper>
+              <main>{children}</main>
+            </SiteLayoutWrapper>
           </CartProvider>
         </AuthProvider>
       </body>

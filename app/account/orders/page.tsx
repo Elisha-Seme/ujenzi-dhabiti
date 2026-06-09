@@ -44,12 +44,11 @@ export default function AccountOrdersPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-ud-light-gray pt-24 pb-16">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-ud-dark">My Orders</h1>
-          <p className="text-sm text-ud-dark/50 mt-1">Track your house-plan purchases and downloads.</p>
-        </div>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-ud-dark">My Orders</h1>
+        <p className="text-sm text-ud-dark/50 mt-1">Track your purchases and order history.</p>
+      </div>
 
         {loading ? (
           <div className="bg-white rounded-[4px] shadow-sm p-8 text-center text-sm text-ud-dark/50">
@@ -111,7 +110,6 @@ export default function AccountOrdersPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 }

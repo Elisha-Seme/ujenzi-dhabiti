@@ -1,18 +1,35 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { whatsappLink } from "@/lib/constants";
+import { useEffect, useState } from "react";
+import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 // Floating WhatsApp action — present on every public page (hidden on dashboard areas).
 const HIDDEN_PREFIXES = ["/admin", "/auth"];
 
 export default function WhatsAppButton() {
   const pathname = usePathname();
+  const [whatsappNum, setWhatsappNum] = useState(WHATSAPP_NUMBER);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.whatsappNumber) {
+          setWhatsappNum(data.whatsappNumber);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
+
+  const msg = "Hello Ujenzi Dhabiti, I'd like to make an enquiry.";
+  const href = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`;
 
   return (
     <a
-      href={whatsappLink("Hello Ujenzi Dhabiti, I'd like to make an enquiry.")}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

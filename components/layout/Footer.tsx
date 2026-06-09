@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MapPin, Phone } from "lucide-react";
 import {
@@ -5,7 +8,6 @@ import {
   CONTACT_INFO,
   EMAIL_DIRECTORY,
   SOCIAL_LINKS,
-  whatsappLink,
 } from "@/lib/constants";
 import { PRODUCT_CATEGORIES } from "@/lib/products";
 import Logo from "@/components/layout/Logo";
@@ -52,6 +54,49 @@ function SocialIcon({ name }: { name: string }) {
 }
 
 export default function Footer() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.id) {
+          setSettings(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const address = settings?.address || CONTACT_INFO.address;
+  const phones = (settings?.phoneNumbers && settings.phoneNumbers.length > 0 ? settings.phoneNumbers : CONTACT_INFO.phone) as string[];
+  const emailDir = (settings
+    ? [
+        { label: "Customer Service", email: settings.customerServiceEmail },
+        { label: "Construction Inquiries", email: settings.constructionEmail },
+        { label: "Interior Design Inquiries", email: settings.interiorDesignEmail },
+        { label: "Architectural Inquiries", email: settings.architecturalEmail },
+      ]
+    : EMAIL_DIRECTORY) as { label: string; email: string }[];
+
+  const getSocialUrl = (label: string) => {
+    if (!settings) {
+      const found = SOCIAL_LINKS.find((s) => s.label === label);
+      return found ? found.href : "#";
+    }
+    switch (label.toLowerCase()) {
+      case "facebook": return settings.facebookUrl || "#";
+      case "instagram": return settings.instagramUrl || "#";
+      case "linkedin": return settings.linkedinUrl || "#";
+      case "twitter": return settings.twitterUrl || "#";
+      case "tiktok": return settings.tiktokUrl || "#";
+      default: return "#";
+    }
+  };
+
+  const whatsappNum = settings?.whatsappNumber || "254782999100";
+  const whatsappUrl = `https://wa.me/${whatsappNum}`;
+
   return (
     <footer className="bg-ud-dark text-white">
       <div className="max-w-content mx-auto px-6 py-16">
@@ -84,7 +129,7 @@ export default function Footer() {
                 {SOCIAL_LINKS.map((social) => (
                   <a
                     key={social.label}
-                    href={social.href}
+                    href={getSocialUrl(social.label)}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
@@ -135,17 +180,17 @@ export default function Footer() {
             <div className="flex gap-3 mb-4">
               <MapPin size={16} className="flex-shrink-0 text-ud-burgundy mt-0.5" />
               <span className="text-sm text-white/60 leading-relaxed">
-                {CONTACT_INFO.address}
+                {address}
               </span>
             </div>
 
             <div className="flex gap-3 mb-5">
               <Phone size={16} className="flex-shrink-0 text-ud-burgundy mt-0.5" />
               <span className="text-sm text-white/60 leading-relaxed">
-                {CONTACT_INFO.phone.map((p, i) => (
+                {phones.map((p, i) => (
                   <span key={p}>
                     <a href={`tel:${p}`} className="hover:text-white transition-colors">{p}</a>
-                    {i < CONTACT_INFO.phone.length - 1 && <span className="text-white/30"> | </span>}
+                    {i < phones.length - 1 && <span className="text-white/30"> | </span>}
                   </span>
                 ))}
               </span>
@@ -155,13 +200,13 @@ export default function Footer() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 text-ud-burgundy mt-0.5">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12.05 21.785h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.886 9.885" />
               </svg>
-              <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/60 hover:text-white transition-colors leading-relaxed">
                 Chat on WhatsApp
               </a>
             </div>
 
             <ul className="space-y-2.5">
-              {EMAIL_DIRECTORY.map((item) => (
+              {emailDir.map((item) => (
                 <li key={item.email}>
                   <span className="block text-[11px] uppercase tracking-wider text-white/35">{item.label}</span>
                   <a href={`mailto:${item.email}`} className="text-sm text-white/60 hover:text-white transition-colors break-all">

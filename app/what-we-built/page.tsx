@@ -5,6 +5,7 @@ import { eq, desc } from "drizzle-orm";
 import SectionHero from "@/components/ui/SectionHero";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import CTABanner from "@/components/sections/CTABanner";
+import { PRODUCT_CATEGORIES } from "@/lib/products";
 
 export const metadata = {
   title: "What We've Built — Ujenzi Dhabiti",
@@ -56,25 +57,29 @@ export default async function WhatWeBuiltPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {rows.map((p) => (
                 <article key={p.id} className="group rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-ud-dark/8 bg-white flex flex-col">
-                  <div className="relative h-52 bg-ud-dark/5 overflow-hidden">
-                    {p.beforeImage && p.afterImage ? (
-                      <BeforeAfter before={p.beforeImage} after={p.afterImage} alt={p.title} />
-                    ) : p.coverImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-ud-dark/20">
-                        <HardHat className="w-10 h-10" />
-                      </div>
-                    )}
-                    {!(p.beforeImage && p.afterImage) && (
-                      <span className="absolute top-3 left-3 bg-ud-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[4px]">
-                        {p.category}
-                      </span>
-                    )}
-                  </div>
+                  <Link href={`/what-we-built/${p.id}`} className="block">
+                    <div className="relative h-52 bg-ud-dark/5 overflow-hidden">
+                      {p.beforeImage && p.afterImage ? (
+                        <BeforeAfter before={p.beforeImage} after={p.afterImage} alt={p.title} />
+                      ) : p.coverImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={p.coverImage} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-ud-dark/20">
+                          <HardHat className="w-10 h-10" />
+                        </div>
+                      )}
+                      {!(p.beforeImage && p.afterImage) && (
+                        <span className="absolute top-3 left-3 bg-ud-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[4px]">
+                          {p.category}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
                   <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-base font-bold text-ud-dark mb-1.5">{p.title}</h3>
+                    <Link href={`/what-we-built/${p.id}`} className="group/title">
+                      <h3 className="text-base font-bold text-ud-dark mb-1.5 group-hover/title:text-ud-burgundy transition-colors">{p.title}</h3>
+                    </Link>
                     {p.location && (
                       <p className="flex items-center gap-1.5 text-xs text-ud-dark/50 mb-3">
                         <MapPin size={13} className="text-ud-burgundy" /> {p.location}
@@ -86,12 +91,31 @@ export default async function WhatWeBuiltPage() {
                       <div className="mt-4 pt-4 border-t border-ud-dark/8">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-ud-dark/40 mb-2">Materials Used</p>
                         <div className="flex flex-wrap gap-1.5">
-                          {p.materialsUsed.map((m) => (
-                            <span key={m} className="text-[11px] bg-ud-light-gray text-ud-dark/70 px-2 py-0.5 rounded-[4px]">{m}</span>
-                          ))}
+                          {p.materialsUsed.map((m) => {
+                            const matchedCat = (PRODUCT_CATEGORIES as string[]).find((c) =>
+                              m.toLowerCase().includes(c.toLowerCase().split(" ")[0])
+                            );
+                            const href = matchedCat
+                              ? `/shop/category/${matchedCat.toLowerCase().replace(/\s+&\s+/g, "-").replace(/\s+/g, "-")}`
+                              : `/shop?search=${encodeURIComponent(m)}`;
+                            return (
+                              <Link
+                                key={m}
+                                href={href}
+                                className="text-[11px] bg-ud-light-gray text-ud-dark/70 hover:bg-ud-burgundy hover:text-white px-2 py-0.5 rounded-[4px] transition-colors"
+                              >
+                                {m}
+                              </Link>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
+                    <div className="mt-auto pt-4">
+                      <Link href={`/what-we-built/${p.id}`} className="text-xs font-bold text-ud-burgundy hover:underline">
+                        View Project →
+                      </Link>
+                    </div>
                   </div>
                 </article>
               ))}

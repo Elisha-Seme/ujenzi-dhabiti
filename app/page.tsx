@@ -9,14 +9,58 @@ import HomePlansBand from "@/components/home/HomePlansBand";
 import HomeProjects from "@/components/home/HomeProjects";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import CTABanner from "@/components/sections/CTABanner";
+import { db } from "@/lib/db";
+import { systemSettings } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-export default function HomePage() {
+export default async function HomePage() {
+  let heroBadge = "Connecting Africa";
+  let heroTitle = "Building Materials & Construction\nServices Under One Roof";
+  let heroSubtitle = "From foundation to finishing — we supply and build.";
+  let heroImage = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80&auto=format&fit=crop";
+
+  try {
+    const [settings] = await db
+      .select()
+      .from(systemSettings)
+      .where(eq(systemSettings.id, "default"));
+    if (settings) {
+      if (settings.heroBadge) heroBadge = settings.heroBadge;
+      if (settings.heroTitle) heroTitle = settings.heroTitle;
+      if (settings.heroSubtitle) heroSubtitle = settings.heroSubtitle;
+      if (settings.heroImage) heroImage = settings.heroImage;
+    }
+  } catch (err) {
+    console.error("Home page dynamic load failed, falling back to static constants:", err);
+  }
+
   return (
     <div className="relative">
 
       {/* ─── Hero ─── */}
       <section className="relative overflow-hidden min-h-[88vh] flex items-center">
-        <BlueprintBg variant="hero" />
+        {/* Real construction photo background */}
+        <div aria-hidden className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={heroImage}
+            alt=""
+            className="w-full h-full object-cover object-center hero-haze-a"
+          />
+          {/* Dark base overlay */}
+          <div className="absolute inset-0 bg-ud-dark/70" />
+          {/* Blueprint texture overlay for brand identity */}
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-[0.08] mix-blend-overlay"
+            style={{ backgroundImage: "url('/bg-image.webp')" }}
+          />
+          {/* Burgundy brand glow */}
+          <div className="absolute inset-0 hero-glow" style={{ background: "radial-gradient(circle at 65% 50%, rgba(138,14,51,0.65), transparent 70%)" }} />
+          {/* Left-to-right depth gradient — keeps text readable */}
+          <div className="absolute inset-0 bg-gradient-to-r from-ud-dark/80 via-ud-dark/30 to-transparent" />
+          {/* Bottom fade into dark */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ud-dark/90" />
+        </div>
         {/* Fade hero into the dark zone below */}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ud-dark z-[1] pointer-events-none" />
         <div className="absolute bottom-10 right-6 md:right-12 opacity-70 hidden md:block z-[2]">
@@ -27,14 +71,13 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-white/70 border border-white/25 px-3 py-1.5 rounded-[4px] mb-6">
-                Connecting Africa
+                {heroBadge}
               </span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-ud-white leading-tight mb-5">
-                Building Materials &amp; Construction<br />
-                <span className="text-white/75">Services Under One Roof</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-ud-white leading-tight mb-5 whitespace-pre-line">
+                {heroTitle}
               </h1>
               <p className="text-base md:text-lg text-white/75 font-light leading-relaxed mb-8 max-w-md">
-                From foundation to finishing — we supply and build.
+                {heroSubtitle}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button href="/shop" variant="primary">Shop Materials</Button>

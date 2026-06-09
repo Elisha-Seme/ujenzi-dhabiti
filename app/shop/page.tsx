@@ -194,17 +194,38 @@ function ShopContent() {
                 {/* Category */}
                 <FilterGroup label="Category">
                   <ul className="space-y-1">
-                    {(["All", ...PRODUCT_CATEGORIES] as (ProductCategory | "All")[]).map((cat) => (
-                      <li key={cat}>
-                        <button
-                          onClick={() => setActiveCategory(cat)}
-                          className={`w-full flex items-center justify-between text-left text-sm px-2 py-1.5 rounded-[4px] transition-colors ${activeCategory === cat ? "bg-ud-burgundy/10 text-ud-burgundy font-semibold" : "text-ud-dark/70 hover:bg-ud-light-gray"}`}
-                        >
-                          <span>{cat}</span>
-                          <span className="text-xs opacity-60">{counts[cat] ?? 0}</span>
-                        </button>
-                      </li>
-                    ))}
+                    {(["All", ...PRODUCT_CATEGORIES] as (ProductCategory | "All")[]).map((cat) => {
+                      const isActive = activeCategory === cat;
+                      if (cat === "All") {
+                        return (
+                          <li key={cat}>
+                            <Link
+                              href="/shop"
+                              className={`w-full text-left flex items-center justify-between py-1.5 px-3 rounded-[4px] text-xs font-semibold transition-colors ${
+                                isActive ? "bg-ud-burgundy/10 text-ud-burgundy" : "text-ud-dark/60 hover:bg-ud-light-gray hover:text-ud-dark"
+                              }`}
+                            >
+                              <span>{cat}</span>
+                              <span className="opacity-50">{counts[cat]}</span>
+                            </Link>
+                          </li>
+                        );
+                      }
+                      
+                      return (
+                        <li key={cat}>
+                          <Link
+                            href={`/shop/category/${cat.toLowerCase().replace(/\s+&\s+/g, "-").replace(/\s+/g, "-")}`}
+                            className={`w-full text-left flex items-center justify-between py-1.5 px-3 rounded-[4px] text-xs font-semibold transition-colors ${
+                              isActive ? "bg-ud-burgundy/10 text-ud-burgundy" : "text-ud-dark/60 hover:bg-ud-light-gray hover:text-ud-dark"
+                            }`}
+                          >
+                            <span>{cat}</span>
+                            <span className="opacity-50">{counts[cat]}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </FilterGroup>
 
