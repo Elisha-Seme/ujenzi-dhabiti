@@ -35,6 +35,9 @@ export default function HomePage() {
             <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 63% 48%, rgba(176,32,74,0.30), transparent 40%)" }} />
             {/* gentle light diffusion — centre stays a touch brighter */}
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 42% at 60% 45%, rgba(255,255,255,0.05), transparent 60%)" }} />
+            {/* cinematic atmospheric haze — soft, blurred, slow-drifting volumetric fog (no particles) */}
+            <div className="absolute inset-0 hero-haze-a" style={{ background: "radial-gradient(42% 52% at 34% 28%, rgba(255,255,255,0.06), transparent 70%)", filter: "blur(42px)" }} />
+            <div className="absolute inset-0 hero-haze-b" style={{ background: "radial-gradient(46% 56% at 70% 64%, rgba(176,32,74,0.13), transparent 72%)", filter: "blur(54px)" }} />
             {/* vignette — darken corners/edges to focus the hero */}
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 92% 92% at 56% 50%, transparent 45%, rgba(10,12,18,0.58) 100%)" }} />
             {/* left scrim — keep the headline highly readable */}

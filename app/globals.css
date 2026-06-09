@@ -113,6 +113,19 @@ body {
   animation: heroGlowPulse 16s ease-in-out infinite;
   will-change: opacity, transform;
 }
+
+/* Cinematic atmospheric haze — soft volumetric fog / light diffusion that drifts
+   slowly. Two layers cross-fade in opposite directions for depth. */
+@keyframes hazeDriftA {
+  0%, 100% { transform: translate3d(-4%, -2%, 0) scale(1.1); opacity: 0.45; }
+  50%      { transform: translate3d(3%, 2%, 0) scale(1.28); opacity: 0.8; }
+}
+@keyframes hazeDriftB {
+  0%, 100% { transform: translate3d(3%, 3%, 0) scale(1.22); opacity: 0.4; }
+  50%      { transform: translate3d(-3%, -2%, 0) scale(1.05); opacity: 0.72; }
+}
+.hero-haze-a { animation: hazeDriftA 28s ease-in-out infinite; will-change: transform, opacity; }
+.hero-haze-b { animation: hazeDriftB 36s ease-in-out infinite; will-change: transform, opacity; }
 @media (prefers-reduced-motion: reduce) {
-  .hero-glow { animation: none; }
+  .hero-glow, .hero-haze-a, .hero-haze-b { animation: none; }
 }
