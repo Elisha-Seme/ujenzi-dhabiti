@@ -1,6 +1,5 @@
 import Button from "@/components/ui/Button";
 import DotMatrix from "@/components/ui/DotMatrix";
-import BlueprintBg from "@/components/ui/BlueprintBg";
 import HomeAuthTabs from "@/components/home/HomeAuthTabs";
 import HomeCategories from "@/components/home/HomeCategories";
 import HomeServices from "@/components/home/HomeServices";
@@ -13,17 +12,32 @@ import CTABanner from "@/components/sections/CTABanner";
 export default function HomePage() {
   return (
     <div className="relative overflow-hidden bg-ud-dark">
-      {/* Dark blueprint backdrop for the sections below the hero (the hero covers this with its own vivid BlueprintBg) */}
+      {/* ─── ONE continuous backdrop — no seams anywhere ─── */}
       <div aria-hidden className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-ud-dark" />
-        <div className="absolute inset-0 bg-cover bg-center opacity-[0.12]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
-        <div className="absolute inset-0 bg-ud-burgundy/[0.07] mix-blend-multiply" />
+        {/* Blueprint, full-bleed at a constant opacity (same everywhere → no border) */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-[0.6]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
+        {/* Burgundy MULTIPLY = the red blueprint. Vivid in the hero, then bleeds down and
+            fades out gradually so it's gone by the Why-Choose-Us section (~90% down). */}
+        <div
+          className="absolute inset-0 bg-ud-burgundy mix-blend-multiply"
+          style={{
+            opacity: 0.9,
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 15%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.18) 75%, transparent 90%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 15%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.18) 75%, transparent 90%)",
+          }}
+        />
+        {/* Red core + warm ambient glow toward centre-right — hero only */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 60% 50%, rgba(176,32,74,0.40), transparent 42%)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 65% at 62% 52%, rgba(138,14,51,0.55), transparent 68%)" }} />
+        {/* Hero vignettes — darken the left edge + top/bottom (the original look) */}
+        <div className="absolute inset-x-0 top-0 h-[110vh]" style={{ background: "linear-gradient(to right, rgba(28,30,34,0.7), rgba(28,30,34,0.04) 45%, transparent)" }} />
+        <div className="absolute inset-x-0 top-0 h-[110vh]" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0.45), transparent 28%, transparent 82%, rgba(28,30,34,0.45))" }} />
       </div>
 
       <div className="relative z-10">
-        {/* ─── Hero — the original vivid BlueprintBg look ─── */}
+        {/* ─── Hero ─── */}
         <section className="relative overflow-hidden min-h-screen flex items-center">
-          <BlueprintBg variant="hero" />
           <div className="absolute bottom-10 right-6 md:right-12 opacity-70 hidden md:block z-[2]">
             <DotMatrix cols={14} rows={10} color="#ffffff" animate />
           </div>
