@@ -24,11 +24,13 @@ export const PROJECT_TYPES = [
 interface QuoteFormProps {
   /** Pre-select the project type (used when embedded on a specific service page). */
   defaultProjectType?: string;
+  /** Pre-fill the description (e.g. from a product's "Request Bulk Quote" link). */
+  defaultMessage?: string;
   /** Compact heading copy for embedded use. */
   heading?: string;
 }
 
-export default function QuoteForm({ defaultProjectType = "", heading = "Request a Quote" }: QuoteFormProps) {
+export default function QuoteForm({ defaultProjectType = "", defaultMessage = "", heading = "Request a Quote" }: QuoteFormProps) {
   const { items } = useCart();
   const [form, setForm] = useState({
     name: "",
@@ -38,7 +40,7 @@ export default function QuoteForm({ defaultProjectType = "", heading = "Request 
     projectType: defaultProjectType,
     location: "",
     timeline: "",
-    message: "",
+    message: defaultMessage,
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);

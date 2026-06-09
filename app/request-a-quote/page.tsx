@@ -9,7 +9,9 @@ export const metadata = {
   description: "Tell us about your construction, civil works, or interior project and get a tailored quote from Ujenzi Dhabiti.",
 };
 
-export default function RequestQuotePage() {
+export default function RequestQuotePage({ searchParams }: { searchParams: { product?: string } }) {
+  const product = searchParams?.product;
+  const defaultMessage = product ? `I'd like a bulk quote for: ${product}.\n\nQuantity / area: \nDelivery location: ` : "";
   return (
     <>
       <SectionHero
@@ -20,7 +22,7 @@ export default function RequestQuotePage() {
       <section className="bg-ud-light-gray py-20 md:py-28">
         <div className="max-w-content mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
-            <QuoteForm />
+            <QuoteForm defaultMessage={defaultMessage} defaultProjectType={product ? "Other" : ""} />
 
             <div className="space-y-8">
               <div>

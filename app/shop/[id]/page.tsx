@@ -5,10 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
-  ShoppingCart, Calculator, Loader2, ArrowLeft, FileText, Check, Minus, Plus, Truck,
+  ShoppingCart, Calculator, Loader2, ArrowLeft, FileText, Check, Minus, Plus,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { whatsappLink } from "@/lib/constants";
+import DeliveryEstimator from "@/components/shop/DeliveryEstimator";
 
 interface ApiProduct {
   id: string;
@@ -185,9 +186,7 @@ export default function ProductDetailPage() {
               </div>
             ) : null}
 
-            <p className="mt-5 flex items-center gap-2 text-xs text-ud-dark/50">
-              <Truck className="w-3.5 h-3.5 text-ud-burgundy" /> Delivery across East Africa — costs confirmed at checkout or on your quote.
-            </p>
+            <DeliveryEstimator className="mt-5" />
           </div>
         </div>
 
