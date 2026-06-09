@@ -32,6 +32,14 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close the drawer if the viewport grows to desktop while it's open
+  // (the drawer is lg:hidden, so otherwise the scroll lock could get stuck).
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth >= 1024) setDrawerOpen(false); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
 
   useEffect(() => {
@@ -94,12 +102,12 @@ export default function Header() {
 
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         onClick={() => setDrawerOpen(false)}
       />
 
       {/* Drawer */}
-      <aside className={`fixed top-0 right-0 bottom-0 z-50 w-72 bg-ud-dark flex flex-col transition-transform duration-300 md:hidden ${drawerOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <aside className={`fixed top-0 right-0 bottom-0 z-50 w-72 bg-ud-dark flex flex-col transition-transform duration-300 lg:hidden ${drawerOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
           <Link href="/" aria-label="Ujenzi Dhabiti Home">
             <Logo variant="dark" className="h-8 w-auto" />

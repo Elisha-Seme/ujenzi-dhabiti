@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/products", label: "Materials", icon: Package },
+  { href: "/admin/plans", label: "House Plans", icon: Home },
+  { href: "/admin/delivery", label: "Delivery", icon: Truck },
   { href: "/admin/projects", label: "What We've Built", icon: HardHat },
   { href: "/admin/architectural", label: "Architectural", icon: PencilRuler },
-  { href: "/admin/plans", label: "House Plans", icon: Home },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

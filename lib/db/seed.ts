@@ -2,9 +2,10 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { db } from "./index";
-import { users, housePlans, products } from "./schema";
+import { users, housePlans, products, deliveryZones } from "./schema";
 import { HOUSE_PLANS } from "../house-plans";
 import { PRODUCTS } from "../products";
+import { DELIVERY_ZONES } from "../delivery";
 import bcrypt from "bcryptjs";
 
 // ─── Single-vendor seed: admin account + house-plan catalogue ────────────────
@@ -78,9 +79,26 @@ async function seed() {
       .onConflictDoNothing();
   }
 
+  // ─── Delivery zones (idempotent — won't overwrite admin edits) ───
+  console.log("Creating delivery zones...");
+  let zi = 0;
+  for (const z of DELIVERY_ZONES) {
+    await db
+      .insert(deliveryZones)
+      .values({
+        id: `zone-${z.county.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`,
+        county: z.county,
+        feeKES: z.feeKES,
+        sortOrder: zi++,
+        published: true,
+      })
+      .onConflictDoNothing();
+  }
+
   console.log("\n✅ Seed complete!");
   console.log(`   ${PRODUCTS.length} materials`);
   console.log(`   ${HOUSE_PLANS.length} house plans`);
+  console.log(`   ${DELIVERY_ZONES.length} delivery zones`);
   console.log("\n   Admin login: admin@ujenzidhabiti.co.ke / Admin@UjenziDhabiti2025!");
   console.log("   Change this password immediately after first login.\n");
 

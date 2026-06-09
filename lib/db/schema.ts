@@ -230,6 +230,19 @@ export const architecturalServices = pgTable("architectural_services", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// ─── CMS: Delivery rates (admin-managed; static module is the seed/fallback) ──
+
+export const deliveryZones = pgTable("delivery_zones", {
+  id: text("id").primaryKey(),
+  county: text("county").notNull(),
+  region: text("region"), // optional grouping e.g. "Nairobi Metro" / "Coast" / "Upcountry"
+  feeKES: integer("fee_kes").notNull(),
+  published: boolean("published").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // ─── CMS: House plans (admin-managed catalogue; static module is the seed/fallback) ──
 
 export const housePlans = pgTable("house_plans", {
@@ -260,6 +273,7 @@ export type ArchitecturalService = typeof architecturalServices.$inferSelect;
 export type NewArchitecturalService = typeof architecturalServices.$inferInsert;
 export type HousePlanRow = typeof housePlans.$inferSelect;
 export type NewHousePlanRow = typeof housePlans.$inferInsert;
+export type DeliveryZoneRow = typeof deliveryZones.$inferSelect;
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

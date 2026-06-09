@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Truck } from "lucide-react";
-import { DELIVERY_ZONES } from "@/lib/delivery";
+import { DELIVERY_ZONES, type DeliveryZone } from "@/lib/delivery";
 
-// Informational delivery estimate. The real fee is confirmed on the invoice —
-// it is NOT added to the amount charged at checkout.
+// Informational delivery estimate. Rates come from the admin-managed delivery
+// table (with the static module as fallback). The real fee is confirmed on the
+// invoice — it is NOT added to the amount charged at checkout.
 export default function DeliveryEstimator({ className = "" }: { className?: string }) {
+  const [zones, setZones] = useState<DeliveryZone[]>(DELIVERY_ZONES);
   const [county, setCounty] = useState("");
-  const zone = DELIVERY_ZONES.find((z) => z.county === county);
+
+  useEffect(() => {
+    fetch("/api/delivery-zones")
+      .then((r) => r.json())
+      .then((d: { zones?: DeliveryZone[] }) => { if (d.zones?.length) setZones(d.zones); })
+      .catch(() => {});
+  }, []);
+
+  const zone = zones.find((z) => z.county === county);
 
   return (
     <div className={`bg-white border border-ud-dark/10 rounded-[4px] p-4 ${className}`}>
@@ -23,7 +33,7 @@ export default function DeliveryEstimator({ className = "" }: { className?: stri
         className="w-full border border-ud-dark/20 rounded-[4px] px-3 py-2 text-sm bg-white focus:outline-none focus:border-ud-burgundy"
       >
         <option value="">Select your county…</option>
-        {DELIVERY_ZONES.map((z) => (
+        {zones.map((z) => (
           <option key={z.county} value={z.county}>{z.county}</option>
         ))}
       </select>
