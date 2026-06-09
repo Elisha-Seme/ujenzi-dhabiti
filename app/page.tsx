@@ -14,19 +14,22 @@ export default function HomePage() {
       {/* ─── One page-wide backdrop (sits BELOW the z-10 content, above the page bg) ─── */}
       <div aria-hidden className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-ud-dark" />
-        {/* Blueprint texture — clearly visible across the page */}
-        <div className="absolute inset-0 bg-cover bg-center opacity-[0.7]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
-        {/* Deep burgundy MULTIPLIED over the blueprint → red lines in the hero, masked to fade out lower down */}
+        {/* Blueprint texture — full bleed, clearly visible */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-[0.75]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
+        {/* Burgundy MULTIPLY turns the blueprint deep red — masked to the hero, fading out lower */}
         <div
           className="absolute inset-x-0 top-0 h-[170vh] bg-ud-burgundy mix-blend-multiply opacity-90"
           style={{
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 32%, transparent 70%)",
-            maskImage: "linear-gradient(to bottom, black 0%, black 32%, transparent 70%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 34%, transparent 72%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 34%, transparent 72%)",
           }}
         />
-        {/* Warm glows so the hero reads vivid red (like before) */}
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 58% 40%, rgba(176,32,74,0.38), transparent 46%)" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 80% 62% at 56% 44%, rgba(138,14,51,0.5), transparent 70%)" }} />
+        {/* Red core + warm ambient glow toward centre-right (the original hero look) */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 60% 48%, rgba(176,32,74,0.40), transparent 42%)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 62% at 62% 50%, rgba(138,14,51,0.58), transparent 68%)" }} />
+        {/* Vignettes — darken the left edge and the top/bottom, so the red pools centre-right */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to right, rgba(28,30,34,0.75), rgba(28,30,34,0.05) 45%, transparent)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0.5), transparent 28%, transparent 68%, rgba(28,30,34,0.85))" }} />
         {/* Settle the very bottom into solid dark before Why-Choose-Us */}
         <div className="absolute inset-x-0 bottom-0 h-[45vh]" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0), rgba(28,30,34,0.92))" }} />
       </div>
