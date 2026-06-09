@@ -20,6 +20,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         images: products.images,
         specs: products.specs,
         coverageSqmPerUnit: products.coverageSqmPerUnit,
+        brand: products.brand,
+        materialType: products.materialType,
       })
       .from(products)
       .where(eq(products.id, params.id))
@@ -42,5 +44,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     images: [p.image],
     specs: p.specs ?? null,
     coverageSqmPerUnit: p.coverageSqmPerUnit ?? null,
+    brand: p.brand ?? null,
+    materialType: p.materialType ?? null,
   });
 }

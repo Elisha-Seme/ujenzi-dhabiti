@@ -48,6 +48,8 @@ export async function POST(req: NextRequest) {
       stock: Number(b.stock) || 0,
       images: Array.isArray(b.images) ? b.images : [],
       specs: b.specs && typeof b.specs === "object" ? b.specs : {},
+      brand: b.brand ? String(b.brand).trim() : null,
+      materialType: b.materialType ? String(b.materialType).trim() : null,
       isActive: b.isActive !== false,
     })
     .returning();

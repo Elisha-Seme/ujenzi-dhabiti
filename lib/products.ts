@@ -37,6 +37,8 @@ export interface Product {
   // How many square metres ONE unit covers. Drives the material calculator.
   // Omit for items that aren't area-based (valves, tanks, tools…).
   coverageSqmPerUnit?: number;
+  brand?: string;
+  materialType?: string;
 }
 
 const IMG = {
@@ -365,6 +367,45 @@ export const PRODUCTS: Product[] = [
     specs: { Body: "Brass", Keys: "3" },
   },
 ];
+
+// Brand + material-type metadata (drives the shop's Brand / Material-type filters).
+// Placeholder values — replace with the real catalogue via /admin/products.
+const META: Record<string, { brand: string; materialType: string }> = {
+  "str-cement": { brand: "Bamburi", materialType: "Cement" },
+  "str-rebar-y12": { brand: "Devki", materialType: "Reinforcement Steel" },
+  "str-blocks": { brand: "Ujenzi Dhabiti", materialType: "Masonry Block" },
+  "str-ballast": { brand: "Ujenzi Dhabiti", materialType: "Aggregate" },
+  "gyp-board": { brand: "Knauf", materialType: "Gypsum Board" },
+  "gyp-channel": { brand: "Mabati Rolling Mills", materialType: "Metal Framing" },
+  "gyp-tgrid": { brand: "Armstrong", materialType: "Ceiling System" },
+  "pnt-emulsion": { brand: "Crown", materialType: "Emulsion Paint" },
+  "pnt-undercoat": { brand: "Duracoat", materialType: "Primer" },
+  "pnt-putty": { brand: "Crown", materialType: "Wall Putty" },
+  "flr-ceramic": { brand: "Tile & Carpet", materialType: "Ceramic Tile" },
+  "flr-porcelain": { brand: "Saj Ceramics", materialType: "Porcelain Tile" },
+  "flr-adhesive": { brand: "Sika", materialType: "Tile Adhesive" },
+  "plm-ppr20": { brand: "Plasco", materialType: "PPR Pipe" },
+  "plm-upvc110": { brand: "Megapipes", materialType: "uPVC Pipe" },
+  "plm-tank": { brand: "Kentank", materialType: "Water Tank" },
+  "ele-twincable": { brand: "East African Cables", materialType: "Cable" },
+  "ele-conduit": { brand: "Plasco", materialType: "Conduit" },
+  "ele-db8": { brand: "Schneider", materialType: "Distribution Board" },
+  "cab-block60": { brand: "Ujenzi Dhabiti", materialType: "Paving Block" },
+  "cab-kerb": { brand: "Ujenzi Dhabiti", materialType: "Kerbstone" },
+  "cab-hardcore": { brand: "Ujenzi Dhabiti", materialType: "Hardcore" },
+  "hwd-wheelbarrow": { brand: "Wolf", materialType: "Site Equipment" },
+  "hwd-roofnails": { brand: "Devki", materialType: "Fixings" },
+  "hwd-bindingwire": { brand: "Devki", materialType: "Fixings" },
+  "hwd-padlock": { brand: "Yale", materialType: "Site Security" },
+};
+
+for (const p of PRODUCTS) {
+  const m = META[p.id];
+  if (m) {
+    p.brand = m.brand;
+    p.materialType = m.materialType;
+  }
+}
 
 const PRODUCT_MAP: Record<string, Product> = Object.fromEntries(
   PRODUCTS.map((p) => [p.id, p])

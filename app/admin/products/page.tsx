@@ -31,6 +31,8 @@ interface Product {
   unit: string;
   stock: number;
   images: string[];
+  brand?: string | null;
+  materialType?: string | null;
   isActive: boolean;
 }
 
@@ -42,6 +44,8 @@ const EMPTY_FORM = {
   unit: "",
   stock: "0",
   images: [] as string[],
+  brand: "",
+  materialType: "",
   isActive: true,
 };
 
@@ -88,6 +92,8 @@ export default function SellerProductsPage() {
       unit: p.unit,
       stock: String(p.stock),
       images: [...p.images],
+      brand: p.brand ?? "",
+      materialType: p.materialType ?? "",
       isActive: p.isActive,
     });
     setError(null);
@@ -134,6 +140,8 @@ export default function SellerProductsPage() {
         unit: form.unit,
         stock: Number(form.stock),
         images: form.images,
+        brand: form.brand,
+        materialType: form.materialType,
         isActive: form.isActive,
       };
 
@@ -330,6 +338,28 @@ export default function SellerProductsPage() {
                     onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
                     className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
                     placeholder="e.g. bag, piece, litre, kg"
+                  />
+                </div>
+              </div>
+
+              {/* Brand + Material Type */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Brand</label>
+                  <input
+                    value={form.brand}
+                    onChange={(e) => setForm((f) => ({ ...f, brand: e.target.value }))}
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    placeholder="e.g. Bamburi, Crown"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ud-dark/60 mb-1">Material Type</label>
+                  <input
+                    value={form.materialType}
+                    onChange={(e) => setForm((f) => ({ ...f, materialType: e.target.value }))}
+                    className="w-full border border-ud-dark/20 rounded px-3 py-2 text-sm focus:outline-none focus:border-ud-burgundy"
+                    placeholder="e.g. Cement, Ceramic Tile"
                   />
                 </div>
               </div>

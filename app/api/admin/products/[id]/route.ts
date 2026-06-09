@@ -10,7 +10,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const b = await req.json();
 
   const patch: Record<string, unknown> = { updatedAt: new Date() };
-  for (const key of ["name", "category", "description", "unit", "images", "specs", "isActive"]) {
+  for (const key of ["name", "category", "description", "unit", "images", "specs", "brand", "materialType", "isActive"]) {
     if (b[key] !== undefined) patch[key] = b[key];
   }
   for (const key of NUMERIC) {

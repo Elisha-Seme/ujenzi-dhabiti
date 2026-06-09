@@ -121,6 +121,8 @@ export const products = pgTable("products", {
   specs: jsonb("specs").$type<Record<string, string>>(),
   // m² covered by one unit — powers the material calculator (null = not area-based)
   coverageSqmPerUnit: real("coverage_sqm_per_unit"),
+  brand: text("brand"),
+  materialType: text("material_type"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

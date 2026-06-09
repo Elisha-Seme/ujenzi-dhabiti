@@ -74,6 +74,8 @@ async function seed() {
         images: [p.image],
         specs: p.specs ?? {},
         coverageSqmPerUnit: p.coverageSqmPerUnit ?? null,
+        brand: p.brand ?? null,
+        materialType: p.materialType ?? null,
         isActive: true,
       })
       .onConflictDoNothing();
