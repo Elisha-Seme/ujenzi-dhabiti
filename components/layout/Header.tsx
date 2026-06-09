@@ -52,14 +52,11 @@ export default function Header() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${solid ? "bg-ud-dark/95 backdrop-blur-sm shadow-lg" : "bg-transparent"}`}>
         <div className="max-w-content mx-auto px-6 flex items-center justify-between gap-4 h-16 md:h-20">
           <Link href="/" aria-label="Ujenzi Dhabiti Home" className="relative flex-shrink-0">
-            {/* soft, even burgundy glow behind the mark — blends into the dark header, fades out smoothly */}
+            {/* soft, even burgundy glow behind the mark — blends into the dark header */}
             <span
               aria-hidden
-              className="pointer-events-none absolute -inset-x-10 -inset-y-5"
-              style={{
-                background: "radial-gradient(ellipse at center, rgba(138,14,51,0.26) 0%, rgba(138,14,51,0.10) 50%, transparent 80%)",
-                filter: "blur(6px)",
-              }}
+              className="pointer-events-none absolute -inset-x-8 -inset-y-4"
+              style={{ background: "radial-gradient(ellipse at center, rgba(138,14,51,0.22), transparent 78%)" }}
             />
             <Logo variant="dark" className="relative h-8 xl:h-9 w-auto" priority />
           </Link>

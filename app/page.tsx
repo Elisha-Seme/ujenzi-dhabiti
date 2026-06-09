@@ -11,37 +11,38 @@ import CTABanner from "@/components/sections/CTABanner";
 
 export default function HomePage() {
   return (
-    <div className="relative overflow-hidden bg-ud-dark">
-      {/* ─── ONE continuous backdrop — no seams anywhere ─── */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-ud-dark" />
-        {/* Blueprint, full-bleed at a constant opacity (same everywhere → no border) */}
-        <div className="absolute inset-0 bg-cover bg-center opacity-[0.6]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
-        {/* Burgundy MULTIPLY = the red blueprint. Vivid in the hero, then bleeds down and
-            fades out gradually so it's gone by the Why-Choose-Us section (~90% down). */}
+    <div className="relative isolate bg-ud-dark">
+      {/* (A) Blueprint — FIXED to the viewport so its scale is identical in every
+          section (never zoomed) and there are no seams between sections. */}
+      <div aria-hidden className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/bg-image.webp')", opacity: 0.5 }} />
+      </div>
+
+      {/* (B) Red overlay — page-positioned, vivid in the hero, fading out gradually
+          by the Why-Choose-Us section. Scrolls with the page. */}
+      <div aria-hidden className="absolute inset-x-0 top-0 z-0 h-[460vh] overflow-hidden pointer-events-none">
+        {/* Burgundy multiply turns the blueprint deep red, easing away down the page */}
         <div
-          className="absolute inset-0 bg-ud-burgundy mix-blend-multiply"
+          className="absolute inset-0 bg-ud-burgundy mix-blend-multiply opacity-90"
           style={{
-            opacity: 0.9,
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 15%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.18) 75%, transparent 90%)",
-            maskImage: "linear-gradient(to bottom, black 0%, black 15%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.18) 75%, transparent 90%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 12%, rgba(0,0,0,0.45) 45%, transparent 92%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 12%, rgba(0,0,0,0.45) 45%, transparent 92%)",
           }}
         />
-        {/* Red core + warm ambient glow toward centre-right — hero only */}
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 60% 50%, rgba(176,32,74,0.40), transparent 42%)" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 65% at 62% 52%, rgba(138,14,51,0.55), transparent 68%)" }} />
-        {/* Hero vignettes — darken the left edge + top/bottom (the original look) */}
-        <div className="absolute inset-x-0 top-0 h-[110vh]" style={{ background: "linear-gradient(to right, rgba(28,30,34,0.7), rgba(28,30,34,0.04) 45%, transparent)" }} />
-        <div className="absolute inset-x-0 top-0 h-[110vh]" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0.45), transparent 28%, transparent 82%, rgba(28,30,34,0.45))" }} />
+        {/* Hero glows (centre-right) */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 60% 46%, rgba(176,32,74,0.40), transparent 44%)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 60% at 62% 48%, rgba(138,14,51,0.55), transparent 68%)" }} />
+        {/* Hero vignettes — darken the left edge + top a touch so the red pools centre-right */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to right, rgba(28,30,34,0.70), rgba(28,30,34,0.05) 45%, transparent)" }} />
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0.45), transparent 30%)" }} />
       </div>
 
       <div className="relative z-10">
         {/* ─── Hero ─── */}
-        <section className="relative overflow-hidden min-h-screen flex items-center">
+        <section className="relative min-h-screen flex items-center">
           <div className="absolute bottom-10 right-6 md:right-12 opacity-70 hidden md:block z-[2]">
             <DotMatrix cols={14} rows={10} color="#ffffff" animate />
           </div>
-
           <div className="relative z-10 w-full max-w-content mx-auto px-6 pt-28 pb-16 md:pt-32 md:pb-20">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
