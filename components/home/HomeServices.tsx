@@ -24,20 +24,31 @@ export default function HomeServices() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {SERVICES.map((s) => {
+          {SERVICES.map((s, i) => {
             const Icon = s.icon;
+            // Three rotating card variants to break visual monotony
+            const variant = i % 3;
+            const cardCls =
+              variant === 1
+                ? // Reddish accent card — burgundy tint + corner glow
+                  "group relative overflow-hidden rounded-[4px] border border-ud-burgundy/30 bg-ud-burgundy/[0.10] p-6 hover:-translate-y-1 hover:border-ud-burgundy/55 transition-all"
+                : variant === 2
+                ? // Elevated dark card — brighter border, top accent line
+                  "group relative overflow-hidden rounded-[4px] border border-white/15 border-t-2 border-t-ud-burgundy/60 bg-white/[0.06] p-6 hover:-translate-y-1 hover:border-white/25 transition-all"
+                : // Standard dark card (same palette as category cards)
+                  "group relative overflow-hidden rounded-[4px] border border-white/10 bg-white/[0.04] p-6 hover:-translate-y-1 hover:bg-white/[0.07] transition-all";
             return (
-              <Link
-                key={s.name}
-                href={s.href}
-                className="group bg-ud-light-gray border-t-2 border-ud-burgundy rounded-[4px] p-6 hover:shadow-md hover:-translate-y-1 transition-all"
-              >
-                <div className="w-11 h-11 rounded-[4px] bg-ud-burgundy/10 flex items-center justify-center mb-4">
-                  <Icon className="w-5 h-5 text-ud-burgundy" strokeWidth={1.75} />
+              <Link key={s.name} href={s.href} className={cardCls}>
+                {/* Reddish corner glow — only on accent variant */}
+                {variant === 1 && (
+                  <div aria-hidden className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-ud-burgundy/30 blur-2xl pointer-events-none" />
+                )}
+                <div className="w-11 h-11 rounded-[4px] bg-ud-burgundy/20 flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-ud-burgundy group-hover:text-white transition-colors" strokeWidth={1.75} />
                 </div>
-                <h3 className="text-base font-bold text-ud-dark mb-1.5">{s.name}</h3>
-                <p className="text-sm text-ud-dark/55 leading-relaxed mb-4">{s.blurb}</p>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ud-burgundy">
+                <h3 className="text-base font-bold text-white mb-1.5">{s.name}</h3>
+                <p className="text-sm text-white/55 leading-relaxed mb-4">{s.blurb}</p>
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-ud-burgundy group-hover:text-white transition-colors">
                   View Service <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>

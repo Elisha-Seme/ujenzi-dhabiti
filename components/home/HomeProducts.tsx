@@ -56,11 +56,11 @@ export default function HomeProducts() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-[4px] shadow-sm overflow-hidden animate-pulse">
-                <div className="h-44 bg-ud-dark/10" />
+              <div key={i} className="bg-white/[0.04] border border-white/10 rounded-[4px] overflow-hidden animate-pulse">
+                <div className="h-44 bg-white/[0.06]" />
                 <div className="p-5 space-y-3">
-                  <div className="h-4 bg-ud-dark/10 rounded w-3/4" />
-                  <div className="h-3 bg-ud-dark/10 rounded w-full" />
+                  <div className="h-4 bg-white/10 rounded w-3/4" />
+                  <div className="h-3 bg-white/10 rounded w-full" />
                   <div className="h-8 bg-ud-burgundy/20 rounded-[4px] w-full mt-3" />
                 </div>
               </div>
@@ -68,18 +68,23 @@ export default function HomeProducts() {
           </div>
         ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={{
-                id: p.id,
-                name: p.name,
-                category: p.category as ProductCategory,
-                description: p.description,
-                priceKES: p.priceKES,
-                unit: p.unit,
-                inStock: p.stock > 0,
-                image: p.images[0] ?? "",
-                specs: p.specs ?? undefined,
-              }} />
+            {products.map((p, i) => (
+              <ProductCard
+                key={p.id}
+                dark
+                accentVariant={(i % 3) as 0 | 1 | 2}
+                product={{
+                  id: p.id,
+                  name: p.name,
+                  category: p.category as ProductCategory,
+                  description: p.description,
+                  priceKES: p.priceKES,
+                  unit: p.unit,
+                  inStock: p.stock > 0,
+                  image: p.images[0] ?? "",
+                  specs: p.specs ?? undefined,
+                }}
+              />
             ))}
           </div>
         ) : (

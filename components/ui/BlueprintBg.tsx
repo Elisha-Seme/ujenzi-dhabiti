@@ -29,16 +29,15 @@ export default function BlueprintBg({
     );
   }
 
-  // hero (vivid)
+  // hero (vivid) — mix-blend-multiply on burgundy turns white lines deep red
   return (
     <div aria-hidden className={`absolute inset-0 overflow-hidden ${className}`}>
-      {/* Base + blueprint image */}
       <div className="absolute inset-0 bg-ud-dark" />
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('/bg-image.webp')" }}
       />
-      {/* Burgundy multiply turns the white blueprint lines deep red */}
+      {/* Burgundy multiply — white lines → deep red, black stays black */}
       <div className="absolute inset-0 bg-ud-burgundy mix-blend-multiply opacity-90" />
       {/* Brighter red core + warm ambient glow toward centre-right */}
       <div
