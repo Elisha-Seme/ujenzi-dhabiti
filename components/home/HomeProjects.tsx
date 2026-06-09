@@ -3,7 +3,6 @@ import { ArrowRight, MapPin } from "lucide-react";
 import { db, projects } from "@/lib/db";
 import { desc, eq } from "drizzle-orm";
 import { PROJECTS } from "@/lib/constants";
-import SectionPatches from "@/components/ui/SectionPatches";
 
 export const dynamic = "force-dynamic";
 
@@ -52,13 +51,12 @@ export default async function HomeProjects() {
   const featured = await loadProjects();
 
   return (
-    <section className="bg-white/60 py-16 md:py-24 relative isolate overflow-hidden">
-      <SectionPatches />
-      <div className="relative z-10 max-w-content mx-auto px-6">
+    <section className="py-16 md:py-24">
+      <div className="max-w-content mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
             <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">What We&apos;ve Built</div>
-            <h2 className="text-3xl md:text-4xl font-bold text-ud-dark">Projects We&apos;re Proud Of</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Projects We&apos;re Proud Of</h2>
           </div>
           <Link href="/what-we-built" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ud-burgundy hover:underline whitespace-nowrap">
             View Projects <ArrowRight className="w-4 h-4" />

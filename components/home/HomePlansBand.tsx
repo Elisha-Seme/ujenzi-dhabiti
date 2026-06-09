@@ -4,7 +4,7 @@ import { Home, ArrowRight } from "lucide-react";
 // Compact entry point to the house-plans store.
 export default function HomePlansBand() {
   return (
-    <section className="bg-white/60 py-12">
+    <section className="py-12">
       <div className="max-w-content mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 rounded-[4px] bg-ud-burgundy p-8 md:p-10">
           <div className="flex items-start gap-4">
