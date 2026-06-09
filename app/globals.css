@@ -103,3 +103,16 @@ body {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Hero overlay — barely-perceptible ambient drift on the burgundy glow */
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+.hero-glow {
+  animation: heroGlowPulse 16s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow { animation: none; }
+}

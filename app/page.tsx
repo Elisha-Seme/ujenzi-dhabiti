@@ -12,37 +12,41 @@ import CTABanner from "@/components/sections/CTABanner";
 export default function HomePage() {
   return (
     <div className="relative isolate bg-ud-dark">
-      {/* (A) Blueprint — FIXED to the viewport so its scale is identical in every
-          section (never zoomed) and there are no seams between sections. */}
-      <div aria-hidden className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/bg-image.webp')", opacity: 0.5 }} />
-      </div>
-
-      {/* (B) Red overlay — page-positioned, vivid in the hero, fading out gradually
-          by the Why-Choose-Us section. Scrolls with the page. */}
-      <div aria-hidden className="absolute inset-x-0 top-0 z-0 h-[460vh] overflow-hidden pointer-events-none">
-        {/* Burgundy multiply turns the blueprint deep red, easing away down the page */}
-        <div
-          className="absolute inset-0 bg-ud-burgundy mix-blend-multiply opacity-90"
-          style={{
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 12%, rgba(0,0,0,0.45) 45%, transparent 92%)",
-            maskImage: "linear-gradient(to bottom, black 0%, black 12%, rgba(0,0,0,0.45) 45%, transparent 92%)",
-          }}
-        />
-        {/* Hero glows (centre-right) */}
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(circle at 60% 46%, rgba(176,32,74,0.40), transparent 44%)" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 60% at 62% 48%, rgba(138,14,51,0.55), transparent 68%)" }} />
-        {/* Hero vignettes — darken the left edge + top a touch so the red pools centre-right */}
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to right, rgba(28,30,34,0.70), rgba(28,30,34,0.05) 45%, transparent)" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0.45), transparent 30%)" }} />
-      </div>
+      {/* Burgundy wash that carries the hero's colour down the page and fades out
+          before the Why-Choose-Us section. Sits behind the content (z-0). */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 z-0 h-[430vh] pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, rgba(106,0,37,0.45) 0%, rgba(106,0,37,0.24) 26%, rgba(106,0,37,0.08) 56%, rgba(28,30,34,0) 84%)" }}
+      />
 
       <div className="relative z-10">
-        {/* ─── Hero ─── */}
-        <section className="relative min-h-screen flex items-center">
+        {/* ─── Hero — premium layered architectural overlay ─── */}
+        <section className="relative overflow-hidden min-h-screen flex items-center">
+          {/* Backdrop: multiple layered gradients over the blueprint (kept visible) */}
+          <div aria-hidden className="absolute inset-0">
+            {/* deep charcoal base */}
+            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #121319 0%, #1c1e22 55%, #121319 100%)" }} />
+            {/* blueprint artwork — preserved, cover-scaled to the hero so it never zooms */}
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/bg-image.webp')", opacity: 0.55 }} />
+            {/* burgundy ambient glow radiating from centre-right (animated) */}
+            <div className="absolute inset-0 hero-glow" style={{ background: "radial-gradient(ellipse 62% 58% at 66% 46%, rgba(139,0,53,0.55), transparent 62%)" }} />
+            {/* brighter red core */}
+            <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 63% 48%, rgba(176,32,74,0.30), transparent 40%)" }} />
+            {/* gentle light diffusion — centre stays a touch brighter */}
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 42% at 60% 45%, rgba(255,255,255,0.05), transparent 60%)" }} />
+            {/* vignette — darken corners/edges to focus the hero */}
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 92% 92% at 56% 50%, transparent 45%, rgba(10,12,18,0.58) 100%)" }} />
+            {/* left scrim — keep the headline highly readable */}
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(10,12,18,0.72), rgba(10,12,18,0.12) 42%, transparent 66%)" }} />
+            {/* settle the bottom into the dark page below — no seam */}
+            <div className="absolute inset-x-0 bottom-0 h-44" style={{ background: "linear-gradient(to bottom, transparent, #1c1e22)" }} />
+          </div>
+
           <div className="absolute bottom-10 right-6 md:right-12 opacity-70 hidden md:block z-[2]">
             <DotMatrix cols={14} rows={10} color="#ffffff" animate />
           </div>
+
           <div className="relative z-10 w-full max-w-content mx-auto px-6 pt-28 pb-16 md:pt-32 md:pb-20">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
