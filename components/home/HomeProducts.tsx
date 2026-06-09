@@ -41,7 +41,7 @@ export default function HomeProducts() {
   }, []);
 
   return (
-    <section className="bg-ud-light-gray py-16 md:py-24">
+    <section className="bg-ud-light-gray/60 py-16 md:py-24">
       <div className="max-w-content mx-auto px-6">
         <div className="flex items-end justify-between mb-10">
           <div>

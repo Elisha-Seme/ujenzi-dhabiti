@@ -51,7 +51,7 @@ export default async function HomeProjects() {
   const featured = await loadProjects();
 
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-white/70 py-16 md:py-24">
       <div className="max-w-content mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>

@@ -12,11 +12,17 @@ import CTABanner from "@/components/sections/CTABanner";
 export default function HomePage() {
   return (
     <div className="relative">
+      {/* Page-wide faded blueprint watermark so the light sections aren't flat white */}
+      <div aria-hidden className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/bg-image.webp')" }} />
+        <div className="absolute inset-0 bg-ud-light-gray/90" />
+      </div>
+
       {/* ─── Hero ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden min-h-[88vh] flex items-center">
+      <section className="relative overflow-hidden min-h-screen flex items-center">
         <BlueprintBg variant="hero" />
-        {/* Fade the vivid hero into the dark category zone below */}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ud-dark z-[1] pointer-events-none" />
+        {/* Short fade at the very bottom so the red runs as long as possible */}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-ud-dark z-[1] pointer-events-none" />
         <div className="absolute bottom-10 right-6 md:right-12 opacity-70 hidden md:block z-[2]">
           <DotMatrix cols={14} rows={10} color="#ffffff" animate />
         </div>
@@ -41,9 +47,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Shop by Category (dark) ──────────────────────────── */}
+      {/* ─── Shop by Category (red carries over from the hero) ── */}
       <div className="relative overflow-hidden">
         <BlueprintBg variant="subtle" />
+        {/* Continue the hero's red down into the top of this section */}
+        <div aria-hidden className="absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-ud-burgundy/60 via-ud-burgundy/20 to-transparent z-[1] pointer-events-none" />
         <div className="relative z-10">
           <HomeCategories />
         </div>

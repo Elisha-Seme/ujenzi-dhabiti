@@ -13,7 +13,7 @@ const SERVICES = [
 
 export default function HomeServices() {
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-white/70 py-16 md:py-24">
       <div className="max-w-content mx-auto px-6">
         <div className="text-center mb-12">
           <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">Our Services</div>
