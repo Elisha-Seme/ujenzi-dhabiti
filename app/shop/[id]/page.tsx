@@ -59,6 +59,19 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Keyboard nav — must be before early returns to satisfy rules-of-hooks
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const imgCount = product?.images.length ?? 0;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setLightboxOpen(false); setZoom(1); setPan({ x: 0, y: 0 }); }
+      if (e.key === "ArrowLeft") setActiveImg((i) => (i - 1 + imgCount) % imgCount);
+      if (e.key === "ArrowRight") setActiveImg((i) => (i + 1) % imgCount);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, product?.images.length]);
+
   const calc = useMemo(() => {
     if (!product?.coverageSqmPerUnit || !area) return null;
     const a = Number(area);
@@ -94,19 +107,6 @@ export default function ProductDetailPage() {
   const resetZoom = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
   const openLightbox = () => { setLightboxOpen(true); resetZoom(); };
   const closeLightbox = () => { setLightboxOpen(false); resetZoom(); };
-
-  // Keyboard nav in lightbox
-  useEffect(() => {
-    if (!lightboxOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowLeft") prev();
-      if (e.key === "ArrowRight") next();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightboxOpen, images.length]);
 
   // Scroll to zoom in lightbox
   const onWheel = (e: React.WheelEvent) => {
