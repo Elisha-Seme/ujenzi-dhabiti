@@ -61,9 +61,8 @@ export default function Header() {
             <Logo variant="dark" className="relative h-8 xl:h-9 w-auto" priority />
           </Link>
 
-          {/* Home is omitted here — the logo already links home; it stays in the drawer */}
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
-            {NAV_LINKS.filter((l) => l.href !== "/").map((link) => (
+            {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

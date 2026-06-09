@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, X, Home, ArrowRight, SlidersHorizontal } from "lucide-react";
+import { Search, X, Home, ArrowRight, SlidersHorizontal, ChevronDown } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import ProductCard from "@/components/shop/ProductCard";
 import DeliveryEstimator from "@/components/shop/DeliveryEstimator";
@@ -317,11 +317,21 @@ function ShopContent() {
   );
 }
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function FilterGroup({ label, children, defaultOpen = false }: { label: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="py-4 border-t border-ud-dark/8 first:border-t-0 first:pt-0">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-ud-dark/50 mb-2.5">{label}</p>
-      {children}
+    <div className="border-t border-ud-dark/8 first:border-t-0">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between py-3.5 text-left group"
+      >
+        <span className="text-[11px] font-bold uppercase tracking-wider text-ud-dark/50 group-hover:text-ud-dark/70 transition-colors">{label}</span>
+        <ChevronDown
+          size={14}
+          className={`text-ud-dark/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && <div className="pb-3">{children}</div>}
     </div>
   );
 }
