@@ -69,6 +69,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             Add to Cart
           </button>
         </div>
+        <Link
+          href={`/request-a-quote?product=${encodeURIComponent(product.name)}`}
+          className="mt-2.5 block text-center text-[11px] font-semibold text-ud-burgundy/80 hover:text-ud-burgundy hover:underline"
+        >
+          Bulk order? Request a quote →
+        </Link>
       </div>
     </div>
   );

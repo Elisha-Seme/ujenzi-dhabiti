@@ -1,12 +1,13 @@
+// Order matches the website wireframe. The logo links Home (filtered out of the
+// desktop bar); Help lives in the footer.
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
   { label: "Shop", href: "/shop" },
   { label: "Our Services", href: "/services" },
   { label: "What We've Built", href: "/what-we-built" },
   { label: "Request a Quote", href: "/request-a-quote" },
-  { label: "Help", href: "/help" },
-  { label: "Contact Us", href: "/contact" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export const CONTACT_INFO = {

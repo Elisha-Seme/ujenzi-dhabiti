@@ -5,10 +5,11 @@ import {
   CONTACT_INFO,
   EMAIL_DIRECTORY,
   SOCIAL_LINKS,
-  SERVICE_PILLARS,
   whatsappLink,
 } from "@/lib/constants";
+import { PRODUCT_CATEGORIES } from "@/lib/products";
 import Logo from "@/components/layout/Logo";
+import NewsletterForm from "@/components/layout/NewsletterForm";
 
 function SocialIcon({ name }: { name: string }) {
   switch (name) {
@@ -72,6 +73,11 @@ export default function Footer() {
             <p className="mt-7 text-sm text-white/60 leading-relaxed max-w-xs">
               A construction and infrastructure company connecting Africa — a proud subsidiary of Ardhi Safi Limited.
             </p>
+            <div className="mt-6 max-w-xs">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Newsletter</h4>
+              <p className="text-xs text-white/45 mb-3">Project tips, offers &amp; new arrivals.</p>
+              <NewsletterForm />
+            </div>
             <div className="mt-6">
               <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Follow</h4>
               <div className="flex items-center gap-3">
@@ -102,17 +108,20 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/help" className="text-sm text-white/70 hover:text-white transition-colors duration-200">Help</Link>
+              </li>
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Categories */}
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-5">Our Services</h4>
+            <h4 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-5">Categories</h4>
             <ul className="space-y-2.5">
-              {SERVICE_PILLARS.map((service) => (
-                <li key={service.label}>
-                  <Link href={service.href} className="text-sm text-white/70 hover:text-white transition-colors duration-200">
-                    {service.label}
+              {PRODUCT_CATEGORIES.map((cat) => (
+                <li key={cat}>
+                  <Link href={`/shop?category=${encodeURIComponent(cat)}`} className="text-sm text-white/70 hover:text-white transition-colors duration-200">
+                    {cat}
                   </Link>
                 </li>
               ))}

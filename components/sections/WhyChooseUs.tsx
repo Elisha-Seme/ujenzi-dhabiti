@@ -1,28 +1,28 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Globe, Users, Activity, BadgeCheck } from "lucide-react";
+import { Layers, Truck, BadgeCheck, Tag } from "lucide-react";
 
 const REASONS = [
   {
-    icon: <Globe size={28} strokeWidth={1.5} />,
-    title: "Pan-African Reach",
-    body: "Operating across 8 countries, we understand the regulatory landscape, terrain, and logistics of infrastructure delivery on the continent.",
+    icon: <Layers size={28} strokeWidth={1.5} />,
+    title: "One-Stop Solution",
+    body: "Materials and labour from a single team — buy your supplies and have us build, with no juggling separate contractors and suppliers.",
   },
   {
-    icon: <Users size={28} strokeWidth={1.5} />,
-    title: "Experienced Team",
-    body: "Over 500 engineers, project managers, and technicians with combined decades of field experience across every infrastructure discipline.",
-  },
-  {
-    icon: <Activity size={28} strokeWidth={1.5} />,
-    title: "End-to-End Delivery",
-    body: "From feasibility studies to commissioning, we manage every phase in-house — reducing handoff risk and keeping projects coherent from start to finish.",
+    icon: <Truck size={28} strokeWidth={1.5} />,
+    title: "Reliable Delivery",
+    body: "Dependable delivery across the region, with freight planned to your site and timelines you can build a schedule around.",
   },
   {
     icon: <BadgeCheck size={28} strokeWidth={1.5} />,
-    title: "Quality Assurance",
-    body: "Every project is subject to rigorous QA processes aligned with international construction standards, ensuring structures that outlast expectations.",
+    title: "Quality Workmanship",
+    body: "Quality materials and skilled crews held to high standards — work that lasts and finishes you can be proud of.",
+  },
+  {
+    icon: <Tag size={28} strokeWidth={1.5} />,
+    title: "Competitive Pricing",
+    body: "Fair, transparent pricing with volume discounts on bulk orders — strong value without cutting corners.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function WhyChooseUs() {
           <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">Why Us</div>
           <h2 className="text-3xl md:text-4xl font-bold text-ud-white mb-4">Why Choose Ujenzi Dhabiti</h2>
           <p className="text-white/50 font-light max-w-xl mx-auto">
-            We don&apos;t just build infrastructure. We build the arteries that economies depend on.
+            One team for your materials and your build — reliable, quality, and fairly priced.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">

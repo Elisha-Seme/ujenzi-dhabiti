@@ -232,6 +232,14 @@ export const architecturalServices = pgTable("architectural_services", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// ─── Newsletter subscribers ───────────────────────────────────────────────────
+
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // ─── CMS: Delivery rates (admin-managed; static module is the seed/fallback) ──
 
 export const deliveryZones = pgTable("delivery_zones", {

@@ -43,6 +43,13 @@
       "when": 1780979295471,
       "tag": "0005_rapid_garia",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780980477241,
+      "tag": "0006_next_lockjaw",
+      "breakpoints": true
     }
   ]
 }
