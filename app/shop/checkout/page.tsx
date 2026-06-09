@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Check, Smartphone, CreditCard, Building2, Loader2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { depositFor } from "@/lib/constants";
 import { PaymentMethod } from "@/lib/types";
 
 type Step = "details" | "payment" | "confirm";
@@ -13,6 +14,14 @@ type Step = "details" | "payment" | "confirm";
 export default function CheckoutPage() {
   const { items, subtotalKES, totalKES, clearCart, hasPhysicalItems } = useCart();
   const router = useRouter();
+
+  // Deposit option: only for qualifying orders that physically ship.
+  const [payDeposit, setPayDeposit] = useState(false);
+  const depositKES = depositFor(totalKES);
+  const depositEligible = depositKES != null && hasPhysicalItems;
+  const useDeposit = payDeposit && depositEligible;
+  const amountNowKES = useDeposit ? depositKES! : totalKES;
+  const balanceKES = useDeposit ? totalKES - depositKES! : 0;
 
   const [step, setStep] = useState<Step>("details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("mpesa");
@@ -57,6 +66,7 @@ export default function CheckoutPage() {
           deliveryCity: form.city,
           deliveryCounty: form.county,
           paymentMethod,
+          payDeposit: useDeposit,
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, deliveryMode: i.deliveryMode })),
         }),
       });
@@ -213,8 +223,21 @@ export default function CheckoutPage() {
           <div className="bg-ud-light-gray rounded-[4px] p-4 text-left text-xs text-ud-dark/60 mb-6 space-y-1">
             <div className="flex justify-between"><span>Order ID</span><span className="font-bold text-ud-dark">{orderId}</span></div>
             <div className="flex justify-between"><span>Payment</span><span className="font-bold text-ud-dark capitalize">{paymentMethod === "mpesa" ? "M-Pesa" : paymentMethod === "card" ? "Card (Flutterwave)" : "Bank Transfer"}</span></div>
-            <div className="flex justify-between"><span>Total</span><span className="font-bold text-ud-dark">KES {totalKES.toLocaleString()}</span></div>
+            {useDeposit ? (
+              <>
+                <div className="flex justify-between"><span>Order total</span><span className="font-bold text-ud-dark">KES {totalKES.toLocaleString()}</span></div>
+                <div className="flex justify-between text-ud-burgundy"><span>Deposit paid</span><span className="font-bold">KES {amountNowKES.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Balance on delivery</span><span className="font-bold text-ud-dark">KES {balanceKES.toLocaleString()}</span></div>
+              </>
+            ) : (
+              <div className="flex justify-between"><span>Total</span><span className="font-bold text-ud-dark">KES {totalKES.toLocaleString()}</span></div>
+            )}
           </div>
+          {useDeposit && (
+            <p className="text-xs text-ud-dark/60 bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-3 mb-6">
+              You paid a <strong>50% deposit</strong>. The balance of <strong>KES {balanceKES.toLocaleString()}</strong> is due on delivery (cash or M-Pesa).
+            </p>
+          )}
           <div className="flex flex-col sm:flex-row gap-3">
             <button onClick={() => router.push(`/track/${orderId}`)} className="flex-1 border border-ud-burgundy text-ud-burgundy text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy hover:text-white transition-colors">
               Track Order
@@ -280,6 +303,17 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {depositEligible && (
+                  <div className="border border-ud-burgundy/20 bg-ud-burgundy/5 rounded-[4px] p-4">
+                    <label className="flex items-start gap-3 cursor-pointer select-none">
+                      <input type="checkbox" checked={payDeposit} onChange={(e) => setPayDeposit(e.target.checked)} className="accent-ud-burgundy w-4 h-4 mt-0.5" />
+                      <span className="text-sm text-ud-dark/80 leading-relaxed">
+                        <strong className="text-ud-dark">Pay a 50% deposit now</strong> — KES {depositKES!.toLocaleString()} today, balance KES {(totalKES - depositKES!).toLocaleString()} collected on delivery.
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 <div>
                   <p className="text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-3">Payment Method</p>
                   <div className="flex gap-2">
@@ -340,7 +374,7 @@ export default function CheckoutPage() {
                       </div>
                     ) : (
                       <button type="submit" className="w-full bg-ud-burgundy text-white text-sm font-bold py-3.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
-                        Send STK Push — KES {totalKES.toLocaleString()}
+                        Send STK Push — KES {amountNowKES.toLocaleString()}{useDeposit ? " deposit" : ""}
                       </button>
                     )}
                   </div>
@@ -354,7 +388,7 @@ export default function CheckoutPage() {
                     </div>
                     <button type="submit" disabled={loading}
                       className="w-full flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors disabled:opacity-60">
-                      {loading ? <Loader2 size={16} className="animate-spin" /> : `Pay KES ${totalKES.toLocaleString()} →`}
+                      {loading ? <Loader2 size={16} className="animate-spin" /> : `Pay KES ${amountNowKES.toLocaleString()}${useDeposit ? " deposit" : ""} →`}
                     </button>
                     <p className="text-xs text-ud-dark/40 text-center">You will be redirected to Flutterwave&apos;s secure payment page.</p>
                   </div>
@@ -371,6 +405,7 @@ export default function CheckoutPage() {
                         ["Account Number", "0123456789012"],
                         ["Branch", "Upperhill, Nairobi"],
                         ["Swift Code", "EQBLKENA"],
+                        ["Amount", `KES ${amountNowKES.toLocaleString()}${useDeposit ? " (50% deposit)" : ""}`],
                         ["Reference", orderId],
                       ].map(([k, v]) => (
                         <div key={k} className="flex justify-between">
@@ -418,7 +453,13 @@ export default function CheckoutPage() {
               </ul>
               <div className="border-t border-ud-dark/10 pt-3 space-y-1.5 text-xs">
                 <div className="flex justify-between text-ud-dark/60"><span>Subtotal</span><span>KES {subtotalKES.toLocaleString()}</span></div>
-                <div className="flex justify-between font-bold text-ud-dark text-sm pt-1 border-t border-ud-dark/10"><span>Total</span><span>KES {totalKES.toLocaleString()}</span></div>
+                <div className="flex justify-between font-bold text-ud-dark text-sm pt-1 border-t border-ud-dark/10"><span>Order total</span><span>KES {totalKES.toLocaleString()}</span></div>
+                {useDeposit && (
+                  <>
+                    <div className="flex justify-between text-ud-burgundy font-semibold pt-1"><span>Deposit due now</span><span>KES {amountNowKES.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-ud-dark/50"><span>Balance on delivery</span><span>KES {balanceKES.toLocaleString()}</span></div>
+                  </>
+                )}
               </div>
             </div>
             <div className="bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-4 text-xs text-ud-dark/60 leading-relaxed">

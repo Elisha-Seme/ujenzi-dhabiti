@@ -37,6 +37,11 @@ export async function notifyAfterPayment(orderId: string) {
         )
       ).filter((d): d is { label: string; url: string } => d !== null);
 
+      const deposit =
+        order.depositKES != null && order.depositKES < order.totalKES
+          ? { depositKES: order.depositKES, balanceKES: order.totalKES - order.depositKES }
+          : null;
+
       await sendOrderConfirmation(
         buyerEmail,
         buyerName,
@@ -47,7 +52,8 @@ export async function notifyAfterPayment(orderId: string) {
           priceKES: i.priceKES,
         })),
         order.totalKES,
-        downloads
+        downloads,
+        deposit
       );
     }
   } catch (err) {

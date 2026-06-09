@@ -26,6 +26,7 @@ export async function GET() {
       subtotalKES: orders.subtotalKES,
       platformFeeKES: orders.platformFeeKES,
       totalKES: orders.totalKES,
+      depositKES: orders.depositKES,
       trackingNumber: orders.trackingNumber,
       dispatchedAt: orders.dispatchedAt,
       deliveredAt: orders.deliveredAt,

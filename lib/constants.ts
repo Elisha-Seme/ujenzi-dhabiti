@@ -24,6 +24,17 @@ export const CONTACT_INFO = {
   website: "www.ujenzidhabiti.co.ke",
 };
 
+// ─── Deposit policy ──────────────────────────────────────────────
+// Large orders may pay a part-deposit now; the balance is collected on delivery.
+export const DEPOSIT_PERCENT = 50;
+export const DEPOSIT_MIN_ORDER_KES = 50000;
+
+/** Deposit payable now for an order total, or null if the order doesn't qualify. */
+export function depositFor(totalKES: number): number | null {
+  if (totalKES < DEPOSIT_MIN_ORDER_KES) return null;
+  return Math.round((totalKES * DEPOSIT_PERCENT) / 100);
+}
+
 // WhatsApp business line (digits only, no "+"). Defaults to the primary phone.
 // TODO(client): confirm the dedicated WhatsApp number if different from the main line.
 export const WHATSAPP_NUMBER = "254782999100";

@@ -29,7 +29,8 @@ export async function sendOrderConfirmation(
   orderId: string,
   items: { productName: string; quantity: number; priceKES: number }[],
   totalKES: number,
-  downloads: { label: string; url: string }[] = []
+  downloads: { label: string; url: string }[] = [],
+  deposit: { depositKES: number; balanceKES: number } | null = null
 ) {
   const itemRows = items
     .map(
@@ -65,7 +66,12 @@ export async function sendOrderConfirmation(
           <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">${orderId}</p>
         </div>
         <p style="color:#333;font-size:15px">Hi ${name},</p>
-        <p style="color:#555;font-size:14px;margin-bottom:24px">Your payment was received. ${downloads.length > 0 ? "Your digital downloads are ready below. " : ""}Any physical items will be dispatched within their stated lead times.</p>
+        <p style="color:#555;font-size:14px;margin-bottom:24px">${deposit ? "Your deposit was received." : "Your payment was received."} ${downloads.length > 0 ? "Your digital downloads are ready below. " : ""}Any physical items will be dispatched within their stated lead times.</p>
+        ${deposit ? `
+        <div style="margin:0 0 20px;padding:14px 18px;background:#fdf4f6;border:1px solid #8a0e33;border-radius:4px;font-size:14px;color:#1c1e22">
+          <strong>Deposit paid:</strong> KES ${deposit.depositKES.toLocaleString()}<br/>
+          <strong>Balance due on delivery:</strong> KES ${deposit.balanceKES.toLocaleString()} (cash or M-Pesa)
+        </div>` : ""}
         ${downloadsBlock}
         <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
           <thead>

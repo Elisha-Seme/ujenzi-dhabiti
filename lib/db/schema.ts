@@ -143,6 +143,8 @@ export const orders = pgTable("orders", {
   subtotalKES: integer("subtotal_kes").notNull(),
   platformFeeKES: integer("platform_fee_kes").notNull(),
   totalKES: integer("total_kes").notNull(),
+  // Deposit orders: amount paid up front (null = paid in full). Balance = total - deposit.
+  depositKES: integer("deposit_kes"),
   // Status
   status: orderStatusEnum("status").notNull().default("pending"),
   paymentMethod: paymentMethodEnum("payment_method").notNull(),

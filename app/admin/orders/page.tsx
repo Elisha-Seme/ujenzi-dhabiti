@@ -28,6 +28,7 @@ interface AdminOrder {
   subtotalKES: number;
   platformFeeKES: number;
   totalKES: number;
+  depositKES: number | null;
   createdAt: string;
   items: AdminOrderItem[];
 }
@@ -145,6 +146,11 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="text-left lg:text-right">
                   <p className="text-lg font-bold text-ud-dark">{fmt(order.totalKES)}</p>
+                  {order.depositKES != null && order.depositKES < order.totalKES && (
+                    <p className="text-xs font-semibold text-ud-burgundy mt-0.5">
+                      Deposit {fmt(order.depositKES)} · Balance {fmt(order.totalKES - order.depositKES)} on delivery
+                    </p>
+                  )}
                 </div>
               </div>
 

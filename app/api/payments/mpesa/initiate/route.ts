@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payment already completed" }, { status: 400 });
     }
 
-    // ─── 5. Trigger STK push ───────────────────────────────────────
-    const result = await stkPush(normalizedPhone, order.totalKES, orderId);
+    // ─── 5. Trigger STK push (deposit amount if this is a deposit order) ─
+    const amountToCharge = order.depositKES ?? order.totalKES;
+    const result = await stkPush(normalizedPhone, amountToCharge, orderId);
 
     if (result.ResponseCode !== "0") {
       return NextResponse.json(

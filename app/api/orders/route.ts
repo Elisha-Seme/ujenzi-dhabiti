@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { auth } from "@/lib/auth";
 import { planPrice, planSnapshotName, DeliveryMode } from "@/lib/house-plans";
 import { getAllPlans } from "@/lib/plans-store";
+import { depositFor } from "@/lib/constants";
 
 interface CartItem {
   productId: string;
@@ -34,11 +35,13 @@ export async function POST(req: NextRequest) {
       guestName, guestEmail, guestPhone,
       deliveryAddress, deliveryCity, deliveryCounty,
       paymentMethod,
+      payDeposit,
       items,
     }: {
       guestName?: string; guestEmail?: string; guestPhone?: string;
       deliveryAddress?: string; deliveryCity?: string; deliveryCounty?: string;
       paymentMethod: ClientPaymentMethod;
+      payDeposit?: boolean;
       items: CartItem[];
     } = body;
 
@@ -157,6 +160,11 @@ export async function POST(req: NextRequest) {
     const platformFeeKES = 0; // single-vendor: no marketplace fee
     const totalKES = subtotalKES;
 
+    // Deposit orders: charge a part-payment now, balance on delivery. Only
+    // honoured when the order qualifies (server-side check, never trust client).
+    const depositKES = payDeposit ? depositFor(totalKES) : null;
+    const amountDueNowKES = depositKES ?? totalKES;
+
     const orderId = "UD-" + randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
 
     const loggedInUserId = session?.user?.id ?? null;
@@ -172,6 +180,7 @@ export async function POST(req: NextRequest) {
       subtotalKES,
       platformFeeKES,
       totalKES,
+      depositKES,
       status: "pending",
       paymentMethod: storedPaymentMethod,
     });
@@ -196,13 +205,15 @@ export async function POST(req: NextRequest) {
       orderId,
       provider: storedPaymentMethod,
       status: "initiated",
-      amountKES: totalKES,
+      amountKES: amountDueNowKES,
     });
 
     return NextResponse.json({
       orderId,
       paymentId,
       totalKES,
+      depositKES,
+      amountDueNowKES,
       buyerEmail,
       buyerName,
     });

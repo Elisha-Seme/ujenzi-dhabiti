@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     const { paymentLink, txRef } = await initFlutterwavePayment(
       orderId,
-      order.totalKES,
+      order.depositKES ?? order.totalKES,
       buyerEmail,
       buyerName,
       buyerPhone,

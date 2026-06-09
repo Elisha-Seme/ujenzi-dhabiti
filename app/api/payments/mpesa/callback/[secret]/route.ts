@@ -98,14 +98,16 @@ export async function POST(
       return NextResponse.json(ACK);
     }
 
-    // ─── 7. Verify the amount matches what we expected ──────────
-    if (transAmount > 0 && transAmount !== order.totalKES) {
+    // ─── 7. Verify the amount matches what we charged ───────────
+    // Deposit orders charge order.depositKES; full orders charge order.totalKES.
+    const expectedKES = order.depositKES ?? order.totalKES;
+    if (transAmount > 0 && transAmount !== expectedKES) {
       console.error(
-        `[mpesa/callback] AMOUNT MISMATCH for ${order.id}: expected ${order.totalKES}, got ${transAmount}`
+        `[mpesa/callback] AMOUNT MISMATCH for ${order.id}: expected ${expectedKES}, got ${transAmount}`
       );
       await db.update(payments).set({
         status: "failed",
-        metadata: { ...body, _reason: "amount_mismatch", _expected: order.totalKES },
+        metadata: { ...body, _reason: "amount_mismatch", _expected: expectedKES },
       }).where(eq(payments.id, payment.id));
       return NextResponse.json(ACK);
     }

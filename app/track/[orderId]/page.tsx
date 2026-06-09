@@ -58,6 +58,7 @@ interface Order {
   subtotalKES: number;
   platformFeeKES: number;
   totalKES: number;
+  depositKES: number | null;
   trackingNumber: string | null;
   dispatchedAt: string | null;
   deliveredAt: string | null;
@@ -340,10 +341,27 @@ export default function TrackOrderPage() {
               <span>Subtotal</span>
               <span>{fmt(order.subtotalKES)}</span>
             </div>
-            <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-ud-dark/8">
-              <span>Total Paid</span>
-              <span>{fmt(order.totalKES)}</span>
-            </div>
+            {order.depositKES != null && order.depositKES < order.totalKES ? (
+              <>
+                <div className="flex justify-between text-sm text-ud-dark/60">
+                  <span>Order total</span>
+                  <span>{fmt(order.totalKES)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-ud-burgundy">
+                  <span>Deposit paid</span>
+                  <span>{fmt(order.depositKES)}</span>
+                </div>
+                <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-ud-dark/8">
+                  <span>Balance due on delivery</span>
+                  <span>{fmt(order.totalKES - order.depositKES)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-base font-semibold text-ud-dark pt-2 border-t border-ud-dark/8">
+                <span>Total Paid</span>
+                <span>{fmt(order.totalKES)}</span>
+              </div>
+            )}
           </div>
         </div>
 
