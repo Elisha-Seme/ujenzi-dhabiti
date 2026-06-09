@@ -14,9 +14,21 @@ export default function HomePage() {
       {/* One page-wide backdrop: faint blueprint + a red wash up top that fades
           smoothly to dark over more than a screen — no seams, dark all the way down. */}
       <div aria-hidden className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-cover bg-center opacity-[0.13]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
-        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 72% 52% at 55% 32%, rgba(160,22,58,0.45), transparent 68%)" }} />
-        <div className="absolute inset-x-0 top-0 h-[175vh]" style={{ background: "linear-gradient(to bottom, rgba(138,14,51,0.85) 0%, rgba(138,14,51,0.55) 20%, rgba(138,14,51,0.22) 42%, rgba(28,30,34,0) 66%)" }} />
+        <div className="absolute inset-0 bg-ud-dark" />
+        {/* Clearly-visible blueprint texture across the page */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-[0.6]" style={{ backgroundImage: "url('/bg-image.webp')" }} />
+        {/* Deep burgundy, MULTIPLIED so the blueprint shows through as red lines — strong at the top, fading to plain dark lower down */}
+        <div
+          className="absolute inset-x-0 top-0 h-[175vh] bg-ud-burgundy mix-blend-multiply"
+          style={{
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 30%, transparent 66%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 30%, transparent 66%)",
+          }}
+        />
+        {/* warm glow in the hero */}
+        <div className="absolute inset-x-0 top-0 h-screen" style={{ background: "radial-gradient(ellipse 75% 55% at 55% 32%, rgba(176,32,74,0.32), transparent 70%)" }} />
+        {/* settle the very bottom into solid dark */}
+        <div className="absolute inset-x-0 bottom-0 h-[40vh]" style={{ background: "linear-gradient(to bottom, rgba(28,30,34,0), rgba(28,30,34,0.85))" }} />
       </div>
 
       {/* ─── Hero ─────────────────────────────────────────────── */}
