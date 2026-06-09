@@ -2,6 +2,7 @@ import {
   pgTable,
   text,
   integer,
+  real,
   boolean,
   timestamp,
   jsonb,
@@ -118,6 +119,8 @@ export const products = pgTable("products", {
   stock: integer("stock").notNull().default(0),
   images: text("images").array().notNull().default([]),
   specs: jsonb("specs").$type<Record<string, string>>(),
+  // m² covered by one unit — powers the material calculator (null = not area-based)
+  coverageSqmPerUnit: real("coverage_sqm_per_unit"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search, Truck, ClipboardList, Lock, X, SlidersHorizontal, Home, ArrowRight } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import ProductCard from "@/components/shop/ProductCard";
@@ -42,11 +43,20 @@ function scoreProduct(product: ApiProduct, query: string): number {
   return score;
 }
 
-export default function ShopPage() {
+function ShopContent() {
+  const searchParams = useSearchParams();
+  const urlCat = searchParams.get("category");
   const [allProducts, setAllProducts] = useState<ApiProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<ProductCategory | "All">("All");
   const [rawSearch, setRawSearch] = useState("");
+
+  // Pre-select category from a ?category= link (e.g. the homepage category grid).
+  useEffect(() => {
+    if (urlCat && (PRODUCT_CATEGORIES as string[]).includes(urlCat)) {
+      setActiveCategory(urlCat as ProductCategory);
+    }
+  }, [urlCat]);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
   const [priceMin, setPriceMin] = useState("");
@@ -303,6 +313,14 @@ export default function ShopPage() {
 
       <CTABanner />
     </>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<SectionHero title="Shop Materials" subtitle="Loading the catalogue…" />}>
+      <ShopContent />
+    </Suspense>
   );
 }
 

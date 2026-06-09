@@ -2,6 +2,7 @@ import Button from "@/components/ui/Button";
 import DotMatrix from "@/components/ui/DotMatrix";
 import BlueprintBg from "@/components/ui/BlueprintBg";
 import HomeAuthTabs from "@/components/home/HomeAuthTabs";
+import HomeCategories from "@/components/home/HomeCategories";
 import HomeProducts from "@/components/home/HomeProducts";
 import HomePlans from "@/components/home/HomePlans";
 import MissionVision from "@/components/sections/MissionVision";
@@ -66,6 +67,7 @@ export default function HomePage() {
         {/* Fade into the solid-dark Mission section below */}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent to-ud-dark z-[1] pointer-events-none" />
         <div className="relative z-10">
+          <HomeCategories />
           <HomeProducts />
           <HomePlans />
         </div>

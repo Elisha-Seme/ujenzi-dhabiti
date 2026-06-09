@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "coverage_sqm_per_unit" real;

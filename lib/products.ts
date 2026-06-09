@@ -1,10 +1,27 @@
+// Single-vendor materials catalogue (sold by Ujenzi Dhabiti).
+// Categories follow the client website wireframe. This static list is the
+// seed + fallback; the DB `products` table is authoritative at runtime.
+
 export type ProductCategory =
-  | "Cement & Concrete"
-  | "Steel & Rebar"
-  | "Pipes & Fittings"
-  | "Safety Equipment"
-  | "Heavy Equipment"
-  | "Tools & Accessories";
+  | "Structural Materials"
+  | "Gypsum & Ceilings"
+  | "Paint & Finishes"
+  | "Flooring"
+  | "Plumbing"
+  | "Electrical"
+  | "Cabro & Road Works"
+  | "Hardware";
+
+export const PRODUCT_CATEGORIES: ProductCategory[] = [
+  "Structural Materials",
+  "Gypsum & Ceilings",
+  "Paint & Finishes",
+  "Flooring",
+  "Plumbing",
+  "Electrical",
+  "Cabro & Road Works",
+  "Hardware",
+];
 
 export interface Product {
   id: string;
@@ -15,276 +32,356 @@ export interface Product {
   priceKES: number;
   image: string;
   inStock: boolean;
-  sellerId: string;
+  sellerId?: string; // legacy/optional — single-vendor catalogue has no seller
   specs?: Record<string, string>;
+  // How many square metres ONE unit covers. Drives the material calculator.
+  // Omit for items that aren't area-based (valves, tanks, tools…).
+  coverageSqmPerUnit?: number;
 }
 
-export const PRODUCT_CATEGORIES: ProductCategory[] = [
-  "Cement & Concrete",
-  "Steel & Rebar",
-  "Pipes & Fittings",
-  "Safety Equipment",
-  "Heavy Equipment",
-  "Tools & Accessories",
-];
+const IMG = {
+  cement: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&q=70&auto=format&fit=crop",
+  rebar: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=700&q=70&auto=format&fit=crop",
+  blocks: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=70&auto=format&fit=crop",
+  gypsum: "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=700&q=70&auto=format&fit=crop",
+  paint: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=700&q=70&auto=format&fit=crop",
+  tiles: "https://images.unsplash.com/photo-1615873968403-89e068629265?w=700&q=70&auto=format&fit=crop",
+  pipes: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=700&q=70&auto=format&fit=crop",
+  electrical: "https://images.unsplash.com/photo-1565608087341-404b25492fee?w=700&q=70&auto=format&fit=crop",
+  cabro: "https://images.unsplash.com/photo-1597844808175-0d5c4f7b3c8c?w=700&q=70&auto=format&fit=crop",
+  hardware: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=700&q=70&auto=format&fit=crop",
+};
 
 export const PRODUCTS: Product[] = [
-  // Cement & Concrete — seller: sel-001
+  // ─── Structural Materials ───────────────────────────────────
   {
-    id: "cem-001",
+    id: "str-cement",
     name: "Portland Cement (50kg)",
-    category: "Cement & Concrete",
-    sellerId: "sel-001",
-    description:
-      "High-strength ordinary Portland cement suitable for general construction, foundations, and structural works. Meets KS EAS 18-1 standard.",
+    category: "Structural Materials",
+    description: "High-strength ordinary Portland cement for foundations, slabs, and general structural works. Meets KS EAS 18-1.",
     unit: "per bag",
     priceKES: 850,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    image: IMG.cement,
     inStock: true,
     specs: { Grade: "42.5N", "Bag weight": "50kg", Standard: "KS EAS 18-1" },
   },
   {
-    id: "cem-002",
-    name: "Ready-Mix Concrete (1m³)",
-    category: "Cement & Concrete",
-    sellerId: "sel-001",
-    description:
-      "Factory-batched ready-mix concrete delivered to site. Available in C20, C25, C30, and C35 grades.",
-    unit: "per m³",
-    priceKES: 14500,
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { Grades: "C20 / C25 / C30 / C35", "Lead time": "24 hrs", Delivery: "Included" },
-  },
-  {
-    id: "cem-003",
-    name: "Concrete Blocks (140mm)",
-    category: "Cement & Concrete",
-    sellerId: "sel-001",
-    description:
-      "Solid concrete masonry blocks for load-bearing and partition walls. Cured 28 days.",
-    unit: "per block",
-    priceKES: 1,
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { Size: "390×190×140mm", Strength: "7 N/mm²", MOQ: "500 blocks" },
-  },
-  // Steel & Rebar — sellers: sel-001, sel-002
-  {
-    id: "stl-001",
-    name: "Deformed Rebar Y12 (12m)",
-    category: "Steel & Rebar",
-    sellerId: "sel-002",
-    description:
-      "High-yield deformed steel bars for reinforced concrete structures. Grade 500B. Full-length 12m bars, cut-to-length available.",
+    id: "str-rebar-y12",
+    name: "Deformed Steel Bar Y12 (12m)",
+    category: "Structural Materials",
+    description: "High-yield deformed reinforcement bar for reinforced concrete. Grade 500B, cut-to-length on request.",
     unit: "per bar",
     priceKES: 1150,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    image: IMG.rebar,
     inStock: true,
-    specs: { Diameter: "12mm", Grade: "500B", Length: "12m", Standard: "KS 572" },
+    specs: { Diameter: "12mm", Grade: "500B", Length: "12m" },
   },
   {
-    id: "stl-002",
-    name: "BRC Welded Mesh A393",
-    category: "Steel & Rebar",
-    sellerId: "sel-002",
-    description:
-      "Factory-welded high-tensile steel mesh for floor slabs, walls, and industrial floors.",
-    unit: "per sheet (2.4×4.8m)",
-    priceKES: 8900,
-    image:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500&q=70&auto=format&fit=crop",
+    id: "str-blocks",
+    name: "Concrete Wall Block (200mm)",
+    category: "Structural Materials",
+    description: "Solid concrete masonry blocks for load-bearing and partition walls. Cured 28 days.",
+    unit: "per block",
+    priceKES: 75,
+    image: IMG.blocks,
     inStock: true,
-    specs: { Size: "2.4m × 4.8m", Wire: "10mm @ 200mm", Grade: "500B" },
+    specs: { Size: "400×200×200mm", Strength: "7 N/mm²" },
+    coverageSqmPerUnit: 0.08, // ~12.5 blocks per m² of wall
   },
   {
-    id: "stl-003",
-    name: "Structural Steel I-Beam (6m)",
-    category: "Steel & Rebar",
-    sellerId: "sel-001",
-    description:
-      "Hot-rolled universal I-beams for structural frames, mezzanines, and bridge girders. Grade S275. Primed finish.",
-    unit: "per 6m length",
-    priceKES: 24000,
-    image:
-      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { Section: "203×133×25kg/m", Grade: "S275", Finish: "Mill scale / primed" },
-  },
-  // Pipes & Fittings — seller: sel-003
-  {
-    id: "pip-001",
-    name: "HDPE Pipe 110mm PN16 (6m)",
-    category: "Pipes & Fittings",
-    sellerId: "sel-003",
-    description:
-      "High-density polyethylene pressure pipe for water supply and irrigation mains. 50-year design life.",
-    unit: "per 6m length",
-    priceKES: 3800,
-    image:
-      "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { Diameter: "110mm OD", Pressure: "PN16 (16 bar)", Material: "PE100", Standard: "ISO 4427" },
-  },
-  {
-    id: "pip-002",
-    name: "uPVC Sewer Pipe 160mm (6m)",
-    category: "Pipes & Fittings",
-    sellerId: "sel-003",
-    description:
-      "Unplasticised PVC gravity sewer pipe. Smooth bore for self-cleaning velocity. Suitable for sewage and drainage.",
-    unit: "per 6m length",
+    id: "str-ballast",
+    name: "Ballast / Aggregate (per tonne)",
+    category: "Structural Materials",
+    description: "Clean crushed stone aggregate for concrete mixing. Delivered by tipper.",
+    unit: "per tonne",
     priceKES: 2200,
-    image:
-      "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&q=70&auto=format&fit=crop",
-    inStock: false,
-    specs: { Diameter: "160mm", Class: "SN8", Standard: "ISO 1452" },
-  },
-  {
-    id: "pip-003",
-    name: "Gate Valve 100mm PN16",
-    category: "Pipes & Fittings",
-    sellerId: "sel-003",
-    description:
-      "Ductile iron resilient-seated gate valve for potable water mains. Flanged ends.",
-    unit: "per unit",
-    priceKES: 18500,
-    image:
-      "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&q=70&auto=format&fit=crop",
+    image: IMG.blocks,
     inStock: true,
-    specs: { Size: "DN100", Pressure: "PN16", Body: "Ductile iron", Standard: "BS 5163" },
+    specs: { Size: "20mm / 14mm", Delivery: "Tipper" },
   },
-  // Safety Equipment — seller: sel-004
+
+  // ─── Gypsum & Ceilings ──────────────────────────────────────
   {
-    id: "sft-001",
-    name: "Construction Hard Hat (Class E)",
-    category: "Safety Equipment",
-    sellerId: "sel-004",
-    description:
-      "Electrical-rated hard hat with 6-point suspension harness and ratchet adjustment. ANSI/ISEA Z89.1 compliant.",
-    unit: "per unit",
-    priceKES: 1200,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    id: "gyp-board",
+    name: "Gypsum Board 12.5mm (1.2×2.4m)",
+    category: "Gypsum & Ceilings",
+    description: "Standard gypsum plasterboard for ceilings and dry-wall partitioning. Smooth, paint-ready face.",
+    unit: "per board",
+    priceKES: 1100,
+    image: IMG.gypsum,
     inStock: true,
-    specs: { Rating: "Class E", Standard: "ANSI/ISEA Z89.1", Colors: "White / Yellow / Orange" },
+    specs: { Size: "1.2m × 2.4m", Thickness: "12.5mm" },
+    coverageSqmPerUnit: 2.88, // one board = 2.88 m²
   },
   {
-    id: "sft-002",
-    name: "Hi-Vis Safety Vest (Class 2)",
-    category: "Safety Equipment",
-    sellerId: "sel-004",
-    description:
-      "Class 2 high-visibility vest with 50mm retroreflective tape. Mesh body for ventilation.",
-    unit: "per unit",
+    id: "gyp-channel",
+    name: "Metal Furring Channel (3m)",
+    category: "Gypsum & Ceilings",
+    description: "Galvanised steel furring channel for suspended ceiling and partition framing.",
+    unit: "per length",
     priceKES: 450,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    image: IMG.gypsum,
     inStock: true,
-    specs: { Class: "Class 2", Standard: "EN ISO 20471", Sizes: "S–XXL" },
+    specs: { Length: "3m", Finish: "Galvanised" },
   },
   {
-    id: "sft-003",
-    name: "Safety Boot (Steel Toe S3)",
-    category: "Safety Equipment",
-    sellerId: "sel-004",
-    description:
-      "Mid-cut leather safety boot with 200J steel toecap and steel midsole. Oil-resistant sole.",
-    unit: "per pair",
-    priceKES: 4800,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    id: "gyp-tgrid",
+    name: "Suspended Ceiling T-Grid System",
+    category: "Gypsum & Ceilings",
+    description: "Exposed-grid suspended ceiling system including main runners, cross tees, and wall angle. Priced per m².",
+    unit: "per m²",
+    priceKES: 900,
+    image: IMG.gypsum,
     inStock: true,
-    specs: { Rating: "S3 SRC", Toecap: "200J steel", Standard: "EN ISO 20345", Sizes: "38–48 EU" },
+    specs: { Module: "600×600mm", Finish: "White" },
+    coverageSqmPerUnit: 1,
   },
-  // Heavy Equipment — seller: sel-005
+
+  // ─── Paint & Finishes ───────────────────────────────────────
   {
-    id: "heq-001",
-    name: "Concrete Mixer 350L (Diesel)",
-    category: "Heavy Equipment",
-    sellerId: "sel-005",
-    description:
-      "Site-mounted diesel concrete mixer with 350-litre drum capacity. Electric start. Suitable for remote sites without grid power.",
+    id: "pnt-emulsion",
+    name: "Vinyl Silk Emulsion (20L)",
+    category: "Paint & Finishes",
+    description: "Premium washable interior emulsion with a smooth silk finish. Excellent coverage and durability.",
+    unit: "per 20L tin",
+    priceKES: 6500,
+    image: IMG.paint,
+    inStock: true,
+    specs: { Volume: "20L", Coats: "2", Finish: "Silk" },
+    coverageSqmPerUnit: 120, // 20L ≈ 120 m² at 2 coats
+  },
+  {
+    id: "pnt-undercoat",
+    name: "Wall Primer / Undercoat (4L)",
+    category: "Paint & Finishes",
+    description: "Alkali-resistant primer that seals fresh plaster and improves topcoat adhesion.",
+    unit: "per 4L tin",
+    priceKES: 1800,
+    image: IMG.paint,
+    inStock: true,
+    specs: { Volume: "4L", Finish: "Matt" },
+    coverageSqmPerUnit: 28,
+  },
+  {
+    id: "pnt-putty",
+    name: "Skim Coat Wall Putty (20kg)",
+    category: "Paint & Finishes",
+    description: "Fine white putty for levelling walls and ceilings before painting.",
+    unit: "per 20kg bag",
+    priceKES: 1200,
+    image: IMG.paint,
+    inStock: true,
+    specs: { Weight: "20kg", Colour: "White" },
+    coverageSqmPerUnit: 12,
+  },
+
+  // ─── Flooring ───────────────────────────────────────────────
+  {
+    id: "flr-ceramic",
+    name: "Ceramic Floor Tile 600×600",
+    category: "Flooring",
+    description: "Hard-wearing glazed ceramic floor tile for living spaces and circulation areas. Priced per m².",
+    unit: "per m²",
+    priceKES: 1450,
+    image: IMG.tiles,
+    inStock: true,
+    specs: { Size: "600×600mm", Finish: "Matt", Class: "PEI III" },
+    coverageSqmPerUnit: 1,
+  },
+  {
+    id: "flr-porcelain",
+    name: "Porcelain Tile 800×800",
+    category: "Flooring",
+    description: "Premium rectified porcelain tile with low water absorption — ideal for high-traffic and wet areas.",
+    unit: "per m²",
+    priceKES: 2600,
+    image: IMG.tiles,
+    inStock: true,
+    specs: { Size: "800×800mm", Finish: "Polished" },
+    coverageSqmPerUnit: 1,
+  },
+  {
+    id: "flr-adhesive",
+    name: "Tile Adhesive (20kg)",
+    category: "Flooring",
+    description: "Cement-based tile adhesive for floors and walls. Strong bond on concrete and screed.",
+    unit: "per 20kg bag",
+    priceKES: 1100,
+    image: IMG.tiles,
+    inStock: true,
+    specs: { Weight: "20kg", Coverage: "~5 m²/bag" },
+    coverageSqmPerUnit: 5,
+  },
+
+  // ─── Plumbing ───────────────────────────────────────────────
+  {
+    id: "plm-ppr20",
+    name: "PPR Hot/Cold Pipe 20mm (4m)",
+    category: "Plumbing",
+    description: "Polypropylene random copolymer pressure pipe for hot and cold water supply. Heat-fused joints.",
+    unit: "per length",
+    priceKES: 480,
+    image: IMG.pipes,
+    inStock: true,
+    specs: { Diameter: "20mm", Length: "4m", Pressure: "PN20" },
+  },
+  {
+    id: "plm-upvc110",
+    name: "uPVC Soil Pipe 110mm (6m)",
+    category: "Plumbing",
+    description: "Unplasticised PVC waste and soil pipe for gravity drainage systems.",
+    unit: "per length",
+    priceKES: 1300,
+    image: IMG.pipes,
+    inStock: true,
+    specs: { Diameter: "110mm", Length: "6m", Class: "SN4" },
+  },
+  {
+    id: "plm-tank",
+    name: "Water Storage Tank (1000L)",
+    category: "Plumbing",
+    description: "UV-stabilised polyethylene water tank, food-grade. Includes lid and outlet fittings.",
     unit: "per unit",
-    priceKES: 185000,
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
+    priceKES: 11500,
+    image: IMG.pipes,
     inStock: true,
-    specs: { Capacity: "350L", Engine: "10HP diesel", Output: "~10 batches/hr" },
+    specs: { Capacity: "1000L", Material: "LLDPE" },
+  },
+
+  // ─── Electrical ─────────────────────────────────────────────
+  {
+    id: "ele-twincable",
+    name: "Twin & Earth Cable 2.5mm² (100m)",
+    category: "Electrical",
+    description: "PVC-insulated copper cable for ring and radial socket circuits. 100m drum.",
+    unit: "per 100m roll",
+    priceKES: 8500,
+    image: IMG.electrical,
+    inStock: true,
+    specs: { Size: "2.5mm²", Length: "100m", Conductor: "Copper" },
   },
   {
-    id: "heq-002",
-    name: "Plate Compactor 100kg",
-    category: "Heavy Equipment",
-    sellerId: "sel-005",
-    description:
-      "Forward-plate vibrating compactor for granular soils and road sub-base preparation. Honda GX160 engine.",
+    id: "ele-conduit",
+    name: "PVC Conduit Pipe 20mm (3m)",
+    category: "Electrical",
+    description: "Heavy-gauge PVC conduit for concealed electrical wiring.",
+    unit: "per length",
+    priceKES: 180,
+    image: IMG.electrical,
+    inStock: true,
+    specs: { Diameter: "20mm", Length: "3m" },
+  },
+  {
+    id: "ele-db8",
+    name: "Distribution Board (8-Way)",
+    category: "Electrical",
+    description: "Surface-mount consumer unit with main switch — 8 ways for MCBs. Ready for installation.",
     unit: "per unit",
-    priceKES: 95000,
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=70&auto=format&fit=crop",
+    priceKES: 3800,
+    image: IMG.electrical,
     inStock: true,
-    specs: { Plate: "500×400mm", Weight: "100kg", Engine: "Honda GX160" },
+    specs: { Ways: "8", Mounting: "Surface" },
+  },
+
+  // ─── Cabro & Road Works ─────────────────────────────────────
+  {
+    id: "cab-block60",
+    name: "Cabro Paving Block 60mm",
+    category: "Cabro & Road Works",
+    description: "Interlocking concrete paving block for driveways, yards, and walkways. Priced per m².",
+    unit: "per m²",
+    priceKES: 1150,
+    image: IMG.cabro,
+    inStock: true,
+    specs: { Thickness: "60mm", Strength: "35 N/mm²" },
+    coverageSqmPerUnit: 1,
   },
   {
-    id: "heq-003",
-    name: "Hydraulic Breaker 1500J",
-    category: "Heavy Equipment",
-    sellerId: "sel-005",
-    description:
-      "Medium class hydraulic rock breaker for excavator attachment. 1500J impact energy. For rock, concrete, and hard pavement.",
+    id: "cab-kerb",
+    name: "Concrete Kerbstone",
+    category: "Cabro & Road Works",
+    description: "Precast concrete kerb for edging driveways, paving, and roads.",
+    unit: "per piece",
+    priceKES: 450,
+    image: IMG.cabro,
+    inStock: true,
+    specs: { Size: "500×300×150mm" },
+  },
+  {
+    id: "cab-hardcore",
+    name: "Hardcore (per tonne)",
+    category: "Cabro & Road Works",
+    description: "Crushed stone hardcore for sub-base preparation under slabs and paving.",
+    unit: "per tonne",
+    priceKES: 1800,
+    image: IMG.cabro,
+    inStock: true,
+    specs: { Delivery: "Tipper" },
+  },
+
+  // ─── Hardware ───────────────────────────────────────────────
+  {
+    id: "hwd-wheelbarrow",
+    name: "Heavy-Duty Wheelbarrow",
+    category: "Hardware",
+    description: "Reinforced steel-pan wheelbarrow with pneumatic tyre for site material handling.",
     unit: "per unit",
-    priceKES: 480000,
-    image:
-      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=500&q=70&auto=format&fit=crop",
-    inStock: false,
-    specs: { Energy: "1500J", Weight: "650kg", "Carrier class": "8–20T excavator" },
+    priceKES: 4200,
+    image: IMG.hardware,
+    inStock: true,
+    specs: { Capacity: "90L", Tyre: "Pneumatic" },
   },
-  // Tools & Accessories — seller: sel-006
   {
-    id: "tol-001",
-    name: "Laser Level (Self-Levelling)",
-    category: "Tools & Accessories",
-    sellerId: "sel-006",
-    description:
-      "360° self-levelling cross-line laser level with green beam. ±30m indoor range. IP54 rated.",
+    id: "hwd-roofnails",
+    name: "Roofing Nails (25kg)",
+    category: "Hardware",
+    description: "Galvanised twisted-shank roofing nails with rubber washers. Bulk 25kg bag.",
+    unit: "per 25kg bag",
+    priceKES: 3500,
+    image: IMG.hardware,
+    inStock: true,
+    specs: { Weight: "25kg", Finish: "Galvanised" },
+  },
+  {
+    id: "hwd-bindingwire",
+    name: "Binding Wire (per kg)",
+    category: "Hardware",
+    description: "Soft annealed mild-steel binding wire for tying reinforcement bars.",
+    unit: "per kg",
+    priceKES: 220,
+    image: IMG.hardware,
+    inStock: true,
+    specs: { Gauge: "16g", Finish: "Annealed" },
+  },
+  {
+    id: "hwd-padlock",
+    name: "Heavy-Duty Padlock",
+    category: "Hardware",
+    description: "Hardened-steel shackle padlock for site stores and gates. Three keys included.",
     unit: "per unit",
-    priceKES: 28000,
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&q=70&auto=format&fit=crop",
+    priceKES: 650,
+    image: IMG.hardware,
     inStock: true,
-    specs: { Range: "±30m indoor", Accuracy: "±0.2mm/m", Rating: "IP54" },
-  },
-  {
-    id: "tol-002",
-    name: "Scaffolding Tube 48.3mm × 6m",
-    category: "Tools & Accessories",
-    sellerId: "sel-006",
-    description:
-      "Hot-dip galvanised steel scaffolding tube. 48.3mm OD × 3.2mm wall. Fits all standard system couplers.",
-    unit: "per tube",
-    priceKES: 3200,
-    image:
-      "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { OD: "48.3mm", Wall: "3.2mm", Length: "6.0m", Finish: "Hot-dip galvanised" },
-  },
-  {
-    id: "tol-003",
-    name: "Angle Grinder 9″ 2400W",
-    category: "Tools & Accessories",
-    sellerId: "sel-006",
-    description:
-      "Heavy-duty 230mm angle grinder for cutting rebar and grinding welds. Soft-start, anti-restart safety.",
-    unit: "per unit",
-    priceKES: 12500,
-    image:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=500&q=70&auto=format&fit=crop",
-    inStock: true,
-    specs: { Disc: "230mm (9″)", Power: "2400W", "No-load speed": "6500 RPM" },
+    specs: { Body: "Brass", Keys: "3" },
   },
 ];
+
+const PRODUCT_MAP: Record<string, Product> = Object.fromEntries(
+  PRODUCTS.map((p) => [p.id, p])
+);
+
+export function getProduct(id: string): Product | undefined {
+  return PRODUCT_MAP[id];
+}
+
+// Category → icon key + short blurb, for the homepage "Shop by Category" grid.
+export const CATEGORY_META: Record<ProductCategory, { icon: string; blurb: string }> = {
+  "Structural Materials": { icon: "blocks", blurb: "Cement, rebar, blocks & aggregate" },
+  "Gypsum & Ceilings": { icon: "ceiling", blurb: "Boards, framing & ceiling systems" },
+  "Paint & Finishes": { icon: "paint", blurb: "Emulsions, primers & putty" },
+  "Flooring": { icon: "tiles", blurb: "Ceramic, porcelain & adhesives" },
+  "Plumbing": { icon: "pipe", blurb: "Pipes, fittings & tanks" },
+  "Electrical": { icon: "plug", blurb: "Cables, conduit & boards" },
+  "Cabro & Road Works": { icon: "road", blurb: "Cabro, kerbs & hardcore" },
+  "Hardware": { icon: "tools", blurb: "Tools, nails & site essentials" },
+};

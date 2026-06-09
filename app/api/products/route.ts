@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
         stock: products.stock,
         images: products.images,
         specs: products.specs,
+        coverageSqmPerUnit: products.coverageSqmPerUnit,
       })
       .from(products)
       .where(and(...conditions))
@@ -100,6 +101,7 @@ function getStaticProductsFallback(req: NextRequest) {
     stock: product.inStock ? 1 : 0,
     images: [product.image],
     specs: product.specs ?? null,
+    coverageSqmPerUnit: product.coverageSqmPerUnit ?? null,
   }));
 
   rows = rows.sort((a, b) => {

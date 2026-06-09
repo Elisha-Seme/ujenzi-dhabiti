@@ -2,8 +2,9 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { db } from "./index";
-import { users, housePlans } from "./schema";
+import { users, housePlans, products } from "./schema";
 import { HOUSE_PLANS } from "../house-plans";
+import { PRODUCTS } from "../products";
 import bcrypt from "bcryptjs";
 
 // ─── Single-vendor seed: admin account + house-plan catalogue ────────────────
@@ -51,7 +52,34 @@ async function seed() {
       .onConflictDoNothing();
   }
 
+  // ─── Materials catalogue (single-vendor; resets to the placeholder set) ───
+  // NOTE: this replaces the materials catalogue with the wireframe placeholders.
+  // Once the real product list is loaded via /admin/products, stop reseeding
+  // (or remove this block) so admin-entered products aren't wiped.
+  console.log("Creating materials...");
+  await db.delete(products);
+  for (const p of PRODUCTS) {
+    await db
+      .insert(products)
+      .values({
+        id: p.id,
+        sellerId: null,
+        name: p.name,
+        category: p.category,
+        description: p.description,
+        priceKES: p.priceKES,
+        unit: p.unit,
+        stock: p.inStock ? 100 : 0,
+        images: [p.image],
+        specs: p.specs ?? {},
+        coverageSqmPerUnit: p.coverageSqmPerUnit ?? null,
+        isActive: true,
+      })
+      .onConflictDoNothing();
+  }
+
   console.log("\n✅ Seed complete!");
+  console.log(`   ${PRODUCTS.length} materials`);
   console.log(`   ${HOUSE_PLANS.length} house plans`);
   console.log("\n   Admin login: admin@ujenzidhabiti.co.ke / Admin@UjenziDhabiti2025!");
   console.log("   Change this password immediately after first login.\n");

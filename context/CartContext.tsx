@@ -23,7 +23,7 @@ interface CartContextValue {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (item: NewCartItem) => void;
+  addItem: (item: NewCartItem, quantity?: number) => void;
   removeItem: (lineId: string) => void;
   updateQty: (lineId: string, qty: number) => void;
   clearCart: () => void;
@@ -69,16 +69,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
-  const addItem = useCallback((item: NewCartItem) => {
+  const addItem = useCallback((item: NewCartItem, quantity: number = 1) => {
+    const qty = Math.max(1, Math.round(quantity));
     const lineId = makeLineId(item.productId, item.deliveryMode);
     setItems((prev) => {
       const existing = prev.find((i) => i.lineId === lineId);
       if (existing) {
         // A digital plan can only be bought once — don't stack quantity.
         if (item.kind === "plan" && item.deliveryMode === "digital") return prev;
-        return prev.map((i) => (i.lineId === lineId ? { ...i, quantity: i.quantity + 1 } : i));
+        return prev.map((i) => (i.lineId === lineId ? { ...i, quantity: i.quantity + qty } : i));
       }
-      return [...prev, { ...item, lineId, quantity: 1 }];
+      return [...prev, { ...item, lineId, quantity: qty }];
     });
     setIsOpen(true);
   }, []);
