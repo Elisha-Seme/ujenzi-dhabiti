@@ -1,14 +1,15 @@
-import QuoteForm from "@/components/sections/QuoteForm";
+import ServiceRequestForm from "@/components/sections/ServiceRequestForm";
 
 interface ServiceEnquiryProps {
-  /** Pre-selected project type for this service page's quote form. */
+  /** Pre-selected service/project type for this service page's request form. */
   projectType?: string;
   title?: string;
   subtitle?: string;
 }
 
 // Service-enquiry block placed at the end of every service page (per the brief's
-// request for a quote form "at the end of every service page").
+// request for the service-form format "at the end of every page of a service we
+// provide"). Uses the shared sectioned Service Request Form.
 export default function ServiceEnquiry({
   projectType,
   title = "Request a Service Quote",
@@ -21,7 +22,7 @@ export default function ServiceEnquiry({
           <h2 className="text-2xl md:text-3xl font-bold text-ud-dark mb-3">{title}</h2>
           <p className="text-sm md:text-base text-ud-dark/60 font-light max-w-xl mx-auto">{subtitle}</p>
         </div>
-        <QuoteForm defaultProjectType={projectType} heading="Project Details" />
+        <ServiceRequestForm defaultService={projectType} />
       </div>
     </section>
   );

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
 import CategoryBundle from "./CategoryBundle";
 import CategoryClient from "./CategoryClient";
+import BulkCalculator from "@/components/shop/BulkCalculator";
+import DeliveryEstimator from "@/components/shop/DeliveryEstimator";
 
 // A map to convert slugs to our formal category names
 const SLUG_MAP: Record<string, string> = {
@@ -43,6 +45,15 @@ export default async function CategoryPage({ params }: { params: { slug: string 
     .from(products)
     .where(eq(products.category, categoryName));
 
+  // Scope the Bulk Calculator to this category's products only.
+  const bulkItems = categoryProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    unit: p.unit,
+    priceKES: p.priceKES,
+    image: p.images[0] ?? "",
+  }));
+
   const bgImage = BANNER_MAP[categoryName] || "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80";
 
   return (
@@ -80,6 +91,15 @@ export default async function CategoryPage({ params }: { params: { slug: string 
 
         {/* Bundle Section */}
         <CategoryBundle categoryName={categoryName} />
+
+        {/* Smart Tools — scoped to this category */}
+        <div className="mt-8">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-ud-dark/40 mb-3">Smart Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {bulkItems.length > 0 && <BulkCalculator products={bulkItems} />}
+            <DeliveryEstimator />
+          </div>
+        </div>
 
         {/* Products & Subcategories */}
         <div className="mt-8">

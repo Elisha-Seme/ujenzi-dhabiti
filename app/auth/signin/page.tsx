@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
 export default function SignInPage() {
@@ -38,6 +38,7 @@ function SignInContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [magicSent, setMagicSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Automatically redirect if already logged in or session updates
   useEffect(() => {
@@ -180,8 +181,12 @@ function SignInContent() {
                 </div>
                 <div className="relative">
                   <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
-                  <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors" />
+                  <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password"
+                    className="w-full pl-9 pr-10 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors" />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ud-dark/40 hover:text-ud-dark transition-colors p-1">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
               <button type="submit" disabled={loading}

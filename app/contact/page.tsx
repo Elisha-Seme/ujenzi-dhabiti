@@ -1,6 +1,6 @@
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
-import ContactForm from "@/components/sections/ContactForm";
+import ServiceRequestForm from "@/components/sections/ServiceRequestForm";
 import { CONTACT_INFO, EMAIL_DIRECTORY } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { systemSettings } from "@/lib/db/schema";
@@ -73,12 +73,18 @@ export default async function ContactPage() {
     <>
       <SectionHero title="Get In Touch" subtitle="Tell us about your project. We will get back to you within 24 hours." />
 
-      <section className="bg-ud-light-gray py-20 md:py-28">
+      <section className="bg-ud-light-gray py-16 md:py-24">
         <div className="max-w-content mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
-            <ContactForm />
+          {/* Enquiry form — same format as Request a Quote (per client brief) */}
+          <div className="max-w-3xl mx-auto mb-16 md:mb-20">
+            <ServiceRequestForm
+              subjectPrefix="Contact Enquiry"
+              intro="Fill in the details below and we will get back to you within 24 hours."
+            />
+          </div>
 
-            <div className="space-y-8">
+          <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
+            <div>
               <div>
                 <h3 className="text-xl font-bold text-ud-dark mb-6">Contact Details</h3>
                 <ul className="space-y-5">
@@ -106,7 +112,9 @@ export default async function ContactPage() {
                   ))}
                 </ul>
               </div>
+            </div>
 
+            <div>
               <div>
                 <h3 className="text-base font-bold text-ud-dark mb-4">Find Us</h3>
                 {/* Red pin on Manga House, Kiambere Rd, Upper Hill */}

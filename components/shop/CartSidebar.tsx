@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { X, ShoppingCart, Minus, Plus, Trash2, Tag, FileText } from "lucide-react";
+import { X, ShoppingCart, Minus, Plus, Trash2, Tag, FileText, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { whatsappLink } from "@/lib/constants";
 
@@ -82,7 +82,13 @@ export default function CartSidebar() {
                 return (
                 <li key={item.lineId} className="flex gap-4 pb-4 border-b border-ud-dark/8">
                   <div className="relative w-16 h-16 rounded-[4px] overflow-hidden flex-shrink-0 bg-ud-light-gray">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
+                    {item.image ? (
+                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Package className="w-5 h-5 text-ud-dark/25" aria-hidden />
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold text-ud-dark leading-tight mb-1 truncate">{item.name}</h4>

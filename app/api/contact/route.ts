@@ -9,11 +9,21 @@ const ADMIN_EMAIL = "ujenzi@ujenzidhabiti.co.ke";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, company, phone, email, subject, message, drawing } = await req.json();
+    const { name, company, phone, email, subject, message, drawing, attachments } = await req.json();
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: "Name, email and message are required" }, { status: 400 });
     }
+
+    // Attachments: prefer the multi-file `attachments` array (Service Request
+    // Form); fall back to the legacy single `drawing` object. Max 3 files.
+    const fileList: { name: string; base64: string }[] = (
+      Array.isArray(attachments) && attachments.length > 0
+        ? attachments.slice(0, 3)
+        : drawing && drawing.base64
+          ? [drawing]
+          : []
+    ).filter((f: { name?: string; base64?: string }) => f && typeof f.base64 === "string" && f.base64.includes(";base64,"));
 
     // Email payload for admin
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,20 +48,17 @@ export async function POST(req: NextRequest) {
             <p style="font-size:13px;color:#999;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em">Message</p>
             <p style="font-size:14px;color:#333;margin:0;white-space:pre-line">${message}</p>
           </div>
-          ${drawing ? `<p style="font-size:13px;color:#8a0e33;font-weight:bold;margin:10px 0">📎 Drawing Attachment: ${drawing.name}</p>` : ""}
+          ${fileList.length > 0 ? `<p style="font-size:13px;color:#8a0e33;font-weight:bold;margin:10px 0">📎 Attachments: ${fileList.map((f) => f.name).join(", ")}</p>` : ""}
           <p style="font-size:12px;color:#bbb">Reply directly to this email to respond to ${name}.</p>
         </div>
       `,
     };
 
-    if (drawing && drawing.base64) {
-      const base64Data = drawing.base64.split(";base64,").pop();
-      emailPayload.attachments = [
-        {
-          filename: drawing.name,
-          content: base64Data,
-        },
-      ];
+    if (fileList.length > 0) {
+      emailPayload.attachments = fileList.map((f) => ({
+        filename: f.name,
+        content: f.base64.split(";base64,").pop(),
+      }));
     }
 
     // Email to admin

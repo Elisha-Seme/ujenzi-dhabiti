@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Phone, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
 export default function SignUpPage() {
@@ -12,7 +12,9 @@ export default function SignUpPage() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [visible, setVisible] = useState<Record<string, boolean>>({});
   const set = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const toggleVisible = (k: string) => setVisible((p) => ({ ...p, [k]: !p[k] }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,22 +68,37 @@ export default function SignUpPage() {
               { key: "phone", label: "Phone (optional)", placeholder: "+254...", icon: <Phone size={14} />, type: "tel" },
               { key: "password", label: "Password", placeholder: "Min. 8 characters", icon: <Lock size={14} />, type: "password" },
               { key: "confirm", label: "Confirm Password", placeholder: "Repeat password", icon: <Lock size={14} />, type: "password" },
-            ].map((f) => (
-              <div key={f.key}>
-                <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">{f.label}</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70">{f.icon}</span>
-                  <input
-                    type={f.type}
-                    required={f.key !== "phone"}
-                    value={form[f.key as keyof typeof form]}
-                    onChange={(e) => set(f.key, e.target.value)}
-                    placeholder={f.placeholder}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors"
-                  />
+            ].map((f) => {
+              const isPassword = f.type === "password";
+              const shown = !!visible[f.key];
+              return (
+                <div key={f.key}>
+                  <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">{f.label}</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70">{f.icon}</span>
+                    <input
+                      type={isPassword ? (shown ? "text" : "password") : f.type}
+                      required={f.key !== "phone"}
+                      value={form[f.key as keyof typeof form]}
+                      onChange={(e) => set(f.key, e.target.value)}
+                      placeholder={f.placeholder}
+                      autoComplete={f.key === "confirm" ? "new-password" : f.key === "password" ? "new-password" : undefined}
+                      className={`w-full pl-9 ${isPassword ? "pr-10" : "pr-4"} py-2.5 text-sm text-ud-dark border border-ud-dark/30 rounded-[4px] placeholder:text-ud-dark/40 focus:outline-none focus:border-ud-burgundy focus:ring-1 focus:ring-ud-burgundy transition-colors`}
+                    />
+                    {isPassword && (
+                      <button
+                        type="button"
+                        onClick={() => toggleVisible(f.key)}
+                        aria-label={shown ? "Hide password" : "Show password"}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ud-dark/40 hover:text-ud-dark transition-colors p-1"
+                      >
+                        {shown ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors disabled:opacity-60 mt-2">

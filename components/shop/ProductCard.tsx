@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ShoppingCart, Minus, Plus } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Product } from "@/lib/products";
 
@@ -17,9 +17,19 @@ export default function ProductCard({ product, dark = false, accentVariant = 0 }
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
 
+  // Resolve a usable image src. DB rows expose an `images` array while the static
+  // catalogue uses a single `image` — support both, and fall back to a placeholder
+  // so we never render an <Image> with an empty src (which Next.js warns about).
+  const imgSrc =
+    product.image ||
+    (Array.isArray((product as { images?: string[] }).images)
+      ? (product as { images?: string[] }).images?.[0]
+      : "") ||
+    "";
+
   const handleAdd = () => {
     addItem(
-      { productId: product.id, kind: "material", name: product.name, unit: product.unit, priceKES: product.priceKES, image: product.image, sellerId: "", sellerName: "Ujenzi Dhabiti" },
+      { productId: product.id, kind: "material", name: product.name, unit: product.unit, priceKES: product.priceKES, image: imgSrc, sellerId: "", sellerName: "Ujenzi Dhabiti" },
       qty
     );
     setQty(1);
@@ -53,7 +63,13 @@ export default function ProductCard({ product, dark = false, accentVariant = 0 }
       )}
 
       <Link href={`/shop/${product.id}`} className="relative h-44 overflow-hidden block z-10">
-        <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
+        {imgSrc ? (
+          <Image src={imgSrc} alt={product.name} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-ud-dark/[0.06]">
+            <Package className="w-10 h-10 text-ud-dark/25" aria-hidden />
+          </div>
+        )}
         <div className="absolute inset-0 bg-ud-dark/25" />
         <span className="absolute top-3 left-3 bg-ud-dark/70 text-white text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-[4px]">
           {product.category}

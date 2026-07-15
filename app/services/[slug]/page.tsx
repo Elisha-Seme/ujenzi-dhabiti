@@ -96,7 +96,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         );
       })}
 
-      <ServiceEnquiry projectType={`${service.quoteType} — General`} />
+      <ServiceEnquiry projectType={service.title} />
       <CTABanner />
     </>
   );

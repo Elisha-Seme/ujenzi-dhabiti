@@ -4,10 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Check, Smartphone, CreditCard, Building2, Loader2 } from "lucide-react";
+import { CheckCircle2, Check, Smartphone, CreditCard, Building2, Loader2, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { depositFor } from "@/lib/constants";
 import { PaymentMethod } from "@/lib/types";
+import { KENYA_COUNTIES } from "@/lib/kenya-counties";
+import PlacesAutocompleteInput from "@/components/ui/PlacesAutocompleteInput";
 
 type Step = "details" | "payment" | "confirm";
 
@@ -294,8 +296,17 @@ export default function CheckoutPage() {
                 </div>
                 {hasPhysicalItems ? (
                   <>
-                    <Field label="Delivery Address" value={form.address} onChange={(v) => set("address", v)} required placeholder="Street, estate or area" />
-                    <Field label="County" value={form.county} onChange={(v) => set("county", v)} placeholder="e.g. Nairobi, Mombasa" />
+                    <div>
+                      <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">Delivery Address *</label>
+                      <PlacesAutocompleteInput
+                        required
+                        value={form.address}
+                        onChange={(v) => set("address", v)}
+                        placeholder="Search street, estate or area…"
+                        className="w-full border border-ud-dark/20 rounded-[4px] px-4 py-2.5 text-sm text-ud-dark placeholder:text-ud-dark/30 focus:outline-none focus:border-ud-burgundy transition-colors"
+                      />
+                    </div>
+                    <SelectField label="County" value={form.county} onChange={(v) => set("county", v)} options={KENYA_COUNTIES} placeholder="Select your county…" />
                   </>
                 ) : (
                   <div className="bg-ud-burgundy/5 border border-ud-burgundy/20 rounded-[4px] p-4 text-sm text-ud-dark/65">
@@ -435,8 +446,14 @@ export default function CheckoutPage() {
               <ul className="space-y-3 mb-4">
                 {items.map((item) => (
                   <li key={item.lineId} className="flex gap-3">
-                    <div className="relative w-12 h-12 rounded-[4px] overflow-hidden flex-shrink-0">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="48px" />
+                    <div className="relative w-12 h-12 rounded-[4px] overflow-hidden flex-shrink-0 bg-ud-light-gray">
+                      {item.image ? (
+                        <Image src={item.image} alt={item.name} fill className="object-cover" sizes="48px" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="w-4 h-4 text-ud-dark/25" aria-hidden />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-ud-dark truncate">{item.name}</p>
@@ -482,6 +499,25 @@ function Field({ label, value, onChange, required = false, placeholder = "", typ
       <input required={required} type={type} value={value} placeholder={placeholder} maxLength={maxLength}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border border-ud-dark/20 rounded-[4px] px-4 py-2.5 text-sm text-ud-dark placeholder:text-ud-dark/30 focus:outline-none focus:border-ud-burgundy transition-colors" />
+    </div>
+  );
+}
+
+function SelectField({ label, value, onChange, options, required = false, placeholder = "Select…" }: {
+  label: string; value: string; onChange: (v: string) => void;
+  options: readonly string[]; required?: boolean; placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">{label}{required && " *"}</label>
+      <select required={required} value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full border border-ud-dark/20 rounded-[4px] px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-ud-burgundy transition-colors ${value ? "text-ud-dark" : "text-ud-dark/40"}`}>
+        <option value="">{placeholder}</option>
+        {options.map((o) => (
+          <option key={o} value={o} className="text-ud-dark">{o}</option>
+        ))}
+      </select>
     </div>
   );
 }

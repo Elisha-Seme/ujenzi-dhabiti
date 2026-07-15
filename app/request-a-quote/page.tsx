@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { FileText, Phone, Mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
-import QuoteForm from "@/components/sections/QuoteForm";
+import ServiceRequestForm from "@/components/sections/ServiceRequestForm";
 import { CONTACT_INFO } from "@/lib/constants";
 
 export const metadata = {
@@ -11,52 +10,31 @@ export const metadata = {
 
 export default function RequestQuotePage({ searchParams }: { searchParams: { product?: string } }) {
   const product = searchParams?.product;
-  const defaultMessage = product ? `I'd like a bulk quote for: ${product}.\n\nQuantity / area: \nDelivery location: ` : "";
+  const defaultDescription = product ? `Bulk quote for: ${product}` : "";
+
   return (
     <>
       <SectionHero
         title="Request a Quote"
-        subtitle="Tell us about your project — building, civil works, interiors, or architectural — and we'll prepare a tailored quote."
+        subtitle="Tell us about your project — building, civil works, interiors, or materials — and we'll prepare a tailored quote."
       />
 
-      <section className="bg-ud-light-gray py-20 md:py-28">
-        <div className="max-w-content mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
-            <QuoteForm defaultMessage={defaultMessage} defaultProjectType={product ? "Other" : ""} />
+      <section className="bg-ud-light-gray py-16 md:py-24">
+        <div className="max-w-3xl mx-auto px-6">
+          <ServiceRequestForm defaultDescription={defaultDescription} />
 
-            <div className="space-y-8">
-              <div>
-                <div className="w-11 h-11 rounded-[4px] bg-ud-burgundy/10 flex items-center justify-center mb-4">
-                  <FileText className="w-5 h-5 text-ud-burgundy" strokeWidth={1.75} />
-                </div>
-                <h3 className="text-xl font-bold text-ud-dark mb-3">How Quoting Works</h3>
-                <ol className="space-y-3 text-sm text-ud-dark/70 leading-relaxed list-decimal list-inside">
-                  <li>Share your project details using the form — include location, scope, and timeline.</li>
-                  <li>Our team reviews your requirements and may arrange a site assessment.</li>
-                  <li>You receive a clear, itemized quote with no hidden costs.</li>
-                </ol>
-              </div>
-
-              <div className="bg-white rounded-[4px] p-6 shadow-sm">
-                <h4 className="text-sm font-bold text-ud-dark mb-4">Prefer to talk to us directly?</h4>
-                <ul className="space-y-3">
-                  {CONTACT_INFO.phone.map((p) => (
-                    <li key={p} className="flex items-center gap-3">
-                      <Phone size={15} className="text-ud-burgundy flex-shrink-0" />
-                      <a href={`tel:${p}`} className="text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors">{p}</a>
-                    </li>
-                  ))}
-                  <li className="flex items-center gap-3">
-                    <Mail size={15} className="text-ud-burgundy flex-shrink-0" />
-                    <a href={`mailto:${CONTACT_INFO.emails.construction}`} className="text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors break-all">
-                      {CONTACT_INFO.emails.construction}
-                    </a>
-                  </li>
-                </ul>
-                <Link href="/contact" className="inline-block mt-5 text-xs font-semibold text-ud-burgundy hover:underline">
-                  See all contact options →
-                </Link>
-              </div>
+          {/* Prefer to talk instead */}
+          <div className="mt-8 bg-white rounded-[4px] p-6 shadow-sm border border-ud-dark/8 text-center">
+            <h4 className="text-sm font-bold text-ud-dark mb-3">Prefer to talk to us directly?</h4>
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+              {CONTACT_INFO.phone.map((p) => (
+                <a key={p} href={`tel:${p}`} className="flex items-center gap-2 text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors">
+                  <Phone size={14} className="text-ud-burgundy" /> {p}
+                </a>
+              ))}
+              <a href={`mailto:${CONTACT_INFO.emails.construction}`} className="flex items-center gap-2 text-sm text-ud-dark/70 hover:text-ud-burgundy transition-colors break-all">
+                <Mail size={14} className="text-ud-burgundy" /> {CONTACT_INFO.emails.construction}
+              </a>
             </div>
           </div>
         </div>
