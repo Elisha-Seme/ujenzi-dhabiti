@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession, useSession } from "next-auth/react";
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/layout/Logo";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 
 export default function SignInPage() {
   return (
@@ -161,6 +162,15 @@ function SignInContent() {
           {error && (
             <div className="bg-ud-burgundy/5 border border-ud-burgundy/30 text-ud-burgundy text-sm px-4 py-3 rounded-[4px] mb-5">
               {error}
+            </div>
+          )}
+
+          <GoogleAuthButton callbackUrl={callbackUrl} />
+          {process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true" && (
+            <div className="flex items-center gap-3 my-5" aria-hidden>
+              <span className="h-px flex-1 bg-ud-dark/10" />
+              <span className="text-[11px] uppercase tracking-wider text-ud-dark/35">or use email</span>
+              <span className="h-px flex-1 bg-ud-dark/10" />
             </div>
           )}
 

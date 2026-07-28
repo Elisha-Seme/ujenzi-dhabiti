@@ -78,6 +78,9 @@ interface ServiceRequestFormProps {
   subjectPrefix?: string;
   /** Intro copy above the form. */
   intro?: string;
+  requestKind?: string;
+  sourcePlanId?: string;
+  sourcePlanName?: string;
 }
 
 export default function ServiceRequestForm({
@@ -85,6 +88,9 @@ export default function ServiceRequestForm({
   defaultDescription = "",
   subjectPrefix = "Quote Request",
   intro = "Fill in the details below and we will get back to you within 24 hours with a tailored quote for your project.",
+  requestKind,
+  sourcePlanId,
+  sourcePlanName,
 }: ServiceRequestFormProps) {
   // Pre-select the relevant service checkbox(es) for the page we're embedded on.
   // Match a service family by prefix (e.g. "Building Works" ticks both
@@ -128,6 +134,7 @@ export default function ServiceRequestForm({
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [website, setWebsite] = useState("");
 
   const set = (k: keyof typeof form, v: string | boolean) =>
     setForm((p) => ({ ...p, [k]: v }));
@@ -212,6 +219,11 @@ export default function ServiceRequestForm({
           message: composedMessage,
           drawing: attachments[0] ?? null,
           attachments,
+          requestKind,
+          sourcePlanId,
+          sourcePlanName,
+          structured: { ...form, services, attachments: attachments.map(({ name, type }) => ({ name, type })) },
+          website,
         }),
       });
       if (!res.ok) {
@@ -277,6 +289,16 @@ export default function ServiceRequestForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        className="hidden"
+        aria-hidden="true"
+        value={website}
+        onChange={(event) => setWebsite(event.target.value)}
+      />
       <div className="bg-ud-dark rounded-[4px] p-6 md:p-7 text-center">
         <h2 className="text-lg md:text-xl font-bold text-white mb-2">Get in touch with us</h2>
         <p className="text-sm text-white/65 max-w-lg mx-auto leading-relaxed">{intro}</p>

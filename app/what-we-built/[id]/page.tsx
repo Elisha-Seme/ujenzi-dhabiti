@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MapPin, ArrowLeft, ShoppingCart, FileText } from "lucide-react";
+import { MapPin, ArrowLeft, ShoppingCart, FileText, CalendarDays, CircleDollarSign, UserRound } from "lucide-react";
 import { db, projects } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import BeforeAfter from "@/components/ui/BeforeAfter";
@@ -16,8 +16,15 @@ interface ProjectDetail {
   id: string;
   title: string;
   location: string | null;
+  country: string;
   category: string;
   propertyType: string | null;
+  clientName: string | null;
+  startDate: string | null;
+  completionDate: string | null;
+  budgetMinKES: number | null;
+  budgetMaxKES: number | null;
+  outcomes: string | null;
   description: string;
   scope: string | null;
   coverImage: string | null;
@@ -39,8 +46,15 @@ async function loadProject(id: string): Promise<ProjectDetail | null> {
         id: r.id,
         title: r.title,
         location: r.location,
+        country: r.country,
         category: r.category,
         propertyType: r.propertyType,
+        clientName: r.clientName,
+        startDate: r.startDate,
+        completionDate: r.completionDate,
+        budgetMinKES: r.budgetMinKES,
+        budgetMaxKES: r.budgetMaxKES,
+        outcomes: r.outcomes,
         description: r.description,
         scope: r.scope,
         coverImage: r.coverImage,
@@ -60,8 +74,15 @@ async function loadProject(id: string): Promise<ProjectDetail | null> {
     id: String(s.id),
     title: s.name,
     location: s.location,
+    country: "Kenya",
     category: s.category,
     propertyType: null,
+    clientName: null,
+    startDate: null,
+    completionDate: null,
+    budgetMinKES: null,
+    budgetMaxKES: null,
+    outcomes: null,
     description: s.description,
     scope: null,
     coverImage: s.image,
@@ -129,7 +150,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
           {project.location && (
             <p className="flex items-center gap-1.5 text-sm text-white/55 mb-6">
-              <MapPin className="w-4 h-4 text-ud-burgundy" /> {project.location}
+              <MapPin className="w-4 h-4 text-ud-burgundy" /> {project.location}, {project.country}
             </p>
           )}
 
@@ -192,6 +213,15 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 </div>
               )}
 
+              {project.outcomes && (
+                <div>
+                  <h2 className="text-xl font-bold text-ud-dark mb-3">Project Outcomes</h2>
+                  <div className="prose prose-sm text-ud-dark/70 max-w-none whitespace-pre-line leading-relaxed">
+                    {project.outcomes}
+                  </div>
+                </div>
+              )}
+
               {/* Materials used */}
               {project.materialsUsed.length > 0 && (
                 <div>
@@ -223,6 +253,33 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
             {/* Sidebar — "Order Similar Materials" CTA */}
             <aside className="space-y-4">
+              {(project.clientName || project.startDate || project.completionDate || project.budgetMinKES || project.budgetMaxKES) && (
+                <div className="bg-ud-light-gray rounded-[4px] p-5 space-y-4">
+                  <h3 className="text-base font-bold text-ud-dark">Project Facts</h3>
+                  {project.clientName && (
+                    <p className="flex items-start gap-2 text-sm text-ud-dark/65">
+                      <UserRound className="w-4 h-4 text-ud-burgundy mt-0.5" />
+                      <span><strong className="text-ud-dark">Client:</strong> {project.clientName}</span>
+                    </p>
+                  )}
+                  {(project.startDate || project.completionDate) && (
+                    <p className="flex items-start gap-2 text-sm text-ud-dark/65">
+                      <CalendarDays className="w-4 h-4 text-ud-burgundy mt-0.5" />
+                      <span><strong className="text-ud-dark">Timeline:</strong> {project.startDate || "Not stated"} – {project.completionDate || "Ongoing"}</span>
+                    </p>
+                  )}
+                  {(project.budgetMinKES || project.budgetMaxKES) && (
+                    <p className="flex items-start gap-2 text-sm text-ud-dark/65">
+                      <CircleDollarSign className="w-4 h-4 text-ud-burgundy mt-0.5" />
+                      <span>
+                        <strong className="text-ud-dark">Budget:</strong>{" "}
+                        {project.budgetMinKES ? `KES ${project.budgetMinKES.toLocaleString()}` : "Up to"}
+                        {project.budgetMaxKES ? ` – KES ${project.budgetMaxKES.toLocaleString()}` : ""}
+                      </span>
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="bg-ud-dark rounded-[4px] p-6">
                 <h3 className="text-base font-bold text-white mb-2">Want a similar build?</h3>
                 <p className="text-sm text-white/60 leading-relaxed mb-5">

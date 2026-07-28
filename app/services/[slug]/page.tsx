@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { services, serviceSubsections } from "@/lib/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { services, serviceSubsections, serviceMaterialPackages, products } from "@/lib/db/schema";
+import { eq, asc, and, inArray } from "drizzle-orm";
 import SectionHero from "@/components/ui/SectionHero";
 import CTABanner from "@/components/sections/CTABanner";
 import { ServiceIntro, ServiceType, ServiceSection, ServiceMaterialsBar } from "@/components/services/ServicePrimitives";
@@ -22,6 +22,30 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
     .from(serviceSubsections)
     .where(eq(serviceSubsections.serviceSlug, service.slug))
     .orderBy(asc(serviceSubsections.sortOrder));
+
+  const packages = await db.select().from(serviceMaterialPackages)
+    .where(and(eq(serviceMaterialPackages.serviceSlug, service.slug), eq(serviceMaterialPackages.published, true)))
+    .orderBy(asc(serviceMaterialPackages.sortOrder));
+  const productIds = Array.from(new Set(packages.flatMap((item) => item.productIds)));
+  const packageProducts = productIds.length
+    ? await db.select().from(products).where(inArray(products.id, productIds))
+    : [];
+  const servicePackages = packages.filter((item) => !item.subsectionId);
+
+  const renderPackage = (item: typeof serviceMaterialPackages.$inferSelect) => (
+    <aside key={item.id} className="mt-5 border border-ud-burgundy/20 bg-white rounded-[4px] p-5">
+      <h3 className="font-bold text-ud-dark">{item.title}</h3>
+      {item.description && <p className="mt-1 text-sm text-ud-dark/60">{item.description}</p>}
+      {item.quantityGuidance && <p className="mt-2 text-xs text-ud-dark/50">{item.quantityGuidance}</p>}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {packageProducts.filter((product) => item.productIds.includes(product.id)).map((product) => (
+          <a key={product.id} href={`/shop/${product.id}`} className="border border-ud-dark/10 rounded px-3 py-2 text-xs font-semibold text-ud-burgundy hover:border-ud-burgundy">
+            {product.name} · KES {product.priceKES.toLocaleString()}
+          </a>
+        ))}
+      </div>
+    </aside>
+  );
 
   // Build the sub-navigation array
   const subnav = subsections.map((sub) => ({
@@ -66,6 +90,13 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         </div>
       )}
 
+      {servicePackages.length > 0 && (
+        <section className="max-w-content mx-auto px-6 py-10">
+          <h2 className="font-serif text-2xl font-bold text-ud-dark">Recommended Material Packages</h2>
+          {servicePackages.map(renderPackage)}
+        </section>
+      )}
+
       {/* Render subsections dynamically */}
       {subsections.map((sub, idx) => {
         const tone = idx % 2 === 0 ? "white" : "light";
@@ -92,6 +123,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
               quoteType={`${service.quoteType} — ${sub.title}`}
               label={`${service.title} Materials`}
             />
+            {packages.filter((item) => item.subsectionId === sub.id).map(renderPackage)}
           </ServiceSection>
         );
       })}
@@ -102,13 +134,4 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
   );
 }
 
-// Generate static params for the four main services
-export async function generateStaticParams() {
-  return [
-    { slug: "building-works" },
-    { slug: "civil-works" },
-    { slug: "interior-design" },
-    { slug: "architectural" },
-  ];
-}
 export const dynamic = "force-dynamic";

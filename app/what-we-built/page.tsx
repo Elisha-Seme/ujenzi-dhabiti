@@ -26,8 +26,23 @@ async function loadProjects() {
   }
 }
 
-export default async function WhatWeBuiltPage() {
+export default async function WhatWeBuiltPage({
+  searchParams,
+}: {
+  searchParams?: { category?: string; country?: string; year?: string };
+}) {
   const rows = await loadProjects();
+  const categories = Array.from(new Set(rows.map((p) => p.category))).sort();
+  const countries = Array.from(new Set(rows.map((p) => p.country).filter(Boolean))).sort();
+  const years = Array.from(
+    new Set(rows.map((p) => p.completionDate?.slice(0, 4)).filter((v): v is string => !!v))
+  ).sort().reverse();
+  const filteredRows = rows.filter((p) => {
+    if (searchParams?.category && p.category !== searchParams.category) return false;
+    if (searchParams?.country && p.country !== searchParams.country) return false;
+    if (searchParams?.year && p.completionDate?.slice(0, 4) !== searchParams.year) return false;
+    return true;
+  });
 
   return (
     <>
@@ -54,8 +69,29 @@ export default async function WhatWeBuiltPage() {
       ) : (
         <section className="bg-ud-white py-20 md:py-28">
           <div className="max-w-content mx-auto px-6">
+            <form className="grid sm:grid-cols-3 lg:grid-cols-[1fr_1fr_1fr_auto] gap-3 bg-ud-light-gray border border-ud-dark/8 rounded-[4px] p-4 mb-8">
+              <select name="category" defaultValue={searchParams?.category ?? ""} className="bg-white border border-ud-dark/15 rounded-[4px] px-3 py-2.5 text-sm">
+                <option value="">All project types</option>
+                {categories.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+              <select name="country" defaultValue={searchParams?.country ?? ""} className="bg-white border border-ud-dark/15 rounded-[4px] px-3 py-2.5 text-sm">
+                <option value="">All countries</option>
+                {countries.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+              <select name="year" defaultValue={searchParams?.year ?? ""} className="bg-white border border-ud-dark/15 rounded-[4px] px-3 py-2.5 text-sm">
+                <option value="">All years</option>
+                {years.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+              <button className="bg-ud-burgundy text-white text-sm font-bold px-5 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover">Apply filters</button>
+            </form>
+            {(searchParams?.category || searchParams?.country || searchParams?.year) && (
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <p className="text-sm text-ud-dark/55">{filteredRows.length} matching project{filteredRows.length === 1 ? "" : "s"}</p>
+                <Link href="/what-we-built" className="text-sm font-semibold text-ud-burgundy hover:underline">Clear filters</Link>
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {rows.map((p) => (
+              {filteredRows.map((p) => (
                 <article key={p.id} className="group rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-ud-dark/8 bg-white flex flex-col">
                   <Link href={`/what-we-built/${p.id}`} className="block">
                     <div className="relative h-52 bg-ud-dark/5 overflow-hidden">
@@ -120,6 +156,12 @@ export default async function WhatWeBuiltPage() {
                 </article>
               ))}
             </div>
+            {filteredRows.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-ud-dark/50">No projects match those filters.</p>
+                <Link href="/what-we-built" className="inline-block mt-3 text-sm font-semibold text-ud-burgundy hover:underline">View all projects</Link>
+              </div>
+            )}
           </div>
         </section>
       )}

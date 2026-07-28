@@ -150,7 +150,7 @@ export default function PlanDetailPage() {
 
             <div className="mt-5 space-y-2 text-xs text-ud-dark/55">
               <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Architectural drawings ready for approval and construction.</p>
-              <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Need modifications? <Link href="/request-a-quote" className="text-ud-burgundy font-semibold hover:underline">Request a custom plan</Link>.</p>
+              <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Need modifications? <Link href={`/request-a-quote?request=plan-modification&planId=${encodeURIComponent(plan.id)}&plan=${encodeURIComponent(plan.name)}`} className="text-ud-burgundy font-semibold hover:underline">Request changes to this plan</Link>.</p>
             </div>
           </div>
         </div>

@@ -214,6 +214,16 @@ export const quotes = pgTable("quotes", {
   userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
   projectType: text("project_type").notNull(),
   description: text("description").notNull(),
+  requestKind: text("request_kind").notNull().default("general"),
+  sourcePlanId: text("source_plan_id"),
+  sourcePlanName: text("source_plan_name"),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  structuredData: jsonb("structured_data"),
+  attachmentMetadata: jsonb("attachment_metadata"),
+  consentToContact: boolean("consent_to_contact").notNull().default(false),
+  notificationStatus: text("notification_status").notNull().default("pending"),
   status: quoteStatusEnum("status").notNull().default("pending"),
   submittedAt: timestamp("submitted_at").notNull().defaultNow(),
   respondedAt: timestamp("responded_at"),
@@ -260,8 +270,15 @@ export const projects = pgTable("projects", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   location: text("location"),
+  country: text("country").notNull().default("Kenya"),
   category: text("category").notNull().default("Building"), // Building | Civil | Interior | Architectural
   propertyType: text("property_type"), // Residential | Commercial | Institutional
+  clientName: text("client_name"),
+  startDate: text("start_date"),
+  completionDate: text("completion_date"),
+  budgetMinKES: integer("budget_min_kes"),
+  budgetMaxKES: integer("budget_max_kes"),
+  outcomes: text("outcomes"),
   description: text("description").notNull(),
   scope: text("scope"),
   coverImage: text("cover_image"),
@@ -326,6 +343,9 @@ export const housePlans = pgTable("house_plans", {
   bathrooms: integer("bathrooms"),
   floors: integer("floors").notNull().default(1),
   plinthAreaSqM: integer("plinth_area_sqm").notNull().default(0),
+  plotWidthM: integer("plot_width_m"),
+  plotDepthM: integer("plot_depth_m"),
+  architecturalStyle: text("architectural_style"),
   downloadFile: text("download_file"),
   downloadSizeBytes: integer("download_size_bytes"),
   published: boolean("published").notNull().default(true),
@@ -422,6 +442,11 @@ export const teamMembers = pgTable("team_members", {
   name: text("name").notNull(),
   title: text("title").notNull(),
   image: text("image"),
+  bio: text("bio"),
+  competencies: text("competencies").array().notNull().default([]),
+  qualifications: text("qualifications").array().notNull().default([]),
+  linkedinUrl: text("linkedin_url"),
+  published: boolean("published").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
@@ -479,6 +504,67 @@ export const serviceSubsections = pgTable("service_subsections", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const serviceMaterialPackages = pgTable("service_material_packages", {
+  id: text("id").primaryKey(),
+  serviceSlug: text("service_slug").notNull().references(() => services.slug, { onDelete: "cascade" }),
+  subsectionId: text("subsection_id").references(() => serviceSubsections.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  productIds: text("product_ids").array().notNull().default([]),
+  quantityGuidance: text("quantity_guidance"),
+  published: boolean("published").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const trustItems = pgTable("trust_items", {
+  id: text("id").primaryKey(),
+  kind: text("kind").notNull(), // testimonial | client_logo | credential
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  body: text("body"),
+  image: text("image"),
+  linkUrl: text("link_url"),
+  permissionConfirmed: boolean("permission_confirmed").notNull().default(false),
+  expiresAt: text("expires_at"),
+  published: boolean("published").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const estimatorRates = pgTable("estimator_rates", {
+  id: text("id").primaryKey(),
+  buildingType: text("building_type").notNull(),
+  finishLevel: text("finish_level").notNull(),
+  ratePerSqM: integer("rate_per_sqm").notNull(),
+  labourPercent: integer("labour_percent").notNull().default(30),
+  wastagePercent: integer("wastage_percent").notNull().default(5),
+  locationFactor: integer("location_factor").notNull().default(100),
+  notes: text("notes"),
+  published: boolean("published").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const resourceArticles = pgTable("resource_articles", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  body: text("body").notNull(),
+  coverImage: text("cover_image"),
+  author: text("author").notNull(),
+  category: text("category").notNull(),
+  tags: text("tags").array().notNull().default([]),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  published: boolean("published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // ─── CMS Types ───────────────────────────────────────────────────────────────
 
 export type SystemSettings = typeof systemSettings.$inferSelect;
@@ -497,3 +583,4 @@ export type ServiceRow = typeof services.$inferSelect;
 export type NewServiceRow = typeof services.$inferInsert;
 export type ServiceSubsectionRow = typeof serviceSubsections.$inferSelect;
 export type NewServiceSubsectionRow = typeof serviceSubsections.$inferInsert;
+export type ServiceMaterialPackageRow = typeof serviceMaterialPackages.$inferSelect;
