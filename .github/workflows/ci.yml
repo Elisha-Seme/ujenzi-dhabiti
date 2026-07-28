@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: ["master", "complete-website-feedback"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ci-only-secret-that-is-not-used-outside-this-job
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ujenzi_ci
+      NEXT_PUBLIC_GOOGLE_AUTH_ENABLED: "false"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build

@@ -14,6 +14,9 @@ const FIELDS: FieldDef[] = [
   { name: "bathrooms", label: "Bathrooms", type: "number" },
   { name: "floors", label: "Floors", type: "number", default: 1 },
   { name: "plinthAreaSqM", label: "Plinth Area (sqm)", type: "number" },
+  { name: "plotWidthM", label: "Minimum Plot Width (m)", type: "number" },
+  { name: "plotDepthM", label: "Minimum Plot Depth (m)", type: "number" },
+  { name: "architecturalStyle", label: "Architectural Style", type: "text", help: "e.g. Contemporary, Traditional, Modern" },
   { name: "downloadFile", label: "Download File", type: "text", help: "PDF filename placed in /public/plans/ (digital delivery). Leave blank if catalogue-only." },
   { name: "published", label: "Published (on sale)", type: "checkbox", default: true },
 ];

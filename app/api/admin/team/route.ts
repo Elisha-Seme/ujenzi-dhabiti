@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
       name: b.name,
       title: b.title,
       image: b.image || null,
+      bio: b.bio || null,
+      competencies: Array.isArray(b.competencies) ? b.competencies.filter(Boolean) : [],
+      qualifications: Array.isArray(b.qualifications) ? b.qualifications.filter(Boolean) : [],
+      linkedinUrl: b.linkedinUrl || null,
+      published: b.published !== false,
       sortOrder: Number(b.sortOrder) || 0,
     })
     .returning();

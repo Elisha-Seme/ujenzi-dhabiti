@@ -136,9 +136,9 @@ export default async function ServicesPage() {
       .where(eq(services.published, true))
       .orderBy(asc(services.sortOrder));
     
-    // Core slugs displayed on the main services index
-    const coreSlugs = ["gypsum-ceilings", "paint-finishes", "flooring", "cabro-road-works", "plumbing"];
-    servicesList = dbServices.filter((s) => coreSlugs.includes(s.slug));
+    // Every published service belongs on the public index. The previous
+    // hard-coded five-slug allowlist silently hid valid CMS entries.
+    servicesList = dbServices;
     
     if (servicesList.length === 0) {
       servicesList = SERVICES_STATIC;

@@ -8,11 +8,13 @@ import { signOut } from "next-auth/react";
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/quotes", label: "Quote Requests", icon: Mail },
   { href: "/admin/products", label: "Materials", icon: Package },
   { href: "/admin/plans", label: "House Plans", icon: Home },
   { href: "/admin/delivery", label: "Delivery", icon: Truck },
   { href: "/admin/services", label: "Services Catalog", icon: Hammer },
   { href: "/admin/services/subsections", label: "Service Subsections", icon: Layers },
+  { href: "/admin/services/packages", label: "Material Packages", icon: Package },
   { href: "/admin/projects", label: "What We've Built", icon: HardHat },
   { href: "/admin/architectural", label: "Architectural", icon: PencilRuler },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
@@ -21,6 +23,9 @@ const NAV = [
   { href: "/admin/why-choose-us", label: "Why Choose Us", icon: Layers },
   { href: "/admin/team", label: "Team Members", icon: Users },
   { href: "/admin/stats", label: "Company Stats", icon: BarChart3 },
+  { href: "/admin/trust", label: "Trust & Credentials", icon: Award },
+  { href: "/admin/estimator", label: "Estimator Rates", icon: BarChart3 },
+  { href: "/admin/resources", label: "Resources", icon: Mail },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
 ];
 

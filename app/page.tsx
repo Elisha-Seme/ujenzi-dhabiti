@@ -7,6 +7,7 @@ import HomeServices from "@/components/home/HomeServices";
 import HomeProducts from "@/components/home/HomeProducts";
 import HomePlansBand from "@/components/home/HomePlansBand";
 import HomeProjects from "@/components/home/HomeProjects";
+import HomeTrust from "@/components/home/HomeTrust";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import CTABanner from "@/components/sections/CTABanner";
 import { db } from "@/lib/db";
@@ -129,6 +130,7 @@ export default async function HomePage() {
 
       {/* ─── Why Choose Us — plain, no blueprint ─── */}
       <WhyChooseUs />
+      <HomeTrust />
 
       {/* ─── CTA Banner — plain, no blueprint ─── */}
       <CTABanner />

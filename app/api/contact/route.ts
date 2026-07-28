@@ -1,112 +1,151 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db, quotes } from "@/lib/db";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = process.env.RESEND_FROM ?? "noreply@ujenzidhabiti.co.ke";
-const ADMIN_EMAIL = "ujenzi@ujenzidhabiti.co.ke";
+const ADMIN_EMAIL = process.env.CONTACT_RECIPIENT ?? "ujenzi@ujenzidhabiti.co.ke";
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = new Set(["application/pdf", "image/png", "image/jpeg", "image/webp"]);
+const attempts = new Map<string, { count: number; resetAt: number }>();
+
+type IncomingFile = { name?: string; base64?: string; type?: string };
+
+function text(value: unknown, max: number) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function validEmail(value: string) {
+  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function validFile(file: IncomingFile): file is Required<Pick<IncomingFile, "name" | "base64">> & IncomingFile {
+  if (!file?.name || !file.base64?.includes(";base64,")) return false;
+  const mime = file.type || file.base64.slice(5, file.base64.indexOf(";"));
+  const encoded = file.base64.split(";base64,")[1] ?? "";
+  return ALLOWED_TYPES.has(mime) && Math.ceil(encoded.length * 0.75) <= MAX_FILE_BYTES;
+}
 
 export async function POST(req: NextRequest) {
+  let quoteId: string | null = null;
   try {
-    const { name, company, phone, email, subject, message, drawing, attachments } = await req.json();
+    const body = await req.json();
+    if (body.website) return NextResponse.json({ success: true });
+    const clientKey = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    const now = Date.now();
+    const attempt = attempts.get(clientKey);
+    if (attempt && attempt.resetAt > now && attempt.count >= 5) {
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+    }
+    attempts.set(clientKey, attempt && attempt.resetAt > now
+      ? { ...attempt, count: attempt.count + 1 }
+      : { count: 1, resetAt: now + 15 * 60_000 });
+    const name = text(body.name, 120);
+    const email = text(body.email, 254).toLowerCase();
+    const phone = text(body.phone, 40);
+    const subject = text(body.subject, 200) || "General Inquiry";
+    const message = text(body.message, 20_000);
 
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: "Name, email and message are required" }, { status: 400 });
+    if (!name || !validEmail(email) || !message) {
+      return NextResponse.json({ error: "A valid name, email and message are required" }, { status: 400 });
+    }
+    if (body.structured && body.structured.agreeContact !== true) {
+      return NextResponse.json({ error: "Contact consent is required" }, { status: 400 });
     }
 
-    // Attachments: prefer the multi-file `attachments` array (Service Request
-    // Form); fall back to the legacy single `drawing` object. Max 3 files.
-    const fileList: { name: string; base64: string }[] = (
-      Array.isArray(attachments) && attachments.length > 0
-        ? attachments.slice(0, 3)
-        : drawing && drawing.base64
-          ? [drawing]
-          : []
-    ).filter((f: { name?: string; base64?: string }) => f && typeof f.base64 === "string" && f.base64.includes(";base64,"));
+    const candidates: IncomingFile[] =
+      Array.isArray(body.attachments) && body.attachments.length
+        ? body.attachments.slice(0, 3)
+        : body.drawing
+          ? [body.drawing]
+          : [];
+    if (candidates.some((file) => !validFile(file))) {
+      return NextResponse.json({ error: "Attachments must be PDF, PNG, JPG or WebP and no larger than 5MB each" }, { status: 400 });
+    }
+    const files = candidates.filter(validFile);
 
-    // Email payload for admin
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const emailPayload: any = {
+    const session = await auth();
+    quoteId = `qt-${crypto.randomUUID()}`;
+    await db.insert(quotes).values({
+      id: quoteId,
+      userId: session?.user?.id ?? null,
+      projectType: subject.replace("Quote Request — ", ""),
+      description: message,
+      requestKind: text(body.requestKind, 80) || "general",
+      sourcePlanId: text(body.sourcePlanId, 120) || null,
+      sourcePlanName: text(body.sourcePlanName, 200) || null,
+      contactName: name,
+      contactEmail: email,
+      contactPhone: phone || null,
+      structuredData: body.structured && typeof body.structured === "object" ? body.structured : null,
+      attachmentMetadata: files.map((file) => ({ name: text(file.name, 180), type: file.type ?? "unknown" })),
+      consentToContact: body.structured?.agreeContact === true,
+      notificationStatus: "pending",
+      status: "pending",
+    });
+
+    const attachmentPayload = files.map((file) => ({
+      filename: text(file.name, 180),
+      content: file.base64.split(";base64,")[1],
+    }));
+    const safeName = escapeHtml(name);
+    const safeSubject = escapeHtml(subject);
+    const safeMessage = escapeHtml(message);
+
+    if (!resend) {
+      throw new Error("Email notifications are not configured");
+    }
+
+    await resend.emails.send({
       from: FROM,
       to: ADMIN_EMAIL,
       replyTo: email,
-      subject: `New Enquiry: ${subject || "General Inquiry"} — ${name}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px">
-          <div style="background:#8a0e33;padding:20px 24px;border-radius:4px;margin-bottom:24px">
-            <h1 style="color:#fff;font-size:18px;margin:0">New Website Enquiry</h1>
-            <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:4px 0 0">${subject || "General Inquiry"}</p>
-          </div>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-            <tr><td style="padding:6px 0;font-size:13px;color:#999;width:120px">Name</td><td style="padding:6px 0;font-size:14px;color:#1c1e22;font-weight:bold">${name}</td></tr>
-            ${company ? `<tr><td style="padding:6px 0;font-size:13px;color:#999">Company</td><td style="padding:6px 0;font-size:14px;color:#1c1e22">${company}</td></tr>` : ""}
-            <tr><td style="padding:6px 0;font-size:13px;color:#999">Email</td><td style="padding:6px 0;font-size:14px;color:#1c1e22"><a href="mailto:${email}" style="color:#8a0e33">${email}</a></td></tr>
-            <tr><td style="padding:6px 0;font-size:13px;color:#999">Phone</td><td style="padding:6px 0;font-size:14px;color:#1c1e22"><a href="tel:${phone}" style="color:#8a0e33">${phone}</a></td></tr>
-          </table>
-          <div style="background:#f5f5f5;border-radius:4px;padding:16px 20px;margin-bottom:20px">
-            <p style="font-size:13px;color:#999;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.05em">Message</p>
-            <p style="font-size:14px;color:#333;margin:0;white-space:pre-line">${message}</p>
-          </div>
-          ${fileList.length > 0 ? `<p style="font-size:13px;color:#8a0e33;font-weight:bold;margin:10px 0">📎 Attachments: ${fileList.map((f) => f.name).join(", ")}</p>` : ""}
-          <p style="font-size:12px;color:#bbb">Reply directly to this email to respond to ${name}.</p>
-        </div>
-      `,
-    };
-
-    if (fileList.length > 0) {
-      emailPayload.attachments = fileList.map((f) => ({
-        filename: f.name,
-        content: f.base64.split(";base64,").pop(),
-      }));
-    }
-
-    // Email to admin
-    await resend.emails.send(emailPayload);
-
-    // Auto-reply to sender
+      subject: `New Enquiry: ${subject} — ${name}`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:24px">
+        <h1 style="color:#8a0e33;font-size:20px">New Website Enquiry</h1>
+        <p><strong>${safeSubject}</strong></p>
+        <p><strong>Name:</strong> ${safeName}<br><strong>Email:</strong> ${escapeHtml(email)}<br><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+        <div style="background:#f5f5f5;padding:16px;white-space:pre-line">${safeMessage}</div>
+        <p style="font-size:12px;color:#777">Reference: ${quoteId}</p>
+      </div>`,
+      attachments: attachmentPayload.length ? attachmentPayload : undefined,
+    });
     await resend.emails.send({
       from: FROM,
       to: email,
-      subject: "We received your message — Ujenzi Dhabiti",
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
-          <h2 style="color:#1c1e22;font-size:20px;margin-bottom:8px">Thank you, ${name.split(" ")[0]}.</h2>
-          <p style="color:#555;font-size:14px;line-height:1.6;margin-bottom:20px">
-            We've received your enquiry about <strong>${subject || "your project"}</strong> and will get back to you within 24 hours.
-          </p>
-          <div style="background:#f5f5f5;border-radius:4px;padding:16px 20px;margin-bottom:24px">
-            <p style="font-size:13px;color:#555;margin:0;white-space:pre-line">${message}</p>
-          </div>
-          <p style="color:#555;font-size:14px">In the meantime, you can reach us directly:</p>
-          <p style="font-size:14px;color:#333">
-            📞 +254 725 403 001 / +254 782 999 100<br>
-            ✉️ ujenzi@ujenzidhabiti.co.ke
-          </p>
-          <div style="border-top:1px solid #eee;margin-top:24px;padding-top:16px">
-            <p style="font-size:12px;color:#bbb;margin:0">Ujenzi Dhabiti — Connecting Africa</p>
-            <p style="font-size:12px;color:#bbb;margin:4px 0 0">Manga House, Kiambare Rd, Upperhill, Nairobi</p>
-          </div>
-        </div>
-      `,
+      subject: "We received your request — Ujenzi Dhabiti",
+      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;padding:24px">
+        <h2>Thank you, ${escapeHtml(name.split(" ")[0])}.</h2>
+        <p>We received your request and will respond within 24 hours.</p>
+        <p style="font-size:12px;color:#777">Reference: ${quoteId}</p>
+      </div>`,
     });
 
-    // Save quote to user dashboard if signed in
-    const session = await auth();
-    if (session?.user?.id) {
-      const qid = `qt-${Date.now()}`;
-      await db.insert(quotes).values({
-        id: qid,
-        userId: session.user.id,
-        projectType: subject?.replace("Quote Request — ", "") || "General Inquiry",
-        description: message,
-        status: "pending",
-      });
+    await db.update(quotes).set({ notificationStatus: "sent" }).where(eq(quotes.id, quoteId));
+    return NextResponse.json({ success: true, reference: quoteId });
+  } catch (error) {
+    if (quoteId) {
+      try {
+        await db.update(quotes).set({ notificationStatus: "failed" }).where(eq(quotes.id, quoteId));
+      } catch {
+        // Preserve the original failure response.
+      }
     }
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("[POST /api/contact]", err);
-    return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
+    console.error("[POST /api/contact]", error);
+    return NextResponse.json(
+      { error: quoteId ? `Your request was saved as ${quoteId}, but notification delivery failed. Please contact us directly.` : "Failed to save request" },
+      { status: 500 }
+    );
   }
 }

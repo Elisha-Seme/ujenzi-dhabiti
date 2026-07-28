@@ -1,10 +1,11 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM = process.env.RESEND_FROM ?? "noreply@ujenzidhabiti.co.ke";
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 export async function sendMagicLink(email: string, token: string) {
+  if (!resend) throw new Error("Email notifications are not configured");
   const url = `${BASE_URL}/auth/verify?token=${token}`;
   await resend.emails.send({
     from: FROM,
@@ -32,6 +33,7 @@ export async function sendOrderConfirmation(
   downloads: { label: string; url: string }[] = [],
   deposit: { depositKES: number; balanceKES: number } | null = null
 ) {
+  if (!resend) throw new Error("Email notifications are not configured");
   const itemRows = items
     .map(
       (i) =>
@@ -103,6 +105,7 @@ export async function sendDispatchNotification(
   orderId: string,
   trackingNumber: string | null
 ) {
+  if (!resend) throw new Error("Email notifications are not configured");
   await resend.emails.send({
     from: FROM,
     to: email,

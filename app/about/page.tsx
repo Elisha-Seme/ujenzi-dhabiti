@@ -299,8 +299,8 @@ export default async function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-ud-dark">Our Leadership Team</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamList.map((member, idx) => (
-              <div key={member.name || idx} className="text-center group">
+            {teamList.filter((member) => member.published !== false).map((member, idx) => (
+              <article key={member.name || idx} className="text-center group bg-white border border-ud-dark/10 rounded-[4px] p-5">
                 <div className="relative h-72 rounded-[4px] overflow-hidden bg-ud-light-gray mb-4 border border-ud-dark/10 shadow-sm">
                   {member.image ? (
                     <Image
@@ -318,7 +318,37 @@ export default async function AboutPage() {
                 </div>
                 <h3 className="text-lg font-bold text-ud-dark">{member.name}</h3>
                 <p className="text-xs text-ud-dark/50 font-semibold uppercase tracking-wider mt-1">{member.title}</p>
-              </div>
+                {member.bio && (
+                  <p className="text-sm text-ud-dark/60 leading-relaxed mt-4">{member.bio}</p>
+                )}
+                {Array.isArray(member.competencies) && member.competencies.length > 0 && (
+                  <div className="mt-5">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-ud-dark/45 mb-2">Key Competencies</h4>
+                    <ul className="flex flex-wrap justify-center gap-2">
+                      {member.competencies.map((competency: string) => (
+                        <li key={competency} className="text-xs bg-ud-burgundy/10 text-ud-burgundy px-2.5 py-1 rounded-[4px]">
+                          {competency}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {Array.isArray(member.qualifications) && member.qualifications.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-ud-dark/45 mb-2">Qualifications</h4>
+                    <ul className="space-y-1 text-xs text-ud-dark/60">
+                      {member.qualifications.map((qualification: string) => (
+                        <li key={qualification}>{qualification}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {member.linkedinUrl && (
+                  <a href={member.linkedinUrl} target="_blank" rel="noreferrer" className="inline-block mt-4 text-xs font-semibold text-ud-burgundy hover:underline">
+                    View LinkedIn profile
+                  </a>
+                )}
+              </article>
             ))}
           </div>
         </div>

@@ -1,8 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { db, users, verificationTokens } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+
+const googleEnabled = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   // Trust the deployment host (we run behind a reverse proxy at ujenzidhabiti.co.ke).
@@ -15,6 +18,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     verifyRequest: "/auth/verify",
   },
   providers: [
+    ...(googleEnabled
+      ? [
+          Google({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          }),
+        ]
+      : []),
     // ─── Email + password ──────────────────────────────────────
     Credentials({
       id: "credentials",
@@ -95,10 +106,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") return true;
+      if (!user.email) return false;
+
+      const email = user.email.trim().toLowerCase();
+      const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (existing) {
+        user.id = existing.id;
+        user.name = existing.name;
+        user.role = existing.role;
+        return true;
+      }
+
+      const [created] = await db
+        .insert(users)
+        .values({
+          id: `usr-${crypto.randomUUID().slice(0, 8)}`,
+          name: user.name?.trim() || email.split("@")[0],
+          email,
+          passwordHash: null,
+          role: "buyer",
+          emailVerified: true,
+        })
+        .returning();
+      user.id = created.id;
+      user.role = created.role;
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: string }).role;
+        token.role = (user as { role?: string }).role ?? "buyer";
       }
       return token;
     },

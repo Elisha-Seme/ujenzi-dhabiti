@@ -39,6 +39,9 @@ export async function POST(req: NextRequest) {
       bathrooms: b.bathrooms != null && b.bathrooms !== "" ? Number(b.bathrooms) : null,
       floors: Number(b.floors) || 1,
       plinthAreaSqM: Number(b.plinthAreaSqM) || 0,
+      plotWidthM: b.plotWidthM != null && b.plotWidthM !== "" ? Number(b.plotWidthM) : null,
+      plotDepthM: b.plotDepthM != null && b.plotDepthM !== "" ? Number(b.plotDepthM) : null,
+      architecturalStyle: b.architecturalStyle?.trim() || null,
       downloadFile: b.downloadFile ?? null,
       published: b.published !== false,
     })

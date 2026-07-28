@@ -34,6 +34,9 @@ export interface HousePlan {
   bathrooms?: number;
   floors: number;
   plinthAreaSqM: number;
+  plotWidthM?: number;
+  plotDepthM?: number;
+  architecturalStyle?: string;
   // Filename in /public/plans/ delivered for digital purchases.
   // Plans without a downloadFile are catalogue-only until artwork arrives.
   downloadFile?: string;
