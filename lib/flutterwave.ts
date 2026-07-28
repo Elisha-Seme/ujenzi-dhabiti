@@ -3,6 +3,8 @@
 // then use that token as Bearer for all API calls.
 
 const FLW_BASE = "https://api.flutterwave.com/v3";
+const FLW_TOKEN_URL =
+  "https://idp.flutterwave.com/realms/flutterwave/protocol/openid-connect/token";
 
 // Module-level token cache — reused until 60s before expiry
 let cachedToken: { token: string; expiresAt: number } | null = null;
@@ -15,14 +17,17 @@ async function getAccessToken(): Promise<string> {
   const clientId = process.env.FLUTTERWAVE_CLIENT_ID!;
   const clientSecret = process.env.FLUTTERWAVE_SECRET_KEY!;
 
-  const basicCredentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const res = await fetch(`${FLW_BASE}/auth/token`, {
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: "client_credentials",
+  });
+  const res = await fetch(FLW_TOKEN_URL, {
     method: "POST",
     headers: {
-      Authorization: `Basic ${basicCredentials}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: "grant_type=client_credentials",
+    body,
   });
 
   const raw = await res.text();
@@ -31,21 +36,21 @@ async function getAccessToken(): Promise<string> {
     throw new Error(`Flutterwave auth failed (${res.status}): ${raw}`);
   }
 
-  let data: { status: string; data?: { access_token: string; expires_in: number }; message?: string };
+  let data: { access_token?: string; expires_in?: number; error_description?: string };
   try { data = JSON.parse(raw); } catch { throw new Error(`Flutterwave token bad JSON: ${raw}`); }
 
-  if (data.status !== "success" || !data.data?.access_token) {
+  if (!data.access_token) {
     console.error("[flutterwave] token rejected:", data);
-    throw new Error(data.message ?? "Failed to get Flutterwave access token");
+    throw new Error(data.error_description ?? "Failed to get Flutterwave access token");
   }
 
-  const expiresIn = data.data.expires_in ?? 3600;
+  const expiresIn = data.expires_in ?? 600;
   cachedToken = {
-    token: data.data.access_token,
+    token: data.access_token,
     expiresAt: Date.now() + (expiresIn - 60) * 1000,
   };
 
-  return cachedToken.token;
+  return data.access_token;
 }
 
 export interface FlwInitResult {
