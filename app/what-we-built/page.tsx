@@ -26,8 +26,19 @@ async function loadProjects() {
   }
 }
 
-export default async function WhatWeBuiltPage() {
-  const rows = await loadProjects();
+export default async function WhatWeBuiltPage({ searchParams }: { searchParams?: { category?: string; country?: string; year?: string } }) {
+  const allRows = await loadProjects();
+  const category = searchParams?.category || "";
+  const country = searchParams?.country || "";
+  const year = searchParams?.year || "";
+  const rows = allRows.filter((project) =>
+    (!category || project.category === category) &&
+    (!country || project.country === country) &&
+    (!year || String(project.year ?? "") === year)
+  );
+  const categories = Array.from(new Set(allRows.map((project) => project.category).filter(Boolean))).sort();
+  const countries = Array.from(new Set(allRows.map((project) => project.country).filter(Boolean))).sort();
+  const years = Array.from(new Set(allRows.map((project) => project.year).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
 
   return (
     <>
@@ -35,6 +46,17 @@ export default async function WhatWeBuiltPage() {
         title="What We've Built"
         subtitle="A growing portfolio of the homes, developments, and infrastructure we've delivered across Kenya."
       />
+
+      {allRows.length > 0 && (
+        <section className="bg-ud-white pt-12">
+          <form method="get" className="max-w-content mx-auto px-6 grid sm:grid-cols-4 gap-3" aria-label="Filter projects">
+            <select name="category" defaultValue={category} className="border border-ud-dark/20 rounded-[4px] px-3 py-2.5 text-sm bg-white"><option value="">All project types</option>{categories.map((value) => <option key={value} value={value}>{value}</option>)}</select>
+            <select name="country" defaultValue={country} className="border border-ud-dark/20 rounded-[4px] px-3 py-2.5 text-sm bg-white"><option value="">All countries</option>{countries.map((value) => <option key={value} value={value}>{value}</option>)}</select>
+            <select name="year" defaultValue={year} className="border border-ud-dark/20 rounded-[4px] px-3 py-2.5 text-sm bg-white"><option value="">All years</option>{years.map((value) => <option key={value} value={String(value)}>{value}</option>)}</select>
+            <button type="submit" className="bg-ud-burgundy text-white text-sm font-semibold rounded-[4px] px-4 py-2.5">Apply filters</button>
+          </form>
+        </section>
+      )}
 
       {rows.length === 0 ? (
         <section className="bg-ud-white py-24 md:py-32">
@@ -44,7 +66,7 @@ export default async function WhatWeBuiltPage() {
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-ud-dark mb-3">Project Showcase Coming Soon</h2>
             <p className="text-ud-dark/60 font-light leading-relaxed max-w-xl mx-auto mb-8">
-              We&apos;re assembling photos and details from our completed projects — bungalows, townhouses, commercial developments, roads, and interiors. Check back shortly, or reach out to request our project portfolio directly.
+              {allRows.length > 0 ? "No projects match those filters. Try a broader selection." : "We&apos;re assembling approved photos and details from our completed projects. Check back shortly, or reach out to request our project portfolio directly."}
             </p>
             <Link href="/contact" className="inline-block bg-ud-burgundy text-white text-sm font-bold px-6 py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">
               Request Our Portfolio

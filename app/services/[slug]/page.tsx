@@ -8,23 +8,48 @@ import { ServiceIntro, ServiceType, ServiceSection, ServiceMaterialsBar } from "
 import ServiceEnquiry from "@/components/services/ServiceEnquiry";
 
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const [service] = await db
-    .select()
-    .from(services)
-    .where(eq(services.slug, params.slug));
+  let service: typeof services.$inferSelect | undefined;
+  try {
+    [service] = await db
+      .select()
+      .from(services)
+      .where(eq(services.slug, params.slug));
+  } catch (err) {
+    console.error("Service detail load failed:", err);
+    return notFound();
+  }
 
   if (!service) {
     return notFound();
   }
 
-  const subsections = await db
-    .select()
-    .from(serviceSubsections)
-    .where(eq(serviceSubsections.serviceSlug, service.slug))
-    .orderBy(asc(serviceSubsections.sortOrder));
+  let subsections: (typeof serviceSubsections.$inferSelect)[] = [];
+  try {
+    subsections = await db
+      .select()
+      .from(serviceSubsections)
+      .where(eq(serviceSubsections.serviceSlug, service.slug))
+      .orderBy(asc(serviceSubsections.sortOrder));
+  } catch (err) {
+    console.error("Service subsection load failed:", err);
+  }
+
+  // Core catalogue services do not all have subsection rows yet. Keep their
+  // dedicated pages useful by rendering the CMS description/includes instead
+  // of returning a hero followed by an empty page.
+  const sections = subsections.length > 0
+    ? subsections
+    : [{
+        id: `${service.id}-overview`,
+        sectionId: "overview",
+        title: `${service.title} Services`,
+        body: service.description,
+        planType: null,
+        bullets: service.includes,
+      }];
 
   // Build the sub-navigation array
-  const subnav = subsections.map((sub) => ({
+  const subnav = sections.map((sub) => ({
     label: sub.sectionId
       .replace(/-/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase()),
@@ -67,7 +92,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
       )}
 
       {/* Render subsections dynamically */}
-      {subsections.map((sub, idx) => {
+      {sections.map((sub, idx) => {
         const tone = idx % 2 === 0 ? "white" : "light";
         const materialsCategory = getShopCategory(service.slug);
         
@@ -102,13 +127,4 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
   );
 }
 
-// Generate static params for the four main services
-export async function generateStaticParams() {
-  return [
-    { slug: "building-works" },
-    { slug: "civil-works" },
-    { slug: "interior-design" },
-    { slug: "architectural" },
-  ];
-}
 export const dynamic = "force-dynamic";

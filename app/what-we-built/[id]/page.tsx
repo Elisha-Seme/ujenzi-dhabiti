@@ -5,7 +5,7 @@ import { db, projects } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 import CTABanner from "@/components/sections/CTABanner";
-import { PROJECTS, whatsappLink } from "@/lib/constants";
+import { whatsappLink } from "@/lib/constants";
 import { PRODUCT_CATEGORIES } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +16,16 @@ interface ProjectDetail {
   id: string;
   title: string;
   location: string | null;
+  country: string | null;
+  year: number | null;
   category: string;
   propertyType: string | null;
   description: string;
   scope: string | null;
+  timeline: string | null;
+  budgetRange: string | null;
+  clientName: string | null;
+  clientNameApproved: boolean;
   coverImage: string | null;
   beforeImage: string | null;
   afterImage: string | null;
@@ -39,10 +45,16 @@ async function loadProject(id: string): Promise<ProjectDetail | null> {
         id: r.id,
         title: r.title,
         location: r.location,
+        country: r.country,
+        year: r.year,
         category: r.category,
         propertyType: r.propertyType,
         description: r.description,
         scope: r.scope,
+        timeline: r.timeline,
+        budgetRange: r.budgetRange,
+        clientName: r.clientName,
+        clientNameApproved: r.clientNameApproved,
         coverImage: r.coverImage,
         beforeImage: r.beforeImage,
         afterImage: r.afterImage,
@@ -52,24 +64,7 @@ async function loadProject(id: string): Promise<ProjectDetail | null> {
     }
   } catch { /* fall through */ }
 
-  // Static fallback (for demo / development)
-  const staticId = parseInt(id, 10);
-  const s = PROJECTS.find((p) => p.id === staticId);
-  if (!s) return null;
-  return {
-    id: String(s.id),
-    title: s.name,
-    location: s.location,
-    category: s.category,
-    propertyType: null,
-    description: s.description,
-    scope: null,
-    coverImage: s.image,
-    beforeImage: null,
-    afterImage: null,
-    images: [],
-    materialsUsed: [],
-  };
+  return null;
 }
 
 // Map project categories to shop categories for "Order Similar Materials"
@@ -132,6 +127,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               <MapPin className="w-4 h-4 text-ud-burgundy" /> {project.location}
             </p>
           )}
+          {(project.country || project.year) && <p className="text-xs text-white/45 mb-6">{project.country}{project.year ? ` · Completed ${project.year}` : ""}</p>}
 
           {/* Before / after or single image */}
           <div className="rounded-[4px] overflow-hidden">
@@ -189,6 +185,14 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                   <div className="prose prose-sm text-ud-dark/70 max-w-none whitespace-pre-line leading-relaxed">
                     {project.scope}
                   </div>
+                </div>
+              )}
+
+              {(project.timeline || project.budgetRange || (project.clientName && project.clientNameApproved)) && (
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {project.timeline && <div className="bg-ud-light-gray rounded-[4px] p-4"><p className="text-[10px] uppercase tracking-wider font-bold text-ud-dark/40 mb-1">Timeline</p><p className="text-sm font-semibold text-ud-dark">{project.timeline}</p></div>}
+                  {project.budgetRange && <div className="bg-ud-light-gray rounded-[4px] p-4"><p className="text-[10px] uppercase tracking-wider font-bold text-ud-dark/40 mb-1">Budget range</p><p className="text-sm font-semibold text-ud-dark">{project.budgetRange}</p></div>}
+                  {project.clientName && project.clientNameApproved && <div className="bg-ud-light-gray rounded-[4px] p-4"><p className="text-[10px] uppercase tracking-wider font-bold text-ud-dark/40 mb-1">Client</p><p className="text-sm font-semibold text-ud-dark">{project.clientName}</p></div>}
                 </div>
               )}
 

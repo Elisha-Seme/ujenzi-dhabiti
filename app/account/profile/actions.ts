@@ -37,8 +37,8 @@ export async function setPassword(password: string) {
     return { error: "Unauthorized" };
   }
 
-  if (password.length < 6) {
-    return { error: "Password must be at least 6 characters" };
+  if (password.length < 8 || password.length > 128) {
+    return { error: "Password must be between 8 and 128 characters" };
   }
 
   try {

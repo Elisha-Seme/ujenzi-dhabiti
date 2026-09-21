@@ -1,7 +1,7 @@
 # Website Feedback — Line-by-Line Implementation Checklist
 
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
-**Last audit:** 2026-07-15 — every tick below was verified against the actual code, not memory.
+**Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, and authorized read-only browser checks were re-run. Environment/content-dependent items remain explicitly marked.
 
 Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started · 🔒 blocked on client input
 
@@ -11,8 +11,8 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 | # | Feedback (verbatim intent) | Status | Evidence / What remains |
 |---|---|---|---|
-| 1.1 | Email section: **Google account prompt** (sign in with Google) | 🔒 ⬜ | No Google provider wired (`grep google app/auth/signup/page.tsx` → 0). **Blocked:** client to provide Google OAuth Client ID + Secret ("i'll do the google thing later"). |
-| 1.2 | User can **see the password while creating it** | ✅ | `app/auth/signup/page.tsx` — Eye/EyeOff toggle on both Password + Confirm (aria-labels flip Show/Hide). Bonus: same toggle on `app/auth/signin/page.tsx`. Browser-verified: type flips `password`↔`text`. |
+| 1.1 | Email section: **Google account prompt** (sign in with Google) | 🟡 | `lib/auth.ts` conditionally registers Google and safely upserts buyers; dedicated and homepage auth pages render the button when the provider is configured. Google Cloud access showed no Ujenzi project/client, so live OAuth remains unverified. |
+| 1.2 | User can **see the password while creating it** | ✅ | Dedicated and homepage auth have Eye/EyeOff controls; local browser verification changed the control to “Hide password”. Signup and profile password validation are 8–128 characters. |
 
 ## 2. Shop
 
@@ -27,9 +27,9 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 | # | Feedback | Status | Evidence / What remains |
 |---|---|---|---|
-| 3.1 | **Each service on its own tab**, with sub-services (Cabro Paving → Driveway cabro paving) | ⬜ | Current `/services/[slug]` pages exist but no sub-service hierarchy. Needs data-model decision (parent/child services). |
+| 3.1 | **Each service on its own tab**, with sub-services (Cabro Paving → Driveway cabro paving) | 🟡 | Every published CMS service now links to a dynamic detail page; subsection navigation is rendered when subsection data exists, with a CMS overview fallback otherwise. A nested sub-service data model/content set is still needed for the full Cabro→Driveway hierarchy. |
 | 3.2 | **Bundle construction materials under each service** ("shop the materials" tab per service) | 🟡 | `ServiceMaterialsBar` already links each service to a fallback shop category (`app/services/[slug]/page.tsx:34-93`). Curated per-service product packages **not yet built** — 🔒 needs client's service→products mapping. |
-| 3.3 | **All services from the profile + descriptions must appear** | 🔒 ⬜ | `app/services/page.tsx:140-141` still filters to 5 core slugs. **Blocked:** client to supply the complete services list + descriptions. |
+| 3.3 | **All services from the profile + descriptions must appear** | 🟡 | Public index now uses every published `services` row and no longer filters to five core slugs or injects a stale static list. Production data still needs post-migration verification. |
 
 ## 4. Request a Quote
 
@@ -54,18 +54,18 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 | # | Feedback | Status | Evidence / What remains |
 |---|---|---|---|
-| 7.1 | Profile section with **Key competences** (like Ardhi Safi) | ⬜ | `team_members` schema still only `id, name, title, image, sortOrder` (`grep competences lib/db/schema.ts` → 0). Needs migration (`bio`, `competences[]`) + admin form + public profile. ⚠️ Schema change touches the production DB — do via a reviewed Drizzle migration, coordinated with client. |
+| 7.1 | Profile section with **Key competences** (like Ardhi Safi) | 🟡 | Added `bio` and `competences[]` schema fields, admin inputs, public competence chips, and dedicated `/about/team/[id]` pages. Drizzle migration `0012_dizzy_mantis.sql` is generated; apply it only to the authorized deployment database and populate approved staff data. |
 
 ## 8. "More Recommendations"
 
 | # | Recommendation | Status | Evidence / What remains |
 |---|---|---|---|
-| 8.1 | Trust & credibility: testimonials, client logos, NCA registration, insurance, years in business | ⬜ | No testimonials component on home (`components/home/` has none; grep → 0). Needs testimonials model + homepage section + credentials strip. |
-| 8.2 | Pricing transparency + bulk calculator + build-cost estimator | 🟡 | Prices shown per unit on cards ✅; BulkCalculator ✅ (now also on category pages). "Build cost estimator" (sqft→materials) ⬜ — note `products.coverageSqmPerUnit` column already exists to power it. |
+| 8.1 | Trust & credibility: testimonials, client logos, NCA registration, insurance, years in business | 🟡 | Added unpublished-by-default testimonials and credentials models, admin CRUD, validation, and conditional public About sections. No proof is fabricated; approved content remains to be supplied and published. |
+| 8.2 | Pricing transparency + bulk calculator + build-cost estimator | 🟡 | Unit prices, bulk calculator, category estimator, and a coverage-based material estimator are present. The estimator documents 10% waste and excludes labour, delivery, and non-catalogue materials; it is not a full project quote engine. |
 | 8.3 | Order tracking (placed → processing → out for delivery → delivered) | ✅ | Wiring verified end-to-end: `/track/[orderId]` fetches `/api/orders/[id]`; admin sets status via `/api/admin/orders/[id]/status` (STATUS_STEPS: pending→paid→processing→dispatched→delivered). Added a `/track` **landing page** (order-number lookup) linked from the Help Center. |
-| 8.4 | Project portfolio depth (before/after, timelines, budgets, filters) | ⬜ | `app/what-we-built` + admin exist but thin. Schema extension needed. |
-| 8.5 | House plans: comparison filters + request-modification flow | ⬜ | `/shop/plans` exists; no compare/modify flow yet. |
-| 8.6 | Blog / SEO resource hub | ⬜ | No blog module in the codebase. Largest net-new build. |
+| 8.4 | Project portfolio depth (before/after, timelines, budgets, filters) | 🟡 | Added country/year/timeline/budget/client-name permission fields, admin controls, public metadata, and category/country/year filters. Approved content and migration deployment remain. |
+| 8.5 | House plans: comparison filters + request-modification flow | 🟡 | Added up-to-three-plan comparison and a structured customization request with admin status workflow and migration. Safe DB-backed E2E remains. |
+| 8.6 | Blog / SEO resource hub | 🟡 | Added draft-by-default blog schema, admin CRUD, published-only listing/detail routes, navigation, and an honest empty state. Reviewed articles remain to be authored. |
 | 8.7 | M-Pesa visible at checkout | ✅ (pre-existing) | Checkout references M-Pesa 25× incl. payment method selector; Daraja STK APIs live under `app/api/payments/mpesa/*`. To do: end-to-end STK test on production creds (currently sandbox env). |
 
 ---
@@ -74,15 +74,18 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 - ✅ Empty product-image warnings eliminated — `ProductCard` now resolves `image` **or** DB `images[0]` with a Package-icon placeholder; same guard on CartSidebar + checkout thumbnails. Zero DB changes. Browser-verified: 0 empty-src imgs, clean console.
 - ✅ Cart now stores the resolved image so no-image products stay clean through cart → checkout.
-- ✅ `tsc --noEmit` + `eslint` clean on every touched file.
+- ✅ `tsc --noEmit`, `npm run build`, `git diff --check`, and local production-server smoke tests pass. Lint exits 0 with the existing `<img>` optimization warnings in blog/track pages.
+- ✅ Public local runtime checks: 200 for primary pages, 404 for unknown dynamic records, 400 for invalid write payloads, 403 for unauthenticated admin APIs, and 47 unique delivery counties.
+- ✅ Removed the active hardcoded Gypsum sample bundle so fake product IDs/prices cannot appear as a real package.
 
 ## Blocked-on-client summary (nothing moves without these)
 
-1. **Google OAuth credentials** → unlocks 1.1 (client: "later").
+1. **Google OAuth credentials and deployment configuration** → unlocks live verification for 1.1.
 2. **Full services list + descriptions + sub-services** → unlocks 3.1/3.3.
 3. **Service → materials package mapping** → unlocks 3.2.
 4. **Real freight fees per county** → replaces placeholder rates in 2.2.
-5. **Approval for team schema migration** (production DB) → unlocks 7.1.
+5. **Approval for team/content schema migration** (deployment DB) → unlocks production verification for 7.1, 8.1, 8.4, 8.5, and 8.6.
+6. **Disposable database/staging credentials** → unlocks role-based and database-backed E2E tests. A guarded `npm run db:seed-qa` script is available but refuses unapproved execution.
 
 ## Suggested build order for the remaining work
 

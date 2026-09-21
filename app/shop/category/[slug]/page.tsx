@@ -3,7 +3,6 @@ import { db, products } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
-import CategoryBundle from "./CategoryBundle";
 import CategoryClient from "./CategoryClient";
 import BulkCalculator from "@/components/shop/BulkCalculator";
 import DeliveryEstimator from "@/components/shop/DeliveryEstimator";
@@ -39,11 +38,18 @@ export default async function CategoryPage({ params }: { params: { slug: string 
     notFound();
   }
 
-  // Fetch products for this specific category
-  const categoryProducts = await db
-    .select()
-    .from(products)
-    .where(eq(products.category, categoryName));
+  // Fetch products for this specific category. The public tools can still
+  // render when the database is temporarily unavailable; the product grid
+  // will show its empty state rather than taking down the whole page.
+  let categoryProducts: (typeof products.$inferSelect)[] = [];
+  try {
+    categoryProducts = await db
+      .select()
+      .from(products)
+      .where(eq(products.category, categoryName));
+  } catch (err) {
+    console.error("Category products load failed:", err);
+  }
 
   // Scope the Bulk Calculator to this category's products only.
   const bulkItems = categoryProducts.map((p) => ({
@@ -88,9 +94,6 @@ export default async function CategoryPage({ params }: { params: { slug: string 
             <ArrowLeft className="w-4 h-4" /> Back to Full Shop
           </Link>
         </div>
-
-        {/* Bundle Section */}
-        <CategoryBundle categoryName={categoryName} />
 
         {/* Smart Tools — scoped to this category */}
         <div className="mt-8">

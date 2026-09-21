@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { db, projects } from "@/lib/db";
 import { desc, eq } from "drizzle-orm";
-import { PROJECTS } from "@/lib/constants";
 import BeforeAfter from "@/components/ui/BeforeAfter";
 
 export const dynamic = "force-dynamic";
@@ -42,16 +41,7 @@ async function loadProjects(): Promise<Card[]> {
   } catch {
     /* fall through to static */
   }
-  return PROJECTS.slice(0, 3).map((p) => ({
-    id: String(p.id),
-    title: p.name,
-    location: p.location,
-    category: p.category,
-    description: p.description,
-    image: p.image,
-    beforeImage: null,
-    afterImage: null,
-  }));
+  return [];
 }
 
 export default async function HomeProjects() {
@@ -70,7 +60,7 @@ export default async function HomeProjects() {
           </Link>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {featured.length > 0 ? <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {featured.map((p, i) => {
             const variant = i % 3;
             const cardCls =
@@ -118,7 +108,7 @@ export default async function HomeProjects() {
               </div>
             );
           })}
-        </div>
+        </div> : <p className="text-sm text-white/55 border border-white/10 rounded-[4px] p-6">Approved project case studies will appear here.</p>}
       </div>
     </section>
   );

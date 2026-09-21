@@ -5,6 +5,7 @@ export const NAV_LINKS = [
   { label: "Shop", href: "/shop" },
   { label: "Our Services", href: "/services" },
   { label: "What We've Built", href: "/what-we-built" },
+  { label: "Resources", href: "/blog" },
   { label: "Request a Quote", href: "/request-a-quote" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

@@ -8,6 +8,7 @@ import SectionHero from "@/components/ui/SectionHero";
 import ProductCard from "@/components/shop/ProductCard";
 import DeliveryEstimator from "@/components/shop/DeliveryEstimator";
 import BulkCalculator from "@/components/shop/BulkCalculator";
+import BuildCostEstimator from "@/components/shop/BuildCostEstimator";
 import { PRODUCT_CATEGORIES, ProductCategory } from "@/lib/products";
 import CTABanner from "@/components/sections/CTABanner";
 
@@ -23,6 +24,7 @@ interface ApiProduct {
   stock: number;
   images: string[];
   specs: Record<string, string> | null;
+  coverageSqmPerUnit: number | null;
   brand: string | null;
   materialType: string | null;
 }
@@ -127,6 +129,19 @@ function ShopContent() {
 
   const bulkItems = useMemo(
     () => allProducts.map((p) => ({ id: p.id, name: p.name, unit: p.unit, priceKES: p.priceKES, image: p.images[0] ?? "" })),
+    [allProducts]
+  );
+
+  const buildCostItems = useMemo(
+    () => allProducts
+      .filter((p) => typeof p.coverageSqmPerUnit === "number" && p.coverageSqmPerUnit > 0)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        unit: p.unit,
+        priceKES: p.priceKES,
+        coverageSqmPerUnit: p.coverageSqmPerUnit as number,
+      })),
     [allProducts]
   );
 
@@ -266,6 +281,7 @@ function ShopContent() {
                 <h3 className="text-xs font-bold uppercase tracking-wider text-ud-dark/40 mb-3 px-1">Smart Tools</h3>
                 <div className="space-y-4">
                   <BulkCalculator products={bulkItems} />
+                  {buildCostItems.length > 0 && <BuildCostEstimator products={buildCostItems} />}
                   <DeliveryEstimator />
                 </div>
               </div>

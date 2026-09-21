@@ -36,6 +36,7 @@ function PlansContent() {
 
   const [active, setActive] = useState<PlanCategory | "All">("All");
   const [plans, setPlans] = useState<HousePlan[]>([]);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     fetch("/api/plans-catalogue")
@@ -59,6 +60,11 @@ function PlansContent() {
       return matchesType(p.category, p.planType, typeParam);
     });
   }, [plans, active, typeParam]);
+
+  const comparePlans = plans.filter((plan) => compareIds.includes(plan.id));
+  const toggleCompare = (id: string) => {
+    setCompareIds((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 3 ? [...current, id] : current);
+  };
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { All: plans.length };
@@ -94,13 +100,45 @@ function PlansContent() {
 
           {filtered.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((plan) => <PlanCard key={plan.id} plan={plan} />)}
+              {filtered.map((plan) => (
+                <div key={plan.id} className="relative">
+                  <PlanCard plan={plan} />
+                  <label className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 text-[11px] font-semibold text-ud-dark px-2 py-1.5 rounded shadow-sm cursor-pointer">
+                    <input type="checkbox" checked={compareIds.includes(plan.id)} onChange={() => toggleCompare(plan.id)} className="accent-ud-burgundy" /> Compare
+                  </label>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-20">
               <p className="text-ud-dark/40 font-light text-lg">No plans in this category yet.</p>
               <button onClick={() => setActive("All")} className="mt-4 text-sm font-semibold text-ud-burgundy hover:underline">View all plans</button>
             </div>
+          )}
+
+          {comparePlans.length >= 2 && (
+            <section className="mt-10 bg-white border border-ud-burgundy/25 rounded-[4px] p-5 md:p-6" aria-labelledby="compare-heading">
+              <div className="flex items-center justify-between gap-4 mb-5">
+                <div><h2 id="compare-heading" className="text-lg font-bold text-ud-dark">Compare selected plans</h2><p className="text-xs text-ud-dark/50 mt-1">Up to three plans can be compared side by side.</p></div>
+                <button type="button" onClick={() => setCompareIds([])} className="text-xs font-semibold text-ud-burgundy hover:underline">Clear</button>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {comparePlans.map((plan) => (
+                  <div key={plan.id} className="border border-ud-dark/10 rounded-[4px] p-4">
+                    <h3 className="font-bold text-ud-dark text-sm mb-3">{plan.name}</h3>
+                    <dl className="space-y-2 text-xs text-ud-dark/60">
+                      <div className="flex justify-between gap-3"><dt>Category</dt><dd className="font-semibold text-ud-dark">{plan.category}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Bedrooms</dt><dd className="font-semibold text-ud-dark">{plan.bedrooms ?? "—"}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Bathrooms</dt><dd className="font-semibold text-ud-dark">{plan.bathrooms ?? "—"}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Floors</dt><dd className="font-semibold text-ud-dark">{plan.floors}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Plinth area</dt><dd className="font-semibold text-ud-dark">{plan.plinthAreaSqM} m²</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Digital</dt><dd className="font-semibold text-ud-dark">KES {plan.priceDigitalKES.toLocaleString()}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>Print</dt><dd className="font-semibold text-ud-dark">KES {plan.pricePrintKES.toLocaleString()}</dd></div>
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
 
           <div className="mt-12 bg-white border border-ud-dark/10 rounded-[4px] p-6 text-sm text-ud-dark/60 leading-relaxed">

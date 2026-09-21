@@ -1,12 +1,26 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM ?? "noreply@ujenzidhabiti.co.ke";
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
+let resend: Resend | null = null;
+
+/**
+ * Resolve the mail client only when an email is actually being sent.
+ * This keeps builds and pages that do not send mail usable without a local
+ * Resend key, while still failing clearly at the point of delivery.
+ */
+function getResend(): Resend {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("Email delivery is not configured: RESEND_API_KEY is missing");
+  }
+  resend ??= new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
+
 export async function sendMagicLink(email: string, token: string) {
   const url = `${BASE_URL}/auth/verify?token=${token}`;
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: email,
     subject: "Sign in to Ujenzi Dhabiti",
@@ -55,7 +69,7 @@ export async function sendOrderConfirmation(
         </div>
   `;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: email,
     subject: `Order Confirmed — ${orderId}`,
@@ -103,7 +117,7 @@ export async function sendDispatchNotification(
   orderId: string,
   trackingNumber: string | null
 ) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: email,
     subject: `Your Order Has Been Dispatched — ${orderId}`,

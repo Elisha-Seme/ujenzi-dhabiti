@@ -202,7 +202,7 @@ export default function ProfileForm({ user, hasPassword }: ProfileFormProps) {
                 <form onSubmit={handleSetPassword} className="mt-3">
                   <input
                     type="password"
-                    placeholder="New Password (min 6 chars)"
+                    placeholder="New Password (min 8 chars)"
                     value={passwordValue}
                     onChange={(e) => setPasswordValue(e.target.value)}
                     required

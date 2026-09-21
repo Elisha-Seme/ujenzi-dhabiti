@@ -3,11 +3,14 @@ import { db, users, verificationTokens } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { randomBytes, randomUUID } from "crypto";
 import { sendMagicLink } from "@/lib/email";
+import { allowRequest, requestAddress } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
-    if (!email) return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!allowRequest(`magic:${requestAddress(req)}`, 5, 15 * 60 * 1000)) return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+    const rawEmail = (await req.json()).email;
+    const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
 
     const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 

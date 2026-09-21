@@ -13,7 +13,11 @@ async function seed() {
 
   // ─── Admin user ─────────────────────────────────────────────
   console.log("Creating admin user...");
-  const adminHash = await bcrypt.hash("Admin@UjenziDhabiti2025!", 12);
+  const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!seedAdminPassword) {
+    throw new Error("SEED_ADMIN_PASSWORD must be set to run the database seed");
+  }
+  const adminHash = await bcrypt.hash(seedAdminPassword, 12);
   await db
     .insert(users)
     .values({
@@ -612,7 +616,7 @@ async function seed() {
   console.log(`   ${DELIVERY_ZONES.length} delivery zones`);
   console.log(`   ${servicesList.length} service options`);
   console.log(`   ${subSectionsList.length} service subsections`);
-  console.log("\n   Admin login: admin@ujenzidhabiti.co.ke / Admin@UjenziDhabiti2025!\n");
+  console.log("\n   Admin seed completed for the configured admin account.\n");
 
   process.exit(0);
 }

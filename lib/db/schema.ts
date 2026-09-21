@@ -260,10 +260,16 @@ export const projects = pgTable("projects", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   location: text("location"),
+  country: text("country").notNull().default("Kenya"),
+  year: integer("year"),
   category: text("category").notNull().default("Building"), // Building | Civil | Interior | Architectural
   propertyType: text("property_type"), // Residential | Commercial | Institutional
   description: text("description").notNull(),
   scope: text("scope"),
+  timeline: text("timeline"),
+  budgetRange: text("budget_range"),
+  clientName: text("client_name"),
+  clientNameApproved: boolean("client_name_approved").notNull().default(false),
   coverImage: text("cover_image"),
   beforeImage: text("before_image"),
   afterImage: text("after_image"),
@@ -421,6 +427,8 @@ export const teamMembers = pgTable("team_members", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   title: text("title").notNull(),
+  bio: text("bio"),
+  competences: text("competences").array().notNull().default([]),
   image: text("image"),
   sortOrder: integer("sort_order").notNull().default(0),
 });
@@ -442,6 +450,70 @@ export const faqs = pgTable("faqs", {
   answer: text("answer").notNull(),
   iconName: text("icon_name").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// ─── CMS: Testimonials and social proof ──────────────────────────────────────
+
+export const testimonials = pgTable("testimonials", {
+  id: text("id").primaryKey(),
+  quote: text("quote").notNull(),
+  authorName: text("author_name").notNull(),
+  authorRole: text("author_role"),
+  company: text("company"),
+  rating: integer("rating"),
+  image: text("image"),
+  published: boolean("published").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── CMS: Verified credentials and registrations ────────────────────────────
+
+export const companyCredentials = pgTable("company_credentials", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  detail: text("detail").notNull(),
+  credentialNumber: text("credential_number"),
+  issuedYear: integer("issued_year"),
+  expiresYear: integer("expires_year"),
+  image: text("image"),
+  published: boolean("published").notNull().default(false),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── CMS: Blog/resource hub ──────────────────────────────────────────────────
+
+export const blogPosts = pgTable("blog_posts", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  excerpt: text("excerpt").notNull(),
+  body: text("body").notNull(),
+  coverImage: text("cover_image"),
+  category: text("category").notNull().default("Resources"),
+  tags: text("tags").array().notNull().default([]),
+  author: text("author").notNull(),
+  published: boolean("published").notNull().default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── House-plan customization requests ──────────────────────────────────────
+
+export const planCustomizationRequests = pgTable("plan_customization_requests", {
+  id: text("id").primaryKey(),
+  planId: text("plan_id").references(() => housePlans.id, { onDelete: "set null" }),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  request: text("request").notNull(),
+  status: quoteStatusEnum("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 // ─── CMS: Services ──────────────────────────────────────────────────────────
@@ -489,6 +561,13 @@ export type WhyChooseUsRow = typeof whyChooseUs.$inferSelect;
 export type NewWhyChooseUsRow = typeof whyChooseUs.$inferInsert;
 export type TeamMember = typeof teamMembers.$inferSelect;
 export type NewTeamMember = typeof teamMembers.$inferInsert;
+export type Testimonial = typeof testimonials.$inferSelect;
+export type NewTestimonial = typeof testimonials.$inferInsert;
+export type CompanyCredential = typeof companyCredentials.$inferSelect;
+export type NewCompanyCredential = typeof companyCredentials.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
+export type PlanCustomizationRequest = typeof planCustomizationRequests.$inferSelect;
 export type CompanyStatRow = typeof companyStats.$inferSelect;
 export type NewCompanyStatRow = typeof companyStats.$inferInsert;
 export type FaqRow = typeof faqs.$inferSelect;

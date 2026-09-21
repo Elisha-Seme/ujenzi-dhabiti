@@ -1,12 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 import * as LucideIcons from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import CTABanner from "@/components/sections/CTABanner";
 import Logo from "@/components/layout/Logo";
 import { db } from "@/lib/db";
-import { systemSettings, coreValues, whyChooseUs, companyStats, teamMembers } from "@/lib/db/schema";
+import { systemSettings, coreValues, whyChooseUs, companyStats, teamMembers, testimonials, companyCredentials, Testimonial, CompanyCredential } from "@/lib/db/schema";
 import { asc, eq } from "drizzle-orm";
-import { STATS as STATS_STATIC, TEAM as TEAM_STATIC } from "@/lib/constants";
 
 // Static placeholders for vision/mission/story copy
 const VISION_STATIC = "To be a leading construction and infrastructure company in Africa, connecting communities through sustainable developments, modern transport networks, and quality housing solutions.";
@@ -69,6 +69,8 @@ export default async function AboutPage() {
   let statsList: any[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let teamList: any[] = [];
+  let testimonialsList: Testimonial[] = [];
+  let credentialsList: CompanyCredential[] = [];
 
   try {
     const [settings] = await db
@@ -123,7 +125,7 @@ export default async function AboutPage() {
     if (dbStats && dbStats.length > 0) {
       statsList = dbStats;
     } else {
-      statsList = STATS_STATIC;
+      statsList = [];
     }
 
     const dbTeam = await db
@@ -133,14 +135,27 @@ export default async function AboutPage() {
     if (dbTeam && dbTeam.length > 0) {
       teamList = dbTeam;
     } else {
-      teamList = TEAM_STATIC;
+      teamList = [];
     }
+
+    testimonialsList = await db
+      .select()
+      .from(testimonials)
+      .where(eq(testimonials.published, true))
+      .orderBy(asc(testimonials.sortOrder));
+    credentialsList = await db
+      .select()
+      .from(companyCredentials)
+      .where(eq(companyCredentials.published, true))
+      .orderBy(asc(companyCredentials.sortOrder));
   } catch (err) {
     console.error("About page dynamic load failed, falling back to static constants:", err);
     valuesList = CORE_VALUES_STATIC;
     chooseUsList = WHY_CHOOSE_US_STATIC;
-    statsList = STATS_STATIC;
-    teamList = TEAM_STATIC;
+    statsList = [];
+    teamList = [];
+    testimonialsList = [];
+    credentialsList = [];
   }
 
   return (
@@ -194,6 +209,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      {statsList.length > 0 && <>
       {/* Stats Section */}
       <section className="bg-white py-14 border-y border-ud-dark/5 shadow-sm">
         <div className="max-w-content mx-auto px-6">
@@ -207,6 +223,7 @@ export default async function AboutPage() {
           </div>
         </div>
       </section>
+      </>}
 
       {/* Vision & Mission */}
       <section className="bg-ud-light-gray py-20 md:py-28">
@@ -289,6 +306,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      {teamList.length > 0 && <>
       {/* Leadership Team Section */}
       <section className="bg-ud-white py-20 md:py-28 border-t border-ud-dark/5">
         <div className="max-w-content mx-auto px-6">
@@ -316,13 +334,74 @@ export default async function AboutPage() {
                     </div>
                   )}
                 </div>
-                <h3 className="text-lg font-bold text-ud-dark">{member.name}</h3>
+                <h3 className="text-lg font-bold text-ud-dark">
+                  <Link href={`/about/team/${member.id}`} className="hover:text-ud-burgundy transition-colors">{member.name}</Link>
+                </h3>
                 <p className="text-xs text-ud-dark/50 font-semibold uppercase tracking-wider mt-1">{member.title}</p>
+                {member.bio && <p className="text-sm text-ud-dark/60 leading-relaxed mt-3">{member.bio}</p>}
+                {Array.isArray(member.competences) && member.competences.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                    {member.competences.map((competence: string) => (
+                      <span key={competence} className="text-[11px] bg-ud-light-gray text-ud-dark/60 px-2 py-1 rounded-[4px]">{competence}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       </section>
+      </>}
+
+      {credentialsList.length > 0 && (
+        <section className="bg-ud-light-gray py-20 md:py-28 border-t border-ud-dark/5">
+          <div className="max-w-content mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">Verified credentials</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-ud-dark">Qualified to deliver</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {credentialsList.map((credential) => (
+                <div key={credential.id} className="bg-white rounded-[4px] p-6 border border-ud-dark/10">
+                  <h3 className="font-bold text-ud-dark mb-2">{credential.title}</h3>
+                  <p className="text-sm text-ud-dark/60 leading-relaxed">{credential.detail}</p>
+                  {(credential.credentialNumber || credential.issuedYear || credential.expiresYear) && (
+                    <p className="text-xs text-ud-dark/45 mt-3">
+                      {credential.credentialNumber ? `No. ${credential.credentialNumber}` : ""}
+                      {credential.issuedYear ? ` · Issued ${credential.issuedYear}` : ""}
+                      {credential.expiresYear ? ` · Expires ${credential.expiresYear}` : ""}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {testimonialsList.length > 0 && (
+        <section className="bg-ud-white py-20 md:py-28 border-t border-ud-dark/5">
+          <div className="max-w-content mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy mb-3">Client perspective</div>
+              <h2 className="text-3xl md:text-4xl font-bold text-ud-dark">What clients say</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {testimonialsList.map((testimonial) => (
+                <figure key={testimonial.id} className="bg-ud-light-gray rounded-[4px] p-6 border-t-[3px] border-ud-burgundy">
+                  <blockquote className="text-ud-dark/70 leading-relaxed">“{testimonial.quote}”</blockquote>
+                  <figcaption className="text-sm font-semibold text-ud-dark mt-5">
+                    {testimonial.authorName}
+                    {(testimonial.authorRole || testimonial.company) && (
+                      <span className="block text-xs text-ud-dark/45 font-normal mt-1">{[testimonial.authorRole, testimonial.company].filter(Boolean).join(" · ")}</span>
+                    )}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Our Commitment */}
       <section className="bg-ud-white py-20 md:py-28 border-t border-ud-dark/5">

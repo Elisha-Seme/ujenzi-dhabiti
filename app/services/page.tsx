@@ -12,108 +12,17 @@ export const metadata = {
   description: "Gypsum works, painting, tiling, cabro paving, and drainage installations under one roof.",
 };
 
-const SERVICES_STATIC = [
-  {
-    title: "Gypsum Works",
-    slug: "gypsum-ceilings",
-    quoteType: "Interior Design — Office Partitioning",
-    description: "Professional drywall partitioning and suspended ceiling installations. We deliver smooth, paint-ready surfaces with excellent acoustic and thermal properties, perfect for dividing office spaces or creating modern residential ceilings.",
-    includes: [
-      "Drywall partitioning & sound-insulation",
-      "Suspended ceiling installations (gypsum & board designs)",
-      "Decorative cornices, moldings & bulkheads",
-      "Metal framing and support structures"
-    ],
-    materials: [
-      "Gypsum Board 12.5mm",
-      "Metal Furring Channels & Studs",
-      "Skim Coat Wall Putty",
-      "Gypsum Screws & Joint Tapes"
-    ],
-    image: "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=800&q=70&auto=format&fit=crop",
-    iconName: "Layout"
-  },
-  {
-    title: "Painting & Finishes",
-    slug: "paint-finishes",
-    quoteType: "Painting & Finishes",
-    description: "High-quality interior and exterior paint applications. Our team ensures thorough surface preparation, waterproofing, priming, and uniform coatings that withstand weathering while elevating architectural aesthetics.",
-    includes: [
-      "Interior wall and ceiling painting",
-      "Exterior weather-proof protective coats",
-      "Surface preparation, sanding & wall putty skim coating",
-      "Undercoating & primer applications"
-    ],
-    materials: [
-      "Vinyl Silk Emulsion Paint",
-      "Wall Primers & Undercoats",
-      "Skim Coat Wall Putty",
-      "Application Rollers & Brush sets"
-    ],
-    image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&q=70&auto=format&fit=crop",
-    iconName: "PaintBucket"
-  },
-  {
-    title: "Flooring & Tiling",
-    slug: "flooring",
-    quoteType: "Flooring Works",
-    description: "Flawless tiling and floor finishes. We lay durable ceramic, rectified porcelain, or natural stone tiles for high-traffic environments, ensuring perfect level alignment and seamless grouting.",
-    includes: [
-      "Ceramic & porcelain floor tiling",
-      "Bathroom & kitchen wall tiling",
-      "Floor screeding and leveling preparation",
-      "Grout application & joint sealing"
-    ],
-    materials: [
-      "Ceramic Floor Tiles 600x600",
-      "Porcelain Tiles 800x800",
-      "High-bond Tile Adhesive",
-      "Tile Spacers & Grouts"
-    ],
-    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&q=70&auto=format&fit=crop",
-    iconName: "Grid"
-  },
-  {
-    title: "Cabro & Paving Works",
-    slug: "cabro-road-works",
-    quoteType: "Civil Works — Cabro Paving",
-    description: "Premium interlocking paving block works designed for driveways, yards, commercial parking spaces, and estate roads. Built on stable, well-compacted sub-bases to prevent sinking or shifts.",
-    includes: [
-      "Interlocking cabro block paving installation",
-      "Concrete kerbstone and channel positioning",
-      "Hardcore sub-base leveling and heavy compaction",
-      "Sand bedding and joint dusting"
-    ],
-    materials: [
-      "Cabro Paving Blocks (60mm / 80mm)",
-      "Concrete Kerbstones",
-      "Aggregates & Hardcore tippers",
-      "Quarry Dust & Paving Sand"
-    ],
-    image: "https://images.unsplash.com/photo-1597844808175-0d5c4f7b3c8c?w=800&q=70&auto=format&fit=crop",
-    iconName: "Hammer"
-  },
-  {
-    title: "Drainage & Plumbing",
-    slug: "plumbing",
-    quoteType: "Plumbing & Drainage",
-    description: "Complete water supply, sanitary sewer, and surface storm water drainage installations. We supply and lay quality pressure-rated piping systems and storage tanks for uninterrupted operations.",
-    includes: [
-      "Stormwater channel and drainage pipe layout",
-      "Wastewater plumbing & sewage connection systems",
-      "Clean water supply network installation",
-      "Cold/Hot water storage tank mounting"
-    ],
-    materials: [
-      "PPR Hot/Cold Pipes (20mm / 25mm)",
-      "uPVC Soil Pipes (110mm)",
-      "Water Storage Tanks (1000L - 10000L)",
-      "Brass Valves & Pipe Fittings"
-    ],
-    image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=70&auto=format&fit=crop",
-    iconName: "Pipette"
-  }
-];
+const SERVICE_MATERIAL_CATEGORIES: Record<string, string> = {
+  "building-works": "Structural Materials",
+  "civil-works": "Cabro & Road Works",
+  "interior-design": "Gypsum & Ceilings",
+  architectural: "Hardware",
+  "gypsum-ceilings": "Gypsum & Ceilings",
+  "paint-finishes": "Paint & Finishes",
+  flooring: "Flooring",
+  "cabro-road-works": "Cabro & Road Works",
+  plumbing: "Plumbing",
+};
 
 // Helper to resolve Lucide icon components dynamically
 const DynamicIcon = ({ name, className, strokeWidth }: { name: string; className?: string; strokeWidth?: number }) => {
@@ -126,8 +35,7 @@ const DynamicIcon = ({ name, className, strokeWidth }: { name: string; className
 };
 
 export default async function ServicesPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let servicesList: any[] = [];
+  let servicesList: Array<typeof services.$inferSelect> = [];
 
   try {
     const dbServices = await db
@@ -136,16 +44,12 @@ export default async function ServicesPage() {
       .where(eq(services.published, true))
       .orderBy(asc(services.sortOrder));
     
-    // Core slugs displayed on the main services index
-    const coreSlugs = ["gypsum-ceilings", "paint-finishes", "flooring", "cabro-road-works", "plumbing"];
-    servicesList = dbServices.filter((s) => coreSlugs.includes(s.slug));
-    
-    if (servicesList.length === 0) {
-      servicesList = SERVICES_STATIC;
-    }
+    // The CMS is the source of truth: every published service must be
+    // discoverable from the public index, including the broader service
+    // pillars and any future services added by an administrator.
+    servicesList = dbServices;
   } catch (err) {
-    console.error("Services page dynamic load failed, falling back to static constants:", err);
-    servicesList = SERVICES_STATIC;
+    console.error("Services page dynamic load failed:", err);
   }
 
   return (
@@ -157,7 +61,13 @@ export default async function ServicesPage() {
 
       <section className="bg-ud-light-gray py-16 md:py-24">
         <div className="max-w-content mx-auto px-6 space-y-16">
-          {servicesList.map((srv, idx) => {
+          {servicesList.length === 0 ? (
+            <div className="max-w-xl mx-auto text-center py-16">
+              <h2 className="text-2xl font-bold text-ud-dark mb-3">Our service catalogue is being updated</h2>
+              <p className="text-sm text-ud-dark/60 leading-relaxed">Please contact us for current service availability and project enquiries.</p>
+              <Link href="/contact" className="inline-flex mt-6 bg-ud-burgundy text-white text-sm font-bold px-5 py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">Contact us</Link>
+            </div>
+          ) : servicesList.map((srv, idx) => {
             const isEven = idx % 2 === 0;
 
             return (
@@ -190,10 +100,16 @@ export default async function ServicesPage() {
 
                   <div className="flex flex-wrap gap-4 mt-6">
                     <Link
-                      href={`/shop/category/${srv.slug}`}
+                      href={`/services/${srv.slug}`}
                       className="inline-flex items-center gap-2 bg-ud-burgundy text-white text-xs font-bold px-5 py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap"
                     >
-                      View Materials <LucideIcons.ArrowRight size={14} />
+                      View Service <LucideIcons.ArrowRight size={14} />
+                    </Link>
+                    <Link
+                      href={`/shop?category=${encodeURIComponent(SERVICE_MATERIAL_CATEGORIES[srv.slug] ?? "Structural Materials")}`}
+                      className="inline-flex items-center gap-2 border border-ud-dark/20 text-ud-dark/70 text-xs font-bold px-5 py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors whitespace-nowrap"
+                    >
+                      Shop Materials
                     </Link>
                     <Link
                       href={`/request-a-quote?projectType=${encodeURIComponent(srv.quoteType)}`}

@@ -45,7 +45,7 @@ export default function DeliveryEstimator({ className = "" }: { className?: stri
       </select>
       {selected && zone && (
         <div className="mt-3 flex items-center justify-between text-sm">
-          <span className="text-ud-dark/60">Estimated delivery</span>
+          <span className="text-ud-dark/60">{zone.isConfigured ? "Delivery rate" : "Indicative estimate"}</span>
           <span className="font-bold text-ud-dark">≈ KES {zone.feeKES.toLocaleString()}</span>
         </div>
       )}
@@ -54,7 +54,7 @@ export default function DeliveryEstimator({ className = "" }: { className?: stri
           We&apos;ll confirm the delivery fee for {county} on your invoice.
         </div>
       )}
-      <p className="mt-2 text-[11px] text-ud-dark/40">Estimate only — the exact delivery cost is confirmed on your invoice.</p>
+      <p className="mt-2 text-[11px] text-ud-dark/40">Rates marked as indicative are planning estimates; exact delivery is confirmed on your invoice.</p>
     </div>
   );
 }

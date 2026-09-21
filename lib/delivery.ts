@@ -11,6 +11,7 @@ import { KENYA_COUNTIES } from "./kenya-counties";
 export interface DeliveryZone {
   county: string;
   feeKES: number;
+  isConfigured?: boolean;
 }
 
 // Per-county placeholder freight fees (KES). Any county not listed here falls
@@ -76,6 +77,7 @@ const DEFAULT_FEE = 6000;
 export const DELIVERY_ZONES: DeliveryZone[] = KENYA_COUNTIES.map((county) => ({
   county,
   feeKES: FEE_BY_COUNTY[county] ?? DEFAULT_FEE,
+  isConfigured: false,
 }));
 
 export function deliveryFeeForCounty(county: string): number | null {

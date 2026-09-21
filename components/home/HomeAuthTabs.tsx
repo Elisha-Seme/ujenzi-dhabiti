@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession, signIn, signOut } from "next-auth/react";
-import { Mail, Lock, User, Phone, ArrowRight, Loader2, UserCircle2 } from "lucide-react";
+import { useSession, signIn, signOut, getProviders } from "next-auth/react";
+import { Mail, Lock, User, Phone, ArrowRight, Loader2, UserCircle2, Eye, EyeOff } from "lucide-react";
 
 type Tab = "signin" | "register";
 
@@ -17,6 +17,15 @@ export default function HomeAuthTabs() {
 
   const [signinForm, setSigninForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showSigninPassword, setShowSigninPassword] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
+
+  useEffect(() => {
+    getProviders()
+      .then((available) => setGoogleAvailable(!!available?.google))
+      .catch(() => setGoogleAvailable(false));
+  }, []);
 
   const handleSignin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,13 +150,21 @@ export default function HomeAuthTabs() {
           <form onSubmit={handleSignin} className="space-y-4">
             <div className="relative">
               <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
-              <input type="email" required placeholder="you@example.com" value={signinForm.email}
+              <input type="email" required autoComplete="username" placeholder="you@example.com" value={signinForm.email}
                 onChange={(e) => setSigninForm((p) => ({ ...p, email: e.target.value }))} className={inputClass} />
             </div>
             <div className="relative">
               <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
-              <input type="password" required placeholder="Password" value={signinForm.password}
-                onChange={(e) => setSigninForm((p) => ({ ...p, password: e.target.value }))} className={inputClass} />
+              <input type={showSigninPassword ? "text" : "password"} required autoComplete="current-password" placeholder="Password" value={signinForm.password}
+                onChange={(e) => setSigninForm((p) => ({ ...p, password: e.target.value }))} className={`${inputClass} pr-10`} />
+              <button
+                type="button"
+                onClick={() => setShowSigninPassword((visible) => !visible)}
+                aria-label={showSigninPassword ? "Hide password" : "Show password"}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ud-dark/40 hover:text-ud-dark transition-colors p-1"
+              >
+                {showSigninPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors disabled:opacity-60">
@@ -157,6 +174,15 @@ export default function HomeAuthTabs() {
               Prefer a magic link?{" "}
               <Link href="/auth/signin" className="text-ud-burgundy font-semibold hover:underline">Use email link</Link>
             </p>
+            {googleAvailable && (
+              <button
+                type="button"
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="w-full flex items-center justify-center gap-2 border border-ud-dark/20 text-ud-dark text-sm font-semibold py-2.5 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors"
+              >
+                <span className="font-bold text-base">G</span> Continue with Google
+              </button>
+            )}
           </form>
         ) : (
           <form onSubmit={handleRegister} className="space-y-3.5">
@@ -167,7 +193,7 @@ export default function HomeAuthTabs() {
             </div>
             <div className="relative">
               <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
-              <input type="email" required placeholder="you@example.com" value={registerForm.email}
+              <input type="email" required autoComplete="email" placeholder="you@example.com" value={registerForm.email}
                 onChange={(e) => setRegisterForm((p) => ({ ...p, email: e.target.value }))} className={inputClass} />
             </div>
             <div className="relative">
@@ -177,13 +203,30 @@ export default function HomeAuthTabs() {
             </div>
             <div className="relative">
               <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ud-burgundy/70" />
-              <input type="password" required placeholder="Password (min. 8 characters)" value={registerForm.password}
-                onChange={(e) => setRegisterForm((p) => ({ ...p, password: e.target.value }))} className={inputClass} />
+              <input type={showRegisterPassword ? "text" : "password"} required autoComplete="new-password" placeholder="Password (min. 8 characters)" value={registerForm.password}
+                onChange={(e) => setRegisterForm((p) => ({ ...p, password: e.target.value }))} className={`${inputClass} pr-10`} />
+              <button
+                type="button"
+                onClick={() => setShowRegisterPassword((visible) => !visible)}
+                aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ud-dark/40 hover:text-ud-dark transition-colors p-1"
+              >
+                {showRegisterPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
             <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors disabled:opacity-60">
               {loading ? <Loader2 size={16} className="animate-spin" /> : <><span>Create Account</span><ArrowRight size={14} /></>}
             </button>
+            {googleAvailable && (
+              <button
+                type="button"
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="w-full flex items-center justify-center gap-2 border border-ud-dark/20 text-ud-dark text-sm font-semibold py-2.5 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors"
+              >
+                <span className="font-bold text-base">G</span> Continue with Google
+              </button>
+            )}
           </form>
         )}
       </div>

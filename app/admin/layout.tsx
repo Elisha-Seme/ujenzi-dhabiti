@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck, Mail, Settings, Award, Layers, Users, BarChart3, HelpCircle, Hammer } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck, Mail, Settings, Award, Layers, Users, BarChart3, HelpCircle, Hammer, Quote, ShieldCheck, Newspaper, ClipboardPenLine } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const NAV = [
@@ -22,6 +22,10 @@ const NAV = [
   { href: "/admin/team", label: "Team Members", icon: Users },
   { href: "/admin/stats", label: "Company Stats", icon: BarChart3 },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
+  { href: "/admin/testimonials", label: "Testimonials", icon: Quote },
+  { href: "/admin/credentials", label: "Credentials", icon: ShieldCheck },
+  { href: "/admin/blog", label: "Blog & Resources", icon: Newspaper },
+  { href: "/admin/plan-customizations", label: "Plan Requests", icon: ClipboardPenLine },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

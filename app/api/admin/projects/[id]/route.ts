@@ -7,9 +7,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json();
   const patch: Record<string, unknown> = { updatedAt: new Date() };
-  for (const k of ["title", "location", "category", "propertyType", "description", "scope", "coverImage", "beforeImage", "afterImage"]) {
+  for (const k of ["title", "location", "country", "category", "propertyType", "description", "scope", "timeline", "budgetRange", "clientName", "coverImage", "beforeImage", "afterImage"]) {
     if (b[k] !== undefined) patch[k] = b[k];
   }
+  if (b.year !== undefined) patch.year = b.year == null || b.year === "" ? null : Number(b.year);
+  if (b.clientNameApproved !== undefined) patch.clientNameApproved = !!b.clientNameApproved;
   if (b.images !== undefined) patch.images = Array.isArray(b.images) ? b.images : [];
   if (b.materialsUsed !== undefined) patch.materialsUsed = Array.isArray(b.materialsUsed) ? b.materialsUsed : [];
   if (b.featured !== undefined) patch.featured = !!b.featured;

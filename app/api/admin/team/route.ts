@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
       id: makeId("team"),
       name: b.name,
       title: b.title,
+      bio: b.bio || null,
+      competences: Array.isArray(b.competences) ? b.competences : [],
       image: b.image || null,
       sortOrder: Number(b.sortOrder) || 0,
     })

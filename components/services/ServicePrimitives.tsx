@@ -124,7 +124,7 @@ export function ServiceMaterialsBar({
       <div className="flex-1">
         <p className="text-sm font-bold text-ud-dark">Need the materials for this service?</p>
         <p className="text-xs text-ud-dark/55 mt-0.5 leading-relaxed">
-          We supply the {display.toLowerCase()} materials you need — order online or request a bulk quote.
+          We supply materials for {display.toLowerCase()} — order online or request a bulk quote.
         </p>
       </div>
       <div className="flex flex-wrap gap-3 flex-shrink-0">

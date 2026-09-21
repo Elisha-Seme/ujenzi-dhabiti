@@ -17,6 +17,10 @@ export default function PlanDetailPage() {
   const [added, setAdded] = useState(false);
   const [plan, setPlan] = useState<HousePlan | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customForm, setCustomForm] = useState({ name: "", email: "", phone: "", request: "" });
+  const [customStatus, setCustomStatus] = useState("");
+  const [customSubmitting, setCustomSubmitting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -69,6 +73,27 @@ export default function PlanDetailPage() {
     setAdded(true);
     openCart();
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const submitCustomization = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setCustomSubmitting(true);
+    setCustomStatus("");
+    try {
+      const response = await fetch("/api/plan-customization", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...customForm, planId: plan.id }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not submit request");
+      setCustomStatus("Request received. Our team will contact you to confirm the changes.");
+      setCustomForm({ name: "", email: "", phone: "", request: "" });
+    } catch (error) {
+      setCustomStatus(error instanceof Error ? error.message : "Could not submit request");
+    } finally {
+      setCustomSubmitting(false);
+    }
   };
 
   const specs = [
@@ -150,8 +175,21 @@ export default function PlanDetailPage() {
 
             <div className="mt-5 space-y-2 text-xs text-ud-dark/55">
               <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Architectural drawings ready for approval and construction.</p>
-              <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Need modifications? <Link href="/request-a-quote" className="text-ud-burgundy font-semibold hover:underline">Request a custom plan</Link>.</p>
+              <p className="flex items-start gap-2"><Check size={14} className="text-ud-burgundy flex-shrink-0 mt-0.5" />Need modifications? <button type="button" onClick={() => setCustomOpen((open) => !open)} className="text-ud-burgundy font-semibold hover:underline">Request a custom plan</button>.</p>
             </div>
+
+            {customOpen && (
+              <form onSubmit={submitCustomization} className="mt-6 border border-ud-burgundy/20 rounded-[4px] p-5 bg-ud-burgundy/[0.03] space-y-3">
+                <h2 className="text-base font-bold text-ud-dark">Request changes to this plan</h2>
+                <p className="text-xs text-ud-dark/55">Tell us what you want changed. This is a request for review, not an automatic design approval.</p>
+                {(["name", "email", "phone"] as const).map((field) => (
+                  <input key={field} required={field !== "phone"} type={field === "email" ? "email" : field === "phone" ? "tel" : "text"} placeholder={field === "name" ? "Full name" : field === "email" ? "Email address" : "Phone (optional)"} value={customForm[field]} onChange={(event) => setCustomForm((current) => ({ ...current, [field]: event.target.value }))} className="w-full border border-ud-dark/20 rounded-[4px] px-3 py-2 text-sm bg-white" />
+                ))}
+                <textarea required rows={4} placeholder="Describe the rooms, dimensions, layout, or other changes you need" value={customForm.request} onChange={(event) => setCustomForm((current) => ({ ...current, request: event.target.value }))} className="w-full border border-ud-dark/20 rounded-[4px] px-3 py-2 text-sm bg-white resize-none" />
+                <button type="submit" disabled={customSubmitting} className="w-full bg-ud-burgundy text-white text-sm font-bold py-2.5 rounded-[4px] disabled:opacity-50">{customSubmitting ? "Sending…" : "Send customization request"}</button>
+                {customStatus && <p className="text-xs text-ud-dark/65" role="status">{customStatus}</p>}
+              </form>
+            )}
           </div>
         </div>
       </div>

@@ -96,6 +96,9 @@ export default function Footer() {
 
   const whatsappNum = settings?.whatsappNumber || "254782999100";
   const whatsappUrl = `https://wa.me/${whatsappNum}`;
+  const socialLinks = SOCIAL_LINKS
+    .map((social) => ({ ...social, href: getSocialUrl(social.label) }))
+    .filter((social) => social.href && social.href !== "#");
 
   return (
     <footer className="bg-ud-dark text-white">
@@ -123,23 +126,25 @@ export default function Footer() {
               <p className="text-xs text-white/45 mb-3">Project tips, offers &amp; new arrivals.</p>
               <NewsletterForm />
             </div>
-            <div className="mt-6">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Follow</h4>
-              <div className="flex items-center gap-3">
-                {SOCIAL_LINKS.map((social) => (
-                  <a
-                    key={social.label}
-                    href={getSocialUrl(social.label)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="w-8 h-8 rounded-[4px] border border-white/20 flex items-center justify-center text-white/50 hover:text-white hover:border-white/60 hover:bg-ud-burgundy transition-colors duration-200"
-                  >
-                    <SocialIcon name={social.icon} />
-                  </a>
-                ))}
+            {socialLinks.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">Follow</h4>
+                <div className="flex items-center gap-3">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      className="w-8 h-8 rounded-[4px] border border-white/20 flex items-center justify-center text-white/50 hover:text-white hover:border-white/60 hover:bg-ud-burgundy transition-colors duration-200"
+                    >
+                      <SocialIcon name={social.icon} />
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Quick links */}

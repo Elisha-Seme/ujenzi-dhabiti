@@ -1,5 +1,10 @@
 async function main() {
   const url = "http://localhost:3001";
+  const adminEmail = process.env.TEST_ADMIN_EMAIL;
+  const adminPassword = process.env.TEST_ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword) {
+    throw new Error("Set TEST_ADMIN_EMAIL and TEST_ADMIN_PASSWORD for this local test only.");
+  }
   console.log("Testing /api/admin/plans...");
 
   try {
@@ -17,8 +22,8 @@ async function main() {
         ...(setCookie ? { Cookie: setCookie } : {}),
       },
       body: new URLSearchParams({
-        email: "admin@ujenzidhabiti.co.ke",
-        password: "Admin@UjenziDhabiti2025!",
+        email: adminEmail,
+        password: adminPassword,
         csrfToken: csrfToken,
       }),
       redirect: "manual",

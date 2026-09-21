@@ -13,7 +13,14 @@ export async function GET() {
       .from(deliveryZones)
       .where(eq(deliveryZones.published, true))
       .orderBy(asc(deliveryZones.sortOrder), asc(deliveryZones.feeKES));
-    if (rows.length) return NextResponse.json({ zones: rows });
+    const configured = new Map(rows.map((row) => [row.county.toLowerCase(), row.feeKES]));
+    return NextResponse.json({
+      zones: DELIVERY_ZONES.map((fallback) => ({
+        county: fallback.county,
+        feeKES: configured.get(fallback.county.toLowerCase()) ?? fallback.feeKES,
+        isConfigured: configured.has(fallback.county.toLowerCase()),
+      })),
+    });
   } catch {
     /* fall through to static */
   }

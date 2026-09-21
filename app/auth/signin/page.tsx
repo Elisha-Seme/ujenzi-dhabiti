@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, getSession, useSession } from "next-auth/react";
+import { signIn, getSession, getProviders, useSession } from "next-auth/react";
 import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/layout/Logo";
 
@@ -39,6 +39,11 @@ function SignInContent() {
   const [error, setError] = useState("");
   const [magicSent, setMagicSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
+
+  useEffect(() => {
+    getProviders().then((available) => setGoogleAvailable(!!available?.google)).catch(() => setGoogleAvailable(false));
+  }, []);
 
   // Automatically redirect if already logged in or session updates
   useEffect(() => {
@@ -157,6 +162,16 @@ function SignInContent() {
               Magic link
             </button>
           </div>
+
+          {googleAvailable && (
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl })}
+              className="w-full flex items-center justify-center gap-2 border border-ud-dark/20 text-ud-dark text-sm font-semibold py-2.5 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors mb-5"
+            >
+              <span className="font-bold text-base">G</span> Continue with Google
+            </button>
+          )}
 
           {error && (
             <div className="bg-ud-burgundy/5 border border-ud-burgundy/30 text-ud-burgundy text-sm px-4 py-3 rounded-[4px] mb-5">

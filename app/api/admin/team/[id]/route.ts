@@ -7,9 +7,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json();
   const patch: Record<string, unknown> = {};
-  for (const k of ["name", "title", "image"]) {
+  for (const k of ["name", "title", "bio", "image"]) {
     if (b[k] !== undefined) patch[k] = b[k] || null;
   }
+  if (b.competences !== undefined) patch.competences = Array.isArray(b.competences) ? b.competences : [];
   if (b.sortOrder !== undefined) patch.sortOrder = Number(b.sortOrder) || 0;
 
   const [row] = await db.update(teamMembers).set(patch).where(eq(teamMembers.id, params.id)).returning();

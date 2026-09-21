@@ -3,15 +3,26 @@ import { db, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
+import { allowRequest, requestAddress } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, phone } = await req.json();
+    if (!allowRequest(`signup:${requestAddress(req)}`, 8, 15 * 60 * 1000)) {
+      return NextResponse.json({ error: "Too many signup attempts. Please try again later." }, { status: 429 });
+    }
+    const body = await req.json();
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const phone = typeof body.phone === "string" ? body.phone.trim().slice(0, 40) : "";
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 });
     }
-    if (password.length < 8) {
+    if (name.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Please provide a valid name and email address" }, { status: 400 });
+    }
+    if (password.length < 8 || password.length > 128) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
@@ -28,7 +39,7 @@ export async function POST(req: NextRequest) {
       name,
       email,
       passwordHash,
-      phone: phone ?? null,
+      phone: phone || null,
       role: "buyer",
       emailVerified: true, // simplified: skip email verification for now
     });
