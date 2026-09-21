@@ -1,9 +1,9 @@
 # Website Feedback — Line-by-Line Implementation Checklist
 
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
-**Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, and authorized read-only browser checks were re-run. Environment/content-dependent items remain explicitly marked.
+**Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, authorized browser checks, Google OAuth configuration, and live sign-in redirect verification were re-run. Environment/content-dependent items remain explicitly marked.
 
-**Latest live verification:** 2026-09-21 — the remediation branch is deployed on the Contabo PM2 app behind Nginx. Public `/terms` and `/blog` return 200, `/api/delivery-zones` returns 47 counties, and the authenticated admin UI exposes Testimonials, Credentials, Blog & Resources, and Plan Requests. The live Team editor exposes Short Bio and Key Competences fields. Migration `0012_dizzy_mantis.sql` was applied successfully. No QA accounts or production content were seeded; role-based E2E remains pending because the available database is production rather than disposable staging.
+**Latest live verification:** 2026-09-21 — the remediation branch is deployed on the Contabo PM2 app behind Nginx. Public `/terms` and `/blog` return 200, `/api/delivery-zones` returns 47 counties, and the authenticated admin UI exposes Testimonials, Credentials, Blog & Resources, and Plan Requests. The live Team editor exposes Short Bio and Key Competences fields. Google OAuth branding/client configuration is created in the Ujenzi Dhabiti Google Cloud project, the non-secret env names are present on the live release, and the live Google button reaches Google's sign-in flow with the production callback. Maps API enablement/key creation remains blocked by Google billing requirements. Migration `0012_dizzy_mantis.sql` was applied successfully. No QA accounts or production content were seeded; role-based E2E remains pending because the available database is production rather than disposable staging.
 
 Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started · 🔒 blocked on client input
 
@@ -13,7 +13,7 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 | # | Feedback (verbatim intent) | Status | Evidence / What remains |
 |---|---|---|---|
-| 1.1 | Email section: **Google account prompt** (sign in with Google) | 🟡 | `lib/auth.ts` conditionally registers Google and safely upserts buyers; dedicated and homepage auth pages render the button when the provider is configured. Google Cloud access showed no Ujenzi project/client, so live OAuth remains unverified. |
+| 1.1 | Email section: **Google account prompt** (sign in with Google) | ✅ | `lib/auth.ts` conditionally registers Google and safely upserts buyers; dedicated and homepage auth pages render the button. A Ujenzi Dhabiti Google OAuth web client is configured with the production origin/callback, deployed without exposing secrets, and the live browser test reaches Google's sign-in flow. Full account callback/database-upsert testing still requires an authorized Google test user; no login was completed on the user's behalf. |
 | 1.2 | User can **see the password while creating it** | ✅ | Dedicated and homepage auth have Eye/EyeOff controls; local browser verification changed the control to “Hide password”. Signup and profile password validation are 8–128 characters. |
 
 ## 2. Shop
@@ -22,7 +22,7 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 |---|---|---|---|
 | 2.1 | Category page (e.g. **gypsum**): **bulk calculator + delivery estimator must appear** | ✅ | `app/shop/category/[slug]/page.tsx:8-9,99-100` — Smart Tools section renders both; BulkCalculator scoped to that category's products. Browser-verified on `/shop/category/gypsum-ceilings` (product select = exactly the 3 gypsum items). |
 | 2.2 | Delivery estimator: **all counties must appear** | ✅ | New `lib/kenya-counties.ts` (47 counties, verified count). `DeliveryEstimator.tsx:42` maps `KENYA_COUNTIES`; `lib/delivery.ts` has a placeholder fee for every county. Browser-verified: 47 options, Baringo→West Pokot. ⚠️ Fees are placeholders — client to confirm real freight schedule. |
-| 2.3 | Checkout → Delivery address: **Google-based** (autocomplete) | ✅ | New `components/ui/PlacesAutocompleteInput.tsx` (Kenya-restricted, graceful fallback to plain input if the key/script fails). Wired into checkout Delivery Address + the request form's location fields. Browser-verified: Google Places API loaded and `Autocomplete` active on localhost. ⚠️ Still recommend a dedicated, domain-restricted Ujenzi key before production. |
+| 2.3 | Checkout → Delivery address: **Google-based** (autocomplete) | 🟡 | New `components/ui/PlacesAutocompleteInput.tsx` (Kenya-restricted, graceful fallback to plain input if the key/script fails). Wired into checkout Delivery Address + the request form's location fields. Browser-verified: Google Places API loaded and `Autocomplete` active on localhost; the live env has a Maps key. A new domain/API-restricted key could not be completed because Google requires billing before Maps APIs can be enabled, so live autocomplete remains environment-dependent. |
 | 2.4 | Checkout → County: **dropdown with all counties** | ✅ | `app/shop/checkout/page.tsx:299` — `SelectField` fed by `KENYA_COUNTIES`. Browser-verified: 47 options + "Select your county…" placeholder. |
 
 ## 3. Our Services
@@ -83,14 +83,14 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 ## Blocked-on-client summary (nothing moves without these)
 
-1. **Google OAuth credentials and deployment configuration** → unlocks live verification for 1.1.
+1. **Google OAuth** → configured and live redirect-verified for 1.1. **Maps/Places** still requires an authorized Google billing account before the APIs can be enabled and a domain/API-restricted key can be created.
 2. **Full services list + descriptions + sub-services** → unlocks 3.1/3.3.
 3. **Service → materials package mapping** → unlocks 3.2.
 4. **Real freight fees per county** → replaces placeholder rates in 2.2.
 5. **Approved staff, trust, portfolio, and editorial content** → unlocks the final public-content portions of 7.1, 8.1, 8.4, and 8.6.
 6. **Disposable database/staging credentials** → unlocks role-based and database-backed E2E tests. A guarded `npm run db:seed-qa` script is available but refuses unapproved execution.
 
-**Current external gate:** deployment and the additive schema migration are complete. The remaining gate is a disposable Ujenzi Dhabiti QA database for creating clearly labelled TEST Administrator/Client/Seller accounts and running database-backed role/E2E/payment-sandbox tests without touching production data. Google OAuth credentials, approved content, service-to-material mappings, and real county freight rates are also still client inputs.
+**Current external gate:** deployment and the additive schema migration are complete. Google OAuth is configured and live-redirect verified; Google Maps/Places is blocked on billing/API enablement. The remaining major gate is a disposable Ujenzi Dhabiti QA database for creating clearly labelled TEST Administrator/Client/Seller accounts and running database-backed role/E2E/payment-sandbox tests without touching production data. Approved content, service-to-material mappings, and real county freight rates are also still client inputs.
 
 ## Suggested build order for the remaining work
 

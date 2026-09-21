@@ -19,7 +19,7 @@ Gate: no production write is performed until the target environment and rollback
 
 ## Phase 2 — Security, identity, and roles
 
-1. Add/configure Google OAuth only after the authorized OAuth client and callback origins are confirmed.
+1. Add/configure Google OAuth only after the authorized OAuth client and callback origins are confirmed. **Completed:** the Ujenzi Dhabiti OAuth branding/client is configured, the live release contains the expected env names with secrets withheld, and the browser reaches Google's sign-in flow with the production callback. Maps/Places remains blocked until an authorized billing account is linked; no payment method was added.
 2. Harden signup, password handling, email verification, rate limits, validation, session behavior, and role boundaries.
 3. Verify administrator, buyer/client, and seller behavior from separate test accounts.
 4. Verify every admin API returns 401/403 correctly and that seller/buyer users cannot access admin routes.
@@ -74,3 +74,4 @@ The work is complete only when every F01–F24 is either verified implemented in
 - Latest live deployment check: the Contabo-hosted PM2 app now runs the verified remediation release from `/home/afosi/ujenzi-dhabiti-remediation` behind Nginx on port 3022. `/terms` and `/blog` return 200, `/api/delivery-zones` returns 47 counties, the authenticated admin navigation includes Testimonials/Credentials/Blog/Plan Requests, and the Team editor includes Short Bio/Key Competences. A canary ran on port 3023 before the switch; the live process is online with zero new restarts. No QA accounts or production content were seeded.
 - Repository security review found order/payment authorization and public tracking-data exposure risks; these were fixed with session/email authorization, expiring HMAC tracking tokens, and redaction of private order fields for unauthenticated tracking requests. Typecheck, lint, production build, local HTTP smoke tests, and token tamper checks passed.
 - The branch was pushed only after the final local gates passed and staged secret/configuration scans found no committed secrets.
+- Google Cloud verification: OAuth consent/branding and a web client were created for the Ujenzi Dhabiti project with `https://ujenzidhabiti.co.ke` and `https://ujenzidhabiti.co.ke/api/auth/callback/google`; the live provider endpoint exposes Google and a browser click reaches Google's sign-in page. OAuth values were installed in the server-only env file with values withheld and the PM2 app restarted. Maps JavaScript/Places enablement redirected to Google's billing setup, so no unrestricted Maps key was created; billing and API-specific key restrictions remain an explicit external gate.
