@@ -3,7 +3,7 @@
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
 **Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, and authorized read-only browser checks were re-run. Environment/content-dependent items remain explicitly marked.
 
-**Latest live verification:** 2026-09-21 — `ujenzidhabiti.co.ke` is still serving the pre-remediation deployment: `/terms` and `/blog` return 404, and `/api/delivery-zones` returns 11 zones (the branch implementation returns all 47). The live admin session is unauthenticated. The accessible Neon console is project `KuzaConnect`, branch `production`, with no visible QA branch; it is not treated as an authorized Ujenzi Dhabiti test database.
+**Latest live verification:** 2026-09-21 — `ujenzidhabiti.co.ke` is still serving the pre-remediation deployment: `/terms` and `/blog` return 404, `/api/delivery-zones` returns 11 zones (the branch implementation returns all 47), and the authenticated admin UI has no Testimonials/Credentials/Blog/Plan Customizations links. Direct checks of those four admin routes return 404; the live Team edit form also lacks bio/competences fields. The accessible Neon console is project `KuzaConnect`, branch `production`, with no visible QA branch; it is not treated as an authorized Ujenzi Dhabiti test database.
 
 Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started · 🔒 blocked on client input
 
