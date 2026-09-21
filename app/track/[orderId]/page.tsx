@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -64,6 +64,7 @@ interface Order {
   deliveredAt: string | null;
   createdAt: string;
   updatedAt: string;
+  isRedacted?: boolean;
 }
 
 const STATUS_STEPS: { key: OrderStatus; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -106,6 +107,7 @@ function formatDate(iso: string) {
 
 export default function TrackOrderPage() {
   const { orderId } = useParams<{ orderId: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -116,7 +118,9 @@ export default function TrackOrderPage() {
 
   useEffect(() => {
     if (!orderId) return;
-    fetch(`/api/orders/${orderId}`)
+    const token = searchParams.get("token");
+    const access = token ? `?token=${encodeURIComponent(token)}` : "";
+    fetch(`/api/orders/${orderId}${access}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then(({ order, items }) => {
         setOrder(order);
@@ -126,7 +130,7 @@ export default function TrackOrderPage() {
         setError(code === 404 ? "Order not found. Please check the order ID." : "Something went wrong. Please try again.");
       })
       .finally(() => setLoading(false));
-  }, [orderId]);
+  }, [orderId, searchParams]);
 
   const copyId = () => {
     navigator.clipboard.writeText(orderId as string);
@@ -368,17 +372,23 @@ export default function TrackOrderPage() {
         {/* Delivery Details */}
         <div className="bg-white rounded-[4px] shadow-sm p-6">
           <h2 className="text-sm font-semibold text-ud-dark/50 uppercase tracking-wide mb-4">Delivery Details</h2>
-          <div className="flex items-start gap-3">
-            <MapPin className="w-4 h-4 text-ud-burgundy mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm text-ud-dark">{order.deliveryAddress}</p>
-              <p className="text-sm text-ud-dark">
-                {order.deliveryCity}
-                {order.deliveryCounty ? `, ${order.deliveryCounty}` : ""}
-              </p>
-            </div>
-          </div>
-          {(order.guestName || order.guestPhone || order.guestEmail) && (
+          {order.isRedacted ? (
+            <p className="text-sm text-ud-dark/60 leading-relaxed">
+              Delivery and contact details are protected. Open the secure tracking link from your order confirmation email, or sign in to the account used at checkout.
+            </p>
+          ) : (
+            <>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-4 h-4 text-ud-burgundy mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-ud-dark">{order.deliveryAddress}</p>
+                  <p className="text-sm text-ud-dark">
+                    {order.deliveryCity}
+                    {order.deliveryCounty ? `, ${order.deliveryCounty}` : ""}
+                  </p>
+                </div>
+              </div>
+              {(order.guestName || order.guestPhone || order.guestEmail) && (
             <div className="mt-4 pt-4 border-t border-ud-dark/8 space-y-2">
               {order.guestName && (
                 <p className="text-sm text-ud-dark/60">
@@ -398,6 +408,8 @@ export default function TrackOrderPage() {
                 </div>
               )}
             </div>
+              )}
+            </>
           )}
         </div>
 

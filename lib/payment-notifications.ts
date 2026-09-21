@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { sendOrderConfirmation } from "@/lib/email";
 import { findPlanByOrderItemAsync } from "@/lib/plans-store";
 import { buildDownloadUrl } from "@/lib/download-tokens";
+import { createOrderAccessToken } from "@/lib/order-access";
 
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
@@ -42,6 +43,8 @@ export async function notifyAfterPayment(orderId: string) {
           ? { depositKES: order.depositKES, balanceKES: order.totalKES - order.depositKES }
           : null;
 
+      const trackingToken = createOrderAccessToken(orderId, buyerEmail);
+
       await sendOrderConfirmation(
         buyerEmail,
         buyerName,
@@ -53,7 +56,8 @@ export async function notifyAfterPayment(orderId: string) {
         })),
         order.totalKES,
         downloads,
-        deposit
+        deposit,
+        trackingToken,
       );
     }
   } catch (err) {

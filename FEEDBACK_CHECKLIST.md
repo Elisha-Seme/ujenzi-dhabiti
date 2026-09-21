@@ -79,6 +79,7 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 - ✅ `tsc --noEmit`, `npm run build`, `git diff --check`, and local production-server smoke tests pass. Lint exits 0 with the existing `<img>` optimization warnings in blog/track pages.
 - ✅ Public local runtime checks: 200 for primary pages, 404 for unknown dynamic records, 400 for invalid write payloads, 403 for unauthenticated admin APIs, and 47 unique delivery counties.
 - ✅ Removed the active hardcoded Gypsum sample bundle so fake product IDs/prices cannot appear as a real package.
+- ✅ Added order-access authorization hardening: payment initiation/query now require the owning session or the checkout email; public order tracking redacts delivery/contact details and digital-download links unless the owner or an expiring secure tracking token is present. Local route smoke tests and token tamper checks passed.
 
 ## Blocked-on-client summary (nothing moves without these)
 

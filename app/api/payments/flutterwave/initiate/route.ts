@@ -2,15 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, orders, payments, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { initFlutterwavePayment } from "@/lib/flutterwave";
+import { auth } from "@/lib/auth";
+import { createOrderAccessToken, normalizeOrderIdentity } from "@/lib/order-access";
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderId, customerPhone } = await req.json();
+    const { orderId, customerPhone, customerEmail } = await req.json();
     if (!orderId) return NextResponse.json({ error: "orderId is required" }, { status: 400 });
 
     const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
     if (order.status !== "pending") return NextResponse.json({ error: "Order already paid" }, { status: 400 });
+
+    const session = await auth();
+    if (order.buyerId) {
+      if (session?.user?.id !== order.buyerId) {
+        return NextResponse.json({ error: "You are not authorized to pay for this order" }, { status: 403 });
+      }
+    } else if (
+      typeof customerEmail !== "string" ||
+      !order.guestEmail ||
+      normalizeOrderIdentity(customerEmail) !== normalizeOrderIdentity(order.guestEmail)
+    ) {
+      return NextResponse.json({ error: "The email used at checkout is required" }, { status: 403 });
+    }
 
     // For logged-in users, guestEmail/guestName are null — fetch from users table
     let buyerEmail = order.guestEmail ?? "";
@@ -29,7 +44,8 @@ export async function POST(req: NextRequest) {
     const buyerPhone = customerPhone ?? order.guestPhone ?? "";
 
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-    const redirectUrl = `${baseUrl}/shop/checkout/confirm?orderId=${orderId}&provider=flutterwave`;
+    const trackingToken = createOrderAccessToken(orderId, buyerEmail);
+    const redirectUrl = `${baseUrl}/shop/checkout/confirm?orderId=${encodeURIComponent(orderId)}&provider=flutterwave&token=${encodeURIComponent(trackingToken)}`;
 
     const { paymentLink, txRef } = await initFlutterwavePayment(
       orderId,

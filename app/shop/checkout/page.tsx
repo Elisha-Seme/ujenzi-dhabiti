@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [trackingToken, setTrackingToken] = useState("");
 
   // Track the polling interval so we can clean it up on unmount or new attempts
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -77,6 +78,7 @@ export default function CheckoutPage() {
       if (!res.ok) { setError(data.error ?? "Failed to create order."); setLoading(false); return; }
 
       setOrderId(data.orderId);
+      setTrackingToken(data.trackingToken ?? "");
       setStep("payment");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -104,7 +106,7 @@ export default function CheckoutPage() {
         const res = await fetch("/api/payments/mpesa/initiate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId, phone: form.mpesaPhone }),
+          body: JSON.stringify({ orderId, phone: form.mpesaPhone, email: form.email }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -127,7 +129,7 @@ export default function CheckoutPage() {
         const res = await fetch("/api/payments/flutterwave/initiate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId, customerPhone: form.phone }),
+          body: JSON.stringify({ orderId, customerPhone: form.phone, customerEmail: form.email }),
         });
         const data = await res.json();
         if (!res.ok) { setError(data.error ?? "Failed to initiate payment."); setLoading(false); return; }
@@ -159,7 +161,7 @@ export default function CheckoutPage() {
         const queryRes = await fetch("/api/payments/mpesa/query", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: id }),
+          body: JSON.stringify({ orderId: id, email: form.email }),
           cache: "no-store",
         });
         if (queryRes.ok) {
@@ -185,7 +187,7 @@ export default function CheckoutPage() {
         stopPolling();
         setMpesaPolling(false);
         setError(
-          "Payment not confirmed within 90 seconds. Check your order status at /track/" + id
+          "Payment not confirmed within 90 seconds. Check the order-status link in your confirmation email."
         );
       }
     }, 3000);
@@ -241,7 +243,7 @@ export default function CheckoutPage() {
             </p>
           )}
           <div className="flex flex-col sm:flex-row gap-3">
-            <button onClick={() => router.push(`/track/${orderId}`)} className="flex-1 border border-ud-burgundy text-ud-burgundy text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy hover:text-white transition-colors">
+            <button onClick={() => router.push(`/track/${orderId}?token=${encodeURIComponent(trackingToken)}`)} className="flex-1 border border-ud-burgundy text-ud-burgundy text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy hover:text-white transition-colors">
               Track Order
             </button>
             <button onClick={() => router.push("/shop")} className="flex-1 bg-ud-burgundy text-white text-sm font-bold py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors">

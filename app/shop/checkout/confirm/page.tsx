@@ -24,6 +24,7 @@ function ConfirmInner() {
   const router = useRouter();
 
   const orderId = searchParams.get("orderId");
+  const trackingToken = searchParams.get("token");
   const provider = searchParams.get("provider");
   const flwStatus = searchParams.get("status"); // Flutterwave appends this
 
@@ -49,7 +50,8 @@ function ConfirmInner() {
     const poll = async () => {
       attempts++;
       try {
-        const res = await fetch(`/api/orders/${orderId}`);
+        const access = trackingToken ? `?token=${encodeURIComponent(trackingToken)}` : "";
+        const res = await fetch(`/api/orders/${orderId}${access}`);
         if (!res.ok) throw new Error("not found");
         const { order } = await res.json();
 
@@ -78,7 +80,7 @@ function ConfirmInner() {
     poll(); // first check immediately
 
     return () => clearInterval(pollingRef.current);
-  }, [orderId, provider, flwStatus]);
+  }, [orderId, provider, flwStatus, trackingToken]);
 
   if (state === "loading") {
     return (
@@ -115,7 +117,7 @@ function ConfirmInner() {
           <div className="flex flex-col gap-3">
             {orderId && (
               <button
-                onClick={() => router.push(`/track/${orderId}`)}
+                onClick={() => router.push(`/track/${orderId}${trackingToken ? `?token=${encodeURIComponent(trackingToken)}` : ""}`)}
                 className="w-full flex items-center justify-center gap-2 bg-ud-burgundy hover:bg-ud-burgundy-hover text-white py-3 rounded text-sm font-semibold transition-colors"
               >
                 Track Order
@@ -158,7 +160,7 @@ function ConfirmInner() {
           <div className="flex flex-col gap-3">
             {orderId && (
               <button
-                onClick={() => router.push(`/track/${orderId}`)}
+                onClick={() => router.push(`/track/${orderId}${trackingToken ? `?token=${encodeURIComponent(trackingToken)}` : ""}`)}
                 className="w-full flex items-center justify-center gap-2 bg-ud-burgundy hover:bg-ud-burgundy-hover text-white py-3 rounded text-sm font-semibold transition-colors"
               >
                 Check Order Status

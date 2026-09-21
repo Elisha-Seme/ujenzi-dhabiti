@@ -32,8 +32,8 @@ export default function TrackLandingPage() {
             </div>
             <h2 className="text-lg font-bold text-ud-dark mb-2">Where is my order?</h2>
             <p className="text-sm text-ud-dark/55 mb-6 leading-relaxed">
-              Your order number is in the confirmation email we sent you (it starts with{" "}
-              <span className="font-semibold text-ud-dark">ord-</span>).
+              Enter the order number from your confirmation email (for example,{" "}
+              <span className="font-semibold text-ud-dark">UD-ABC123</span>). For delivery and contact details, use the secure tracking link in that email.
             </p>
 
             <label htmlFor="order-id" className="block text-xs font-semibold text-ud-dark/60 uppercase tracking-wider mb-1.5">
@@ -44,7 +44,7 @@ export default function TrackLandingPage() {
               required
               value={orderId}
               onChange={(e) => setOrderId(e.target.value)}
-              placeholder="e.g. ord-1718000000000"
+              placeholder="e.g. UD-ABC123"
               className="w-full border border-ud-dark/20 rounded-[4px] px-4 py-2.5 text-sm text-ud-dark placeholder:text-ud-dark/30 focus:outline-none focus:border-ud-burgundy transition-colors mb-5"
             />
 

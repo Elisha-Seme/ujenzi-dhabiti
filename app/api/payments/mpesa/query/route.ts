@@ -3,11 +3,28 @@ import { db, payments, orders } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { stkQuery } from "@/lib/daraja";
 import { notifyAfterPayment } from "@/lib/payment-notifications";
+import { auth } from "@/lib/auth";
+import { normalizeOrderIdentity } from "@/lib/order-access";
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderId } = await req.json();
+    const { orderId, email } = await req.json();
     if (!orderId) return NextResponse.json({ error: "orderId required" }, { status: 400 });
+
+    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    const session = await auth();
+    if (order.buyerId) {
+      if (session?.user?.id !== order.buyerId) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    } else if (
+      typeof email !== "string" ||
+      !order.guestEmail ||
+      normalizeOrderIdentity(email) !== normalizeOrderIdentity(order.guestEmail)
+    ) {
+      return NextResponse.json({ error: "The email used at checkout is required" }, { status: 403 });
+    }
 
     // Look up the pending payment record to get the CheckoutRequestID
     const [payment] = await db

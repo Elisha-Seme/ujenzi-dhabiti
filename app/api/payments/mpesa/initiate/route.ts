@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, payments, orders } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { stkPush, normalizeKenyanPhone } from "@/lib/daraja";
+import { auth } from "@/lib/auth";
+import { normalizeOrderIdentity } from "@/lib/order-access";
 
 // In-memory de-duplication: blocks repeat initiate calls for the same order
 // within the cooldown window. Prevents users from spamming STK pushes.
@@ -13,6 +15,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const orderId: string | undefined = body.orderId;
     const phoneRaw: string | undefined = body.phone;
+    const email: string | undefined = body.email;
 
     if (!orderId || !phoneRaw) {
       return NextResponse.json({ error: "orderId and phone are required" }, { status: 400 });
@@ -48,6 +51,19 @@ export async function POST(req: NextRequest) {
         { error: `Order is already ${order.status} — cannot re-pay.` },
         { status: 400 }
       );
+    }
+
+    const session = await auth();
+    if (order.buyerId) {
+      if (session?.user?.id !== order.buyerId) {
+        return NextResponse.json({ error: "You are not authorized to pay for this order" }, { status: 403 });
+      }
+    } else if (
+      typeof email !== "string" ||
+      !order.guestEmail ||
+      normalizeOrderIdentity(email) !== normalizeOrderIdentity(order.guestEmail)
+    ) {
+      return NextResponse.json({ error: "The email used at checkout is required" }, { status: 403 });
     }
 
     if (order.paymentMethod !== "mpesa") {

@@ -44,8 +44,10 @@ export async function sendOrderConfirmation(
   items: { productName: string; quantity: number; priceKES: number }[],
   totalKES: number,
   downloads: { label: string; url: string }[] = [],
-  deposit: { depositKES: number; balanceKES: number } | null = null
+  deposit: { depositKES: number; balanceKES: number } | null = null,
+  trackingToken?: string,
 ) {
+  const trackUrl = `${BASE_URL}/track/${encodeURIComponent(orderId)}${trackingToken ? `?token=${encodeURIComponent(trackingToken)}` : ""}`;
   const itemRows = items
     .map(
       (i) =>
@@ -103,7 +105,7 @@ export async function sendOrderConfirmation(
             </tr>
           </tfoot>
         </table>
-        <a href="${BASE_URL}/track/${orderId}" style="display:inline-block;background:#1c1e22;color:#fff;font-size:13px;font-weight:bold;padding:12px 24px;border-radius:4px;text-decoration:none;margin-top:8px">
+        <a href="${trackUrl}" style="display:inline-block;background:#1c1e22;color:#fff;font-size:13px;font-weight:bold;padding:12px 24px;border-radius:4px;text-decoration:none;margin-top:8px">
           Track Your Order
         </a>
       </div>
@@ -115,8 +117,10 @@ export async function sendDispatchNotification(
   email: string,
   name: string,
   orderId: string,
-  trackingNumber: string | null
+  trackingNumber: string | null,
+  trackingToken?: string,
 ) {
+  const trackUrl = `${BASE_URL}/track/${encodeURIComponent(orderId)}${trackingToken ? `?token=${encodeURIComponent(trackingToken)}` : ""}`;
   await getResend().emails.send({
     from: FROM,
     to: email,
@@ -138,7 +142,7 @@ export async function sendDispatchNotification(
           <p style="font-size:12px;color:#bbb;margin:6px 0 0">Use this number on your courier's website to track your parcel.</p>
         </div>
         ` : ""}
-        <a href="${BASE_URL}/track/${orderId}" style="display:inline-block;background:#8a0e33;color:#fff;font-size:13px;font-weight:bold;padding:12px 24px;border-radius:4px;text-decoration:none">
+        <a href="${trackUrl}" style="display:inline-block;background:#8a0e33;color:#fff;font-size:13px;font-weight:bold;padding:12px 24px;border-radius:4px;text-decoration:none">
           Track Order
         </a>
         <div style="border-top:1px solid #eee;margin-top:28px;padding-top:16px">

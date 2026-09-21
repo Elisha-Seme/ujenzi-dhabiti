@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { planPrice, planSnapshotName, DeliveryMode } from "@/lib/house-plans";
 import { getAllPlans } from "@/lib/plans-store";
 import { depositFor } from "@/lib/constants";
+import { createOrderAccessToken } from "@/lib/order-access";
 
 interface CartItem {
   productId: string;
@@ -211,6 +212,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       orderId,
       paymentId,
+      trackingToken: createOrderAccessToken(orderId, buyerEmail),
       totalKES,
       depositKES,
       amountDueNowKES,
