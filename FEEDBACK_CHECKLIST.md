@@ -3,7 +3,7 @@
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
 **Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, and authorized read-only browser checks were re-run. Environment/content-dependent items remain explicitly marked.
 
-**Latest live verification:** 2026-09-21 — `ujenzidhabiti.co.ke` is still serving the pre-remediation deployment: `/terms` and `/blog` return 404, `/api/delivery-zones` returns 11 zones (the branch implementation returns all 47), and the authenticated admin UI has no Testimonials/Credentials/Blog/Plan Customizations links. Direct checks of those four admin routes return 404; the live Team edit form also lacks bio/competences fields. The accessible Neon console is project `KuzaConnect`, branch `production`, with no visible QA branch; it is not treated as an authorized Ujenzi Dhabiti test database.
+**Latest live verification:** 2026-09-21 — the remediation branch is deployed on the Contabo PM2 app behind Nginx. Public `/terms` and `/blog` return 200, `/api/delivery-zones` returns 47 counties, and the authenticated admin UI exposes Testimonials, Credentials, Blog & Resources, and Plan Requests. The live Team editor exposes Short Bio and Key Competences fields. Migration `0012_dizzy_mantis.sql` was applied successfully. No QA accounts or production content were seeded; role-based E2E remains pending because the available database is production rather than disposable staging.
 
 Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started · 🔒 blocked on client input
 
@@ -56,7 +56,7 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 
 | # | Feedback | Status | Evidence / What remains |
 |---|---|---|---|
-| 7.1 | Profile section with **Key competences** (like Ardhi Safi) | 🟡 | Added `bio` and `competences[]` schema fields, admin inputs, public competence chips, and dedicated `/about/team/[id]` pages. Drizzle migration `0012_dizzy_mantis.sql` is generated; apply it only to the authorized deployment database and populate approved staff data. |
+| 7.1 | Profile section with **Key competences** (like Ardhi Safi) | 🟡 | Added `bio` and `competences[]` schema fields, admin inputs, public competence chips, and dedicated `/about/team/[id]` pages. Migration `0012_dizzy_mantis.sql` is applied on the authorized deployment database, and the live Andrew Wanjala editor visibly includes Short Bio and Key Competences. Approved staff biographies/competences still need to be entered. |
 
 ## 8. "More Recommendations"
 
@@ -65,8 +65,8 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 | 8.1 | Trust & credibility: testimonials, client logos, NCA registration, insurance, years in business | 🟡 | Added unpublished-by-default testimonials and credentials models, admin CRUD, validation, and conditional public About sections. No proof is fabricated; approved content remains to be supplied and published. |
 | 8.2 | Pricing transparency + bulk calculator + build-cost estimator | 🟡 | Unit prices, bulk calculator, category estimator, and a coverage-based material estimator are present. The estimator documents 10% waste and excludes labour, delivery, and non-catalogue materials; it is not a full project quote engine. |
 | 8.3 | Order tracking (placed → processing → out for delivery → delivered) | ✅ | Wiring verified end-to-end: `/track/[orderId]` fetches `/api/orders/[id]`; admin sets status via `/api/admin/orders/[id]/status` (STATUS_STEPS: pending→paid→processing→dispatched→delivered). Added a `/track` **landing page** (order-number lookup) linked from the Help Center. |
-| 8.4 | Project portfolio depth (before/after, timelines, budgets, filters) | 🟡 | Added country/year/timeline/budget/client-name permission fields, admin controls, public metadata, and category/country/year filters. Approved content and migration deployment remain. |
-| 8.5 | House plans: comparison filters + request-modification flow | 🟡 | Added up-to-three-plan comparison and a structured customization request with admin status workflow and migration. Safe DB-backed E2E remains. |
+| 8.4 | Project portfolio depth (before/after, timelines, budgets, filters) | 🟡 | Added country/year/timeline/budget/client-name permission fields, admin controls, public metadata, and category/country/year filters. The migration is deployed; approved portfolio metadata/assets and a database-backed filter regression remain. |
+| 8.5 | House plans: comparison filters + request-modification flow | 🟡 | Added up-to-three-plan comparison and a structured customization request with admin status workflow; the migration is deployed. Safe database-backed submit-to-admin E2E remains. |
 | 8.6 | Blog / SEO resource hub | 🟡 | Added draft-by-default blog schema, admin CRUD, published-only listing/detail routes, navigation, and an honest empty state. Reviewed articles remain to be authored. |
 | 8.7 | M-Pesa visible at checkout | ✅ (pre-existing) | Checkout references M-Pesa 25× incl. payment method selector; Daraja STK APIs live under `app/api/payments/mpesa/*`. To do: end-to-end STK test on production creds (currently sandbox env). |
 
@@ -87,10 +87,10 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 2. **Full services list + descriptions + sub-services** → unlocks 3.1/3.3.
 3. **Service → materials package mapping** → unlocks 3.2.
 4. **Real freight fees per county** → replaces placeholder rates in 2.2.
-5. **Approval for team/content schema migration** (deployment DB) → unlocks production verification for 7.1, 8.1, 8.4, 8.5, and 8.6.
+5. **Approved staff, trust, portfolio, and editorial content** → unlocks the final public-content portions of 7.1, 8.1, 8.4, and 8.6.
 6. **Disposable database/staging credentials** → unlocks role-based and database-backed E2E tests. A guarded `npm run db:seed-qa` script is available but refuses unapproved execution.
 
-**Current external gate:** the only accessible Neon target is a production branch for a different project (`KuzaConnect`), and no authorized Ujenzi Dhabiti staging database or deployment console is available. No migration, seed, admin login, or production write has been performed.
+**Current external gate:** deployment and the additive schema migration are complete. The remaining gate is a disposable Ujenzi Dhabiti QA database for creating clearly labelled TEST Administrator/Client/Seller accounts and running database-backed role/E2E/payment-sandbox tests without touching production data. Google OAuth credentials, approved content, service-to-material mappings, and real county freight rates are also still client inputs.
 
 ## Suggested build order for the remaining work
 
