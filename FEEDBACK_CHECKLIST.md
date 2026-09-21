@@ -3,6 +3,8 @@
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
 **Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, and authorized read-only browser checks were re-run. Environment/content-dependent items remain explicitly marked.
 
+**Latest live verification:** 2026-09-21 — `ujenzidhabiti.co.ke` is still serving the pre-remediation deployment: `/terms` and `/blog` return 404, and `/api/delivery-zones` returns 11 zones (the branch implementation returns all 47). The live admin session is unauthenticated. The accessible Neon console is project `KuzaConnect`, branch `production`, with no visible QA branch; it is not treated as an authorized Ujenzi Dhabiti test database.
+
 Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started · 🔒 blocked on client input
 
 ---
@@ -86,6 +88,8 @@ Legend: ✅ done & verified · 🟡 partial / groundwork done · ⬜ not started
 4. **Real freight fees per county** → replaces placeholder rates in 2.2.
 5. **Approval for team/content schema migration** (deployment DB) → unlocks production verification for 7.1, 8.1, 8.4, 8.5, and 8.6.
 6. **Disposable database/staging credentials** → unlocks role-based and database-backed E2E tests. A guarded `npm run db:seed-qa` script is available but refuses unapproved execution.
+
+**Current external gate:** the only accessible Neon target is a production branch for a different project (`KuzaConnect`), and no authorized Ujenzi Dhabiti staging database or deployment console is available. No migration, seed, admin login, or production write has been performed.
 
 ## Suggested build order for the remaining work
 
