@@ -1,0 +1,1 @@
+ALTER TABLE "services" ADD COLUMN "material_product_ids" text[] DEFAULT '{}' NOT NULL;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck, Mail, Settings, Award, Layers, Users, BarChart3, HelpCircle, Hammer, Quote, ShieldCheck, Newspaper, ClipboardPenLine } from "lucide-react";
+import { ClipboardList, LayoutDashboard, LogOut, HardHat, PencilRuler, Home, Package, Truck, Mail, Settings, Award, Layers, Users, BarChart3, HelpCircle, Hammer, Quote, ShieldCheck, Newspaper, ClipboardPenLine, ShoppingBag } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { href: "/admin/delivery", label: "Delivery", icon: Truck },
   { href: "/admin/services", label: "Services Catalog", icon: Hammer },
   { href: "/admin/services/subsections", label: "Service Subsections", icon: Layers },
+  { href: "/admin/services/materials", label: "Service Materials", icon: ShoppingBag },
   { href: "/admin/projects", label: "What We've Built", icon: HardHat },
   { href: "/admin/architectural", label: "Architectural", icon: PencilRuler },
   { href: "/admin/newsletter", label: "Newsletter", icon: Mail },

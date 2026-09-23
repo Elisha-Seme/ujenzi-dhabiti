@@ -1,0 +1,17 @@
+# Ujenzi Dhabiti remediation execution plan
+
+Source of truth: `Website-Feedback-Status-2026-09-23.md` (27 numbered outcomes). This plan is sequential; keep each item's initial status, changes, verification evidence, final status, and remaining dependency in that report. Do not count code presence or an HTTP 200 as an end-to-end pass.
+
+1. **Baseline and safeguards:** confirm repository/branch/deployment identity; inspect architecture, schema, auth, roles, environment-variable *names*, admin flows, and existing changes. Do not print secrets, run destructive seeds against production, or publish unapproved client content.
+2. **Items 01–06 — registration and checkout:** test each live behavior as a guest and TEST buyer where safe; fix failing validation or API flow; verify Google callback only with a dedicated TEST Google identity; record external Google billing/key restrictions separately from observed address autocomplete.
+3. **Items 07–09 — services:** reconcile the company profile with published CMS records; add missing service/sub-service content without overwriting edited production rows; give every published service its own navigable page and admin-managed sub-services; curate service-specific shop materials from known catalogue SKUs, avoiding invented quantities/prices; verify public and admin views.
+4. **Items 10–13 — enquiries and Help:** compare the approved form reference field-by-field; validate files, consent, errors, loading, persistence, admin visibility, email outcome, and placement on every published service; verify Help and Contact links and mobile behavior.
+5. **Items 14–16 — team and trust:** verify profile and credential editors/permissions, then publish only approved biographies, testimonials, logos, registration/insurance evidence, and years. Missing approval remains a documented content gate, not fabricated data.
+6. **Items 17–19 — pricing and estimating:** verify visible unit prices, bulk calculations, and a clearly scoped whole-building estimator; do not present placeholder freight or an estimate as a binding quote.
+7. **Items 20–22 — orders and portfolio:** use clearly labelled TEST accounts/orders in a disposable QA database for placement → admin status → buyer tracking; verify privacy and portfolio filters against approved records.
+8. **Items 23–25 — plans:** implement bedroom, plot-size, budget, and style filters; test compare and plan-change request from TEST buyer through admin handling.
+9. **Items 26–27 — content and payments:** verify blog draft/publish/SEO behavior; test M-Pesa sandbox initiation, callback, failure, and status without real charges.
+10. **Cross-cutting regression:** run typecheck, lint, build, automated tests, API/DB checks, browser desktop/mobile checks, access-control/validation/security checks, and inspect console/network errors. Re-test related workflows after every fix.
+11. **Release gate:** review diff and migrations; push only verified changes; deploy to Contabo with non-destructive migration/rollback plan; confirm running commit and live smoke/E2E. Report unverified items explicitly, including external billing, approved content, and QA-environment dependencies.
+
+Order within each numbered item: reproduce → root cause → minimal change → local verification → relevant live or QA journey → regression → update report. If an item needs external authority or missing approved data, record it as blocked/partial and continue to the next numbered item rather than treating it as complete.

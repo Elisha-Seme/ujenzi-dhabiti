@@ -528,6 +528,8 @@ export const services = pgTable("services", {
   quoteType: text("quote_type").notNull(),
   includes: text("includes").array().notNull().default([]),
   materials: text("materials").array().notNull().default([]),
+  // Admin-curated shop SKUs for this service. Empty until reviewed; no fake bundle.
+  materialProductIds: text("material_product_ids").array().notNull().default([]),
   sortOrder: integer("sort_order").notNull().default(0),
   published: boolean("published").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),

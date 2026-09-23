@@ -1,5 +1,7 @@
 # Website Feedback — Line-by-Line Implementation Checklist
 
+> **Status update (23 September 2026):** See [Website-Feedback-Status-2026-09-23.md](Website-Feedback-Status-2026-09-23.md) for the current 27-item assessment. The older checkmarks below document implementation and earlier checks; some do not represent completed end-to-end verification.
+
 **Source:** `Website Feedback.docx` (Wanjala, rev 12) · **Companion:** `WEBSITE_FEEDBACK_ANALYSIS.md`
 **Last audit:** 2026-09-21 — local source, production build, runtime smoke tests, authorized browser checks, Google OAuth configuration, and live sign-in redirect verification were re-run. Environment/content-dependent items remain explicitly marked.
 

@@ -12,17 +12,8 @@ export const metadata = {
   description: "Gypsum works, painting, tiling, cabro paving, and drainage installations under one roof.",
 };
 
-const SERVICE_MATERIAL_CATEGORIES: Record<string, string> = {
-  "building-works": "Structural Materials",
-  "civil-works": "Cabro & Road Works",
-  "interior-design": "Gypsum & Ceilings",
-  architectural: "Hardware",
-  "gypsum-ceilings": "Gypsum & Ceilings",
-  "paint-finishes": "Paint & Finishes",
-  flooring: "Flooring",
-  "cabro-road-works": "Cabro & Road Works",
-  plumbing: "Plumbing",
-};
+// Administrators can publish new services without rebuilding the application.
+export const dynamic = "force-dynamic";
 
 // Helper to resolve Lucide icon components dynamically
 const DynamicIcon = ({ name, className, strokeWidth }: { name: string; className?: string; strokeWidth?: number }) => {
@@ -58,6 +49,18 @@ export default async function ServicesPage() {
         title="Our Services"
         subtitle="End-to-end building works, installations, and site development—supplied and built under one roof."
       />
+
+      {servicesList.length > 0 && (
+        <nav aria-label="Service sections" className="bg-white border-b border-ud-dark/10">
+          <div className="max-w-content mx-auto px-6 flex gap-2 overflow-x-auto py-3">
+            {servicesList.map((srv) => (
+              <a key={srv.id} href={`#${srv.slug}`} className="whitespace-nowrap rounded-[4px] px-3 py-2 text-sm font-semibold text-ud-dark/70 hover:text-ud-burgundy">
+                {srv.title}
+              </a>
+            ))}
+          </div>
+        </nav>
+      )}
 
       <section className="bg-ud-light-gray py-16 md:py-24">
         <div className="max-w-content mx-auto px-6 space-y-16">
@@ -106,10 +109,10 @@ export default async function ServicesPage() {
                       View Service <LucideIcons.ArrowRight size={14} />
                     </Link>
                     <Link
-                      href={`/shop?category=${encodeURIComponent(SERVICE_MATERIAL_CATEGORIES[srv.slug] ?? "Structural Materials")}`}
+                      href={`/services/${srv.slug}#materials`}
                       className="inline-flex items-center gap-2 border border-ud-dark/20 text-ud-dark/70 text-xs font-bold px-5 py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors whitespace-nowrap"
                     >
-                      Shop Materials
+                      Shop Service Materials
                     </Link>
                     <Link
                       href={`/request-a-quote?projectType=${encodeURIComponent(srv.quoteType)}`}
