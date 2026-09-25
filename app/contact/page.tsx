@@ -5,10 +5,12 @@ import { CONTACT_INFO, EMAIL_DIRECTORY } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { systemSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { getPublishedServiceTitles } from "@/lib/services/public-options";
 
 export const dynamic = "force-dynamic";
 
 export default async function ContactPage() {
+  const serviceOptions = await getPublishedServiceTitles();
   let address = CONTACT_INFO.address;
   let phoneNumbers = CONTACT_INFO.phone;
   let emailDir = EMAIL_DIRECTORY;
@@ -80,6 +82,7 @@ export default async function ContactPage() {
           {/* Enquiry form — same format as Request a Quote (per client brief) */}
           <div className="max-w-3xl mx-auto mb-16 md:mb-20">
             <ServiceRequestForm
+              serviceOptions={serviceOptions}
               subjectPrefix="Contact Enquiry"
               intro="Fill in the details below and we will get back to you within 24 hours."
             />

@@ -1,6 +1,7 @@
 import ServiceRequestForm from "@/components/sections/ServiceRequestForm";
 
 interface ServiceEnquiryProps {
+  serviceOptions?: string[];
   /** Pre-selected service/project type for this service page's request form. */
   projectType?: string;
   title?: string;
@@ -11,6 +12,7 @@ interface ServiceEnquiryProps {
 // request for the service-form format "at the end of every page of a service we
 // provide"). Uses the shared sectioned Service Request Form.
 export default function ServiceEnquiry({
+  serviceOptions = [],
   projectType,
   title = "Request a Service Quote",
   subtitle = "Tell us about your project and our team will prepare a tailored quote within 24 hours.",
@@ -22,7 +24,7 @@ export default function ServiceEnquiry({
           <h2 className="text-2xl md:text-3xl font-bold text-ud-dark mb-3">{title}</h2>
           <p className="text-sm md:text-base text-ud-dark/60 font-light max-w-xl mx-auto">{subtitle}</p>
         </div>
-        <ServiceRequestForm defaultService={projectType} />
+        <ServiceRequestForm serviceOptions={serviceOptions} defaultService={projectType} />
       </div>
     </section>
   );

@@ -2,15 +2,19 @@ import { Phone, Mail } from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import ServiceRequestForm from "@/components/sections/ServiceRequestForm";
 import { CONTACT_INFO } from "@/lib/constants";
+import { getPublishedServiceTitles } from "@/lib/services/public-options";
 
 export const metadata = {
   title: "Request a Quote — Ujenzi Dhabiti",
   description: "Tell us about your construction, civil works, or interior project and get a tailored quote from Ujenzi Dhabiti.",
 };
 
-export default function RequestQuotePage({ searchParams }: { searchParams: { product?: string } }) {
+export const dynamic = "force-dynamic";
+
+export default async function RequestQuotePage({ searchParams }: { searchParams: { product?: string; projectType?: string } }) {
   const product = searchParams?.product;
   const defaultDescription = product ? `Bulk quote for: ${product}` : "";
+  const serviceOptions = await getPublishedServiceTitles();
 
   return (
     <>
@@ -21,7 +25,7 @@ export default function RequestQuotePage({ searchParams }: { searchParams: { pro
 
       <section className="bg-ud-light-gray py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-6">
-          <ServiceRequestForm defaultDescription={defaultDescription} />
+          <ServiceRequestForm serviceOptions={serviceOptions} defaultService={searchParams?.projectType ?? ""} defaultDescription={defaultDescription} />
 
           {/* Prefer to talk instead */}
           <div className="mt-8 bg-white rounded-[4px] p-6 shadow-sm border border-ud-dark/8 text-center">

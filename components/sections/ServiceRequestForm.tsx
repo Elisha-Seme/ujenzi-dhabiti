@@ -15,17 +15,7 @@ import { KENYA_COUNTIES } from "@/lib/kenya-counties";
 // no new backend.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const SERVICE_OPTIONS = [
-  "Building Works — Residential",
-  "Building Works — Commercial / Institutional",
-  "Renovation & Remodeling",
-  "Boundary Wall Construction",
-  "Civil Works — Murram Road",
-  "Civil Works — Cabro Paving",
-  "Civil Works — Drainage",
-  "Interior Design — Office Partitioning",
-  "Interior Design — Glass & Aluminum",
-  "Architectural Design & Consultancy",
+const ADDITIONAL_OPTIONS = [
   "House Plan (Digital / Printed)",
   "Construction Materials Supply",
 ];
@@ -70,6 +60,8 @@ interface Attachment {
 }
 
 interface ServiceRequestFormProps {
+  /** Published top-level services from the CMS. */
+  serviceOptions?: string[];
   /** Pre-select a service (used when embedded on a specific service page). */
   defaultService?: string;
   /** Pre-fill the project description (e.g. from a "Request Bulk Quote" link). */
@@ -81,22 +73,17 @@ interface ServiceRequestFormProps {
 }
 
 export default function ServiceRequestForm({
+  serviceOptions = [],
   defaultService = "",
   defaultDescription = "",
   subjectPrefix = "Quote Request",
   intro = "Fill in the details below and we will get back to you within 24 hours with a tailored quote for your project.",
 }: ServiceRequestFormProps) {
-  // Pre-select the relevant service checkbox(es) for the page we're embedded on.
-  // Match a service family by prefix (e.g. "Building Works" ticks both
-  // "Building Works — Residential" and "— Commercial / Institutional"); if
-  // nothing matches, surface the value in the "Other" field so it isn't lost.
+  const availableServices = Array.from(new Set([...serviceOptions, ...ADDITIONAL_OPTIONS]));
+  // Only preselect an exact published service. Older or external query-string
+  // values remain visible in Other instead of silently choosing the wrong job.
   const matchedServices = defaultService
-    ? SERVICE_OPTIONS.filter(
-        (o) =>
-          o === defaultService ||
-          o.startsWith(defaultService) ||
-          defaultService.startsWith(o.split(" — ")[0]),
-      )
+    ? availableServices.filter((option) => option === defaultService)
     : [];
   const hasMatch = matchedServices.length > 0;
 
@@ -312,7 +299,7 @@ export default function ServiceRequestForm({
         <div>
           <label className={labelCls}>Which service do you require? *</label>
           <div className="grid sm:grid-cols-2 gap-x-6">
-            {SERVICE_OPTIONS.map((s) => (
+            {availableServices.map((s) => (
               <CheckPill key={s} label={s} checked={services.includes(s)} onToggle={() => toggleService(s)} />
             ))}
           </div>

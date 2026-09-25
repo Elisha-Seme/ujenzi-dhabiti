@@ -128,7 +128,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
       )}
 
       <div className="max-w-content mx-auto px-6">
-        <ServiceMaterialsBar quoteType={service.quoteType} label={service.title} hasMaterials={materialProducts.length > 0} />
+        <ServiceMaterialsBar quoteType={service.title} label={service.title} hasMaterials={materialProducts.length > 0} />
       </div>
 
       {/* Render subsections dynamically */}
@@ -183,7 +183,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         </div>
       </section>
 
-      <ServiceEnquiry projectType={service.title} />
+      <ServiceEnquiry projectType={service.title} serviceOptions={publishedServices.map((row) => row.title)} />
       <CTABanner />
     </>
   );

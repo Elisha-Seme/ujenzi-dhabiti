@@ -115,7 +115,7 @@ export default async function ServicesPage() {
                       Shop Service Materials
                     </Link>
                     <Link
-                      href={`/request-a-quote?projectType=${encodeURIComponent(srv.quoteType)}`}
+                      href={`/request-a-quote?projectType=${encodeURIComponent(srv.title)}`}
                       className="inline-flex items-center gap-2 border border-ud-burgundy text-ud-burgundy text-xs font-bold px-5 py-3 rounded-[4px] hover:bg-ud-burgundy hover:text-white transition-colors whitespace-nowrap"
                     >
                       Request Service Quote
