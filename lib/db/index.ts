@@ -14,7 +14,10 @@ function buildDb() {
     const { neon } = require("@neondatabase/serverless");
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { drizzle } = require("drizzle-orm/neon-http");
-    const sql = neon(url);
+    // Database reads and writes must never inherit Next.js fetch caching.
+    // Cached empty subsection reads hid newly imported CMS content on service
+    // pages even after the rows were present in the database.
+    const sql = neon(url, { fetchOptions: { cache: "no-store" } });
     return drizzle(sql, { schema });
   }
 
