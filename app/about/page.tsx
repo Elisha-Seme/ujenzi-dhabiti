@@ -8,6 +8,8 @@ import { db } from "@/lib/db";
 import { systemSettings, coreValues, whyChooseUs, companyStats, teamMembers, testimonials, companyCredentials, Testimonial, CompanyCredential } from "@/lib/db/schema";
 import { asc, eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 // Static placeholders for vision/mission/story copy
 const VISION_STATIC = "To be a leading construction and infrastructure company in Africa, connecting communities through sustainable developments, modern transport networks, and quality housing solutions.";
 const MISSION_STATIC = "To deliver reliable, high-quality construction and civil works that enhance connectivity, support economic growth, and contribute to the development of safe, functional, and affordable living and working spaces across Africa.";

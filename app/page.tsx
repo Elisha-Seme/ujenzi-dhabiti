@@ -13,6 +13,8 @@ import { db } from "@/lib/db";
 import { systemSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   let heroBadge = "Connecting Africa";
   let heroTitle = "Building Materials & Construction\nServices Under One Roof";

@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { faqs, systemSettings } from "@/lib/db/schema";
 import { asc, eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 // ── Help Center structure modelled on the client-approved Grainger Help Desk
 // reference: Self-Service tiles → Popular Topics link columns → FAQ (retained)
 // → "How can I contact us?" tiles → email directory (retained).

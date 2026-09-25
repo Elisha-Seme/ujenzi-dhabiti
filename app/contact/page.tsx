@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { systemSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContactPage() {
   let address = CONTACT_INFO.address;
   let phoneNumbers = CONTACT_INFO.phone;
