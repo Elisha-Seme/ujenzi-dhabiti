@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { services, serviceSubsections, products } from "@/lib/db/schema";
 import { eq, asc, and, inArray } from "drizzle-orm";
@@ -9,6 +10,19 @@ import { ServiceIntro, ServiceType, ServiceSection, ServiceMaterialsBar } from "
 import ServiceEnquiry from "@/components/services/ServiceEnquiry";
 import ProductCard from "@/components/shop/ProductCard";
 import type { ProductCategory } from "@/lib/products";
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  try {
+    const [service] = await db.select({ title: services.title, description: services.description })
+      .from(services)
+      .where(and(eq(services.slug, params.slug), eq(services.published, true)))
+      .limit(1);
+    if (service) return { title: `${service.title} — Ujenzi Dhabiti`, description: service.description };
+  } catch (err) {
+    console.error("Service metadata load failed:", err);
+  }
+  return { title: "Service Not Found — Ujenzi Dhabiti" };
+}
 
 export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
   let service: typeof services.$inferSelect | undefined;
@@ -34,7 +48,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
     subsections = await db
       .select()
       .from(serviceSubsections)
-      .where(eq(serviceSubsections.serviceSlug, service.slug))
+      .where(eq(serviceSubsections.serviceSlug, params.slug))
       .orderBy(asc(serviceSubsections.sortOrder));
   } catch (err) {
     console.error("Service subsection load failed:", err);
@@ -113,6 +127,10 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
         </div>
       )}
 
+      <div className="max-w-content mx-auto px-6">
+        <ServiceMaterialsBar quoteType={service.quoteType} label={service.title} hasMaterials={materialProducts.length > 0} />
+      </div>
+
       {/* Render subsections dynamically */}
       {sections.map((sub, idx) => {
         const tone = idx % 2 === 0 ? "white" : "light";
@@ -132,11 +150,6 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
               />
             </div>
 
-            <ServiceMaterialsBar
-              quoteType={`${service.quoteType} — ${sub.title}`}
-              label={service.title}
-              hasMaterials={materialProducts.length > 0}
-            />
           </ServiceSection>
         );
       })}
