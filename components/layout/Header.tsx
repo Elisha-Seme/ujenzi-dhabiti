@@ -89,10 +89,10 @@ export default function Header() {
                 onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setServiceMenuOpen(false); }}
                 onKeyDown={(event) => { if (event.key === "Escape") setServiceMenuOpen(false); }}
               >
-                <Link href="/services" aria-current={pathname.startsWith("/services") ? "page" : undefined} className={`text-[13px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200 ${pathname.startsWith("/services") ? "text-ud-white border-b-2 border-ud-burgundy pb-0.5" : "text-white/80 hover:text-ud-white"}`}>
+                <Link href="/services" aria-current={pathname === "/services" ? "page" : undefined} className={`text-[13px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200 ${pathname.startsWith("/services") ? "text-ud-white border-b-2 border-ud-burgundy pb-0.5" : "text-white/80 hover:text-ud-white"}`}>
                   Our Services
                 </Link>
-                <button type="button" aria-label="Show service pages" aria-expanded={serviceMenuOpen} aria-controls="desktop-service-menu" onClick={() => setServiceMenuOpen((open) => !open)} className="p-1 text-white/80 hover:text-white">
+                <button type="button" aria-label="Show service pages" aria-expanded={serviceMenuOpen} aria-controls="desktop-service-menu" onClick={() => setServiceMenuOpen(true)} className="p-1 text-white/80 hover:text-white">
                   <ChevronDown size={15} className={serviceMenuOpen ? "rotate-180" : ""} />
                 </button>
                 {serviceMenuOpen && (
