@@ -34,13 +34,13 @@
 - [ ] **20 Partial — Order tracking through delivery.** A tracking lookup and status page exist; admin status changes and privacy hardening are in code. No TEST order was taken through placement, status updates, customer viewing, and delivery in the deployed database.
 - [ ] **21 Partial — Deeper project portfolio.** Fields and pages support before/after media, timeline, budget range, year, country, and permission-controlled client names. Approved project evidence/content and database-backed display checks are still missing.
 - [ ] **22 Partial — Filter portfolio by type, country, and year.** The filters are implemented in the page. A populated, database-backed regression check has not been completed.
-- [ ] **23 Not done — House-plan filters by bedrooms, plot size, budget, and style.** The public catalogue has a category filter; the requested multi-criteria filters are absent.
-- [ ] **24 Partial — Compare house plans.** The catalogue can compare up to three plans, including bedrooms and prices. It has not been tested as a complete production user journey.
-- [ ] **25 Partial — Request modifications to a house plan.** A detail-page request form, API, database model, and admin request view exist. A TEST submit → record → admin update → customer result journey was not run.
+- [ ] **23 Partial — House-plan filters by bedrooms, plot size, budget, and style.** The live catalogue now filters by published bedrooms, plinth-area range, starting plan price, and existing plan type. On 26 September, “3 bedrooms + up to 200 m²” returned only Savannah 3-Bedroom Bungalow. The former stale cached API was fixed and all 10 published plans now load. The catalogue has no approved lot/plot-size recommendations or architectural-style metadata; the UI labels plinth area accurately and discloses this content gap rather than misrepresenting it.
+- [x] **24 Completed — Compare house plans.** The live catalogue compares up to three plans, including bedrooms, bathrooms, floors, plinth area, and digital/print prices. On 26 September, two live plans were selected and the comparison panel appeared.
+- [x] **25 Completed — Request modifications to a house plan.** A detail-page request form, API, database model, and admin request view exist. On 26 September, a clearly labelled TEST request for Savannah 3-Bedroom Bungalow was submitted, appeared in the authenticated Plan Requests queue, and was changed from Pending to Responded. The TEST record remains deliberately labelled for future QA.
 - [ ] **26 Partial — Blog and SEO resources.** Draft/publish CMS and public listing/detail routes are deployed; the live `/blog` route returns HTTP 200. Approved articles and search-performance evidence are absent.
 - [ ] **27 Partial — M-Pesa payment.** M-Pesa is visible as a checkout option and Daraja STK initiation/query/callback code exists. A sandbox STK push, webhook confirmation, receipt, failure case, and complete order journey have not been verified.
 
-**Count:** 9 completed, 17 partial, 1 not done. These are statuses against the document's 27 distinct requested outcomes, not a claim that the platform as a whole has passed regression testing.
+**Count:** 11 completed, 16 partial, 0 not done. These are statuses against the document's 27 distinct requested outcomes, not a claim that the platform as a whole has passed regression testing.
 
 ## Platform audit and release status
 
