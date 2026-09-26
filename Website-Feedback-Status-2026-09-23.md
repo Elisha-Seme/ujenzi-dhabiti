@@ -1,6 +1,7 @@
 # Ujenzi Dhabiti Website Feedback Status
 
 **Reviewed:** 23 September 2026
+**Latest verification:** 25 September 2026
 **Source:** `Website Feedback.docx` supplied by the client
 **Scope:** Initial assessment plus an ongoing remediation ledger. The document's feature requests are the items being assessed; the user's direct request authorizes the implementation work.
 
@@ -14,13 +15,13 @@
 - [x] **04 Completed — All counties in the delivery estimator.** The live delivery-zones API returned 47 counties on 23 September. This completes the county-list request; the displayed freight fees are still placeholders.
 - [x] **05 Completed — Google-based delivery address.** On the live checkout, entering “Nairobi” produced Google Places suggestions; selecting “Nairobi, Kenya” populated the delivery-address field. The separate intended-project API enablement/key restrictions remain a Google Cloud setup issue: the Ujenzi project has no linked billing account, so enabling Places redirects to billing setup.
 - [x] **06 Completed — All-county checkout dropdown.** Checkout uses the shared 47-county list, and the dropdown was checked locally.
-- [ ] **07 Partial — Separate service tabs/pages and sub-services.** Initially, published services had detail pages, but the admin could add subsections under only four parents and Cabro → Driveway was absent. The local change adds navigation across every published service, allows all existing parents in admin, excludes unpublished direct URLs, and prepares an insert-only import of 72 named profile sub-services. Typecheck/build pass; production import and browser verification remain.
-- [ ] **08 Partial — Curated materials package for each service.** Initially, “View Materials” led to broad fallback categories. The local change adds an admin-managed service→catalogue-product selection, an additive schema migration, and a public materials section that displays only actual selected active products with current prices. No mappings have been approved or saved; server migration, admin/public journey, and content selection remain. No fixed quantities are invented.
-- [ ] **09 Partial — Every service and description from the company profile.** The supplied profile was found in Downloads. Its 72 named variants are mapped into the insert-only import without overwriting CMS edits. Production catalogue reconciliation and browser proof remain; the quote form's service choices are still hardcoded.
-- [ ] **10 Partial — Request a Quote in the House of K form format.** A shared, sectioned construction request form exists, including location, file upload, budget, and consent fields. It is an adaptation rather than a demonstrated exact field-for-field match, and a live successful submit, email receipt, and admin handling were not verified.
+- [x] **07 Completed — Separate service tabs/pages and sub-services.** Initially, published services had detail pages, but the admin could add subsections under only four parents and Cabro → Driveway was absent. All nine published services now have dedicated pages, a published-only index, desktop/mobile Services menus, and cross-service navigation. The 72 named profile sub-services were imported to production without overwriting existing CMS rows; a second dry run found zero pending. On 25 September, each of the nine pages was inspected in the live browser and displayed its own headings and sub-services; desktop and mobile menus opened and a menu link navigated to Gypsum. A direct draft-URL access test and authenticated admin edit remain part of wider access-control regression, not proof claimed here.
+- [ ] **08 Partial — Curated materials package for each service.** Initially, “View Materials” led to broad fallback categories. The additive migration is applied in production, and an admin-managed service→catalogue-product selection plus a public materials section are deployed. The live Cabro page correctly shows an unpublished-selection message instead of unrelated products. No approved SKU mappings have been supplied or saved; admin save → public material card remains unverified. No fixed quantities are invented.
+- [ ] **09 Partial — Every service and description from the company profile.** The supplied profile was found in Downloads; 72 named variants were imported in production without overwriting CMS edits, and all nine published service pages were inspected in the live browser. Quote and Contact service choices now come from the published CMS, with exact service-page preselection verified. Editorial comparison of every paragraph and approval of production copy remain; no unapproved offering was invented.
+- [ ] **10 Partial — Request a Quote in the House of K form format.** A shared, sectioned construction request form exists, including location, file upload, budget, and consent fields. On 26 September, every form submission was changed to persist before email delivery, including guest contact details and attachment names, and a new admin quote/enquiry queue was added. It remains an adaptation rather than a demonstrated exact field-for-field match; a safe TEST live submission, email receipt, and administrator status change remain to be run.
 - [ ] **11 Partial — That form at the end of every service page.** The shared component is in the dynamic service-page template and was checked on one local service page. Every published service and a successful submission from each context were not tested.
 - [x] **12 Completed — Grainger-style Help layout while retaining help content.** The page has self-service tiles, popular topics, retained FAQs, contact tiles, and the email directory; it was checked in a local browser. The live Help route returned HTTP 200 on 23 September.
-- [ ] **13 Partial — Contact Us using the same tailored form.** Contact uses the shared sectioned form. A live submission and recipient/record verification remain undone.
+- [ ] **13 Partial — Contact Us using the same tailored form.** Contact uses the shared sectioned form and now shares the persistent admin-managed enquiry pipeline. A safe TEST live submission and recipient/record verification remain undone.
 - [ ] **14 Partial — Team-member profiles and key competences.** The schema, admin editor, and public profile page exist; the migration was applied, and the live admin editor showed the fields. Approved biographies and competences have not been entered or verified publicly.
 
 ## Recommendations in the document
@@ -39,21 +40,21 @@
 - [ ] **26 Partial — Blog and SEO resources.** Draft/publish CMS and public listing/detail routes are deployed; the live `/blog` route returns HTTP 200. Approved articles and search-performance evidence are absent.
 - [ ] **27 Partial — M-Pesa payment.** M-Pesa is visible as a checkout option and Daraja STK initiation/query/callback code exists. A sandbox STK push, webhook confirmation, receipt, failure case, and complete order journey have not been verified.
 
-**Count:** 8 completed, 18 partial, 1 not done. These are statuses against the document's 27 distinct requested outcomes, not a claim that the platform as a whole has passed regression testing.
+**Count:** 9 completed, 17 partial, 1 not done. These are statuses against the document's 27 distinct requested outcomes, not a claim that the platform as a whole has passed regression testing.
 
 ## Platform audit and release status
 
 - [x] Repository, architecture, roles, admin CMS, database schema, migrations, environment-variable names, and deployment path were inspected.
 - [x] Remediation code was built and tested locally; a production migration and the application release were deployed to Contabo. On 23 September, `/`, `/services`, `/help`, `/blog`, `/request-a-quote`, and the gypsum category returned HTTP 200. The live auth-provider endpoint listed `credentials`, `magic-link`, and `google`.
 - [x] The remediation branch was pushed to GitHub at `f066278`.
-- [ ] The Contabo checkout was still at `ef7908e` on 23 September. The later `f066278` commit contains documentation only; the running application code is unaffected by that gap.
+- [x] The current service-navigation and quote-choice changes were pushed and deployed to Contabo at `b97995f` on 25 September. The live Home, About, Contact, Help, Services, and Quote routes were re-rendered dynamically after a database-cache fix; Contact, Quote, and Gypsum returned HTTP 200 after deployment. A brief 502 occurred immediately during a process restart and cleared once Next.js was ready.
 - [ ] No reusable TEST administrator, client/buyer, or seller accounts were created. The QA-account script exists, but it was not executed against a disposable database.
 - [ ] Full registration → login → quote/order → database → admin → client-output tests were not completed for each role. Production data was not altered for QA.
 - [ ] Google OAuth account creation/callback, production Places suggestions, email delivery, M-Pesa/card sandbox payment, and complete mobile/accessibility/security regression still need direct end-to-end verification.
 
 ## Additional findings from this review
 
-1. **Guest enquiries lack guaranteed admin visibility.** `app/api/contact/route.ts` emails all enquiries but inserts a quote row only when the visitor has a signed-in session. There is no admin quote/enquiry listing under `app/admin`. A guest form journey therefore cannot currently be verified as a persisted, admin-manageable request.
+1. **Guest enquiry visibility was remediated on 26 September.** `app/api/contact/route.ts` now persists every enquiry before attempting delivery, and `/admin/quotes` allows administrators to review and status them. This is pending a safe TEST submission and authenticated admin browser check.
 2. **An unpublished service may be reachable by its direct URL.** `app/services/page.tsx` filters the index by `published`, but `app/services/[slug]/page.tsx` looks up a slug without checking `published`. This is a code-level finding requiring a focused test and fix before draft service content can be considered private.
 3. **Several current fallback values need owner approval.** County freight rates are labelled placeholders; service-to-product package mappings and staff/trust/portfolio/blog content have not been approved or entered.
 

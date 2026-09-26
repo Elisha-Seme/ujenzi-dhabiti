@@ -96,6 +96,24 @@ export async function POST(req: NextRequest) {
       }));
     }
 
+    // Persist every enquiry before delivery so guests have an admin-managed
+    // record as well as an email notification. Existing signed-in users keep
+    // the same account history through userId.
+    const session = await auth();
+    const qid = `qt-${Date.now()}`;
+    await db.insert(quotes).values({
+      id: qid,
+      userId: session?.user?.id ?? null,
+      contactName: String(name).trim(),
+      contactEmail: String(email).trim(),
+      contactPhone: phone ? String(phone).trim() : null,
+      subject: String(subject || "General Inquiry").trim(),
+      attachments: fileList.map((file) => ({ name: file.name })),
+      projectType: String(subject || "General Inquiry").replace(/^Quote Request\s+—\s+/, ""),
+      description: String(message),
+      status: "pending",
+    });
+
     // Email to admin
     await getResend().emails.send(emailPayload);
 
@@ -125,19 +143,6 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
-
-    // Save quote to user dashboard if signed in
-    const session = await auth();
-    if (session?.user?.id) {
-      const qid = `qt-${Date.now()}`;
-      await db.insert(quotes).values({
-        id: qid,
-        userId: session.user.id,
-        projectType: subject?.replace("Quote Request — ", "") || "General Inquiry",
-        description: message,
-        status: "pending",
-      });
-    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

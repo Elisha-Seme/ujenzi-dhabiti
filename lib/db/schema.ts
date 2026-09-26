@@ -212,6 +212,11 @@ export const payments = pgTable("payments", {
 export const quotes = pgTable("quotes", {
   id: text("id").primaryKey(),
   userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  subject: text("subject"),
+  attachments: jsonb("attachments").$type<{ name: string; type?: string }[]>().notNull().default([]),
   projectType: text("project_type").notNull(),
   description: text("description").notNull(),
   status: quoteStatusEnum("status").notNull().default("pending"),

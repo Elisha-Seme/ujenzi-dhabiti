@@ -8,6 +8,7 @@ import { signOut } from "next-auth/react";
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/quotes", label: "Quotes & Enquiries", icon: Quote },
   { href: "/admin/products", label: "Materials", icon: Package },
   { href: "/admin/plans", label: "House Plans", icon: Home },
   { href: "/admin/delivery", label: "Delivery", icon: Truck },
