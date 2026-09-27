@@ -223,8 +223,6 @@ export async function POST(req: NextRequest) {
     console.error("[POST /api/orders] FULL ERROR:", err);
     const cause = (err as { cause?: unknown })?.cause;
     if (cause) console.error("[POST /api/orders] DB CAUSE:", cause);
-    const causeMessage = cause instanceof Error ? cause.message : null;
-    const message = causeMessage ?? (err instanceof Error ? err.message : "Failed to create order");
-    return NextResponse.json({ error: message, cause: causeMessage }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
   }
 }

@@ -110,6 +110,7 @@ export async function verifyFlutterwaveTransaction(transactionId: string): Promi
   status: "successful" | "failed" | "pending";
   amountKES: number;
   txRef: string;
+  currency: string;
 }> {
   const token = await getAccessToken();
 
@@ -127,5 +128,6 @@ export async function verifyFlutterwaveTransaction(transactionId: string): Promi
     status: data.data?.status ?? "failed",
     amountKES: data.data?.amount ?? 0,
     txRef: data.data?.tx_ref ?? "",
+    currency: data.data?.currency ?? "",
   };
 }
