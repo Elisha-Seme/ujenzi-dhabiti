@@ -1,7 +1,7 @@
 # Ujenzi Dhabiti Website Feedback Status
 
 **Reviewed:** 23 September 2026
-**Latest verification:** 25 September 2026
+**Latest verification:** 27 September 2026
 **Source:** `Website Feedback.docx` supplied by the client
 **Scope:** Initial assessment plus an ongoing remediation ledger. The document's feature requests are the items being assessed; the user's direct request authorizes the implementation work.
 
@@ -50,12 +50,13 @@
 - [x] The current service-navigation and quote-choice changes were pushed and deployed to Contabo at `b97995f` on 25 September. The live Home, About, Contact, Help, Services, and Quote routes were re-rendered dynamically after a database-cache fix; Contact, Quote, and Gypsum returned HTTP 200 after deployment. A brief 502 occurred immediately during a process restart and cleared once Next.js was ready.
 - [ ] No reusable TEST administrator, client/buyer, or seller accounts were created. The QA-account script exists, but it was not executed against a disposable database.
 - [ ] Full registration → login → quote/order → database → admin → client-output tests were not completed for each role. Production data was not altered for QA.
-- [ ] Google OAuth account creation/callback, production Places suggestions, email delivery, M-Pesa/card sandbox payment, and complete mobile/accessibility/security regression still need direct end-to-end verification.
+- [ ] Google OAuth account creation/callback, email delivery, M-Pesa/card sandbox payment, and complete mobile/accessibility regression still need direct end-to-end verification.
+- [x] A targeted security review was completed on 27 September and three source-backed findings were remediated and deployed at `33c82a0`: the Cloudinary upload endpoint now requires an administrator role and allowlisted folders; Flutterwave settlement now binds a provider-verified reference, amount, and currency to the specific pending payment; and public order errors no longer return internal exception text. Production smoke checks returned Home `200`, unauthenticated upload `403`, and unsigned Flutterwave webhook `401`. The review was partial rather than a whole-repository security certification; the generated report records its exact coverage and exclusions.
 
 ## Additional findings from this review
 
-1. **Guest enquiry visibility was remediated on 26 September.** `app/api/contact/route.ts` now persists every enquiry before attempting delivery, and `/admin/quotes` allows administrators to review and status them. This is pending a safe TEST submission and authenticated admin browser check.
-2. **An unpublished service may be reachable by its direct URL.** `app/services/page.tsx` filters the index by `published`, but `app/services/[slug]/page.tsx` looks up a slug without checking `published`. This is a code-level finding requiring a focused test and fix before draft service content can be considered private.
+1. **Guest enquiry visibility was remediated and browser-verified on 26 September.** `app/api/contact/route.ts` persists every enquiry before attempting delivery, and `/admin/quotes` allows administrators to review and status it. A clearly labelled TEST enquiry was submitted, appeared in the authenticated queue, and was changed to Responded.
+2. **Draft services are not public by direct URL.** `app/services/[slug]/page.tsx` resolves the requested slug only from its published-service query; draft rows therefore fall through to the not-found page. This replaces the earlier pre-fix concern.
 3. **Several current fallback values need owner approval.** County freight rates are labelled placeholders; service-to-product package mappings and staff/trust/portfolio/blog content have not been approved or entered.
 
 The earlier `FEEDBACK_CHECKLIST.md` records implementation work and local checks but uses “done” for some paths that were never proven end to end. This dated reassessment is the status to use for decisions about remaining work.
