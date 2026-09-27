@@ -112,7 +112,7 @@ export default async function ServicesPage() {
                       href={`/services/${srv.slug}#materials`}
                       className="inline-flex items-center gap-2 border border-ud-dark/20 text-ud-dark/70 text-xs font-bold px-5 py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors whitespace-nowrap"
                     >
-                      Shop Service Materials
+                      Review Material Options
                     </Link>
                     <Link
                       href={`/request-a-quote?projectType=${encodeURIComponent(srv.title)}`}
@@ -138,7 +138,7 @@ export default async function ServicesPage() {
                   </div>
 
                   <div className="bg-ud-light-gray/60 border border-ud-dark/5 rounded-[4px] p-5">
-                    <h3 className="text-xs font-bold text-ud-dark/50 uppercase tracking-wider mb-3">Key Materials We Use:</h3>
+                    <h3 className="text-xs font-bold text-ud-dark/50 uppercase tracking-wider mb-3">Typical Material Considerations:</h3>
                     <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-2">
                       {srv.materials.map((mat: string) => (
                         <li key={mat} className="text-xs font-semibold text-ud-dark/70 flex items-center gap-1.5">
@@ -147,6 +147,7 @@ export default async function ServicesPage() {
                         </li>
                       ))}
                     </ul>
+                    <p className="mt-4 text-xs leading-relaxed text-ud-dark/55">Final products and quantities are selected for your specific project.</p>
                   </div>
                 </div>
               </div>
