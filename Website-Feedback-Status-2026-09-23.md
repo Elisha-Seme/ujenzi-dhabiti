@@ -1,7 +1,7 @@
 # Ujenzi Dhabiti Website Feedback Status
 
 **Reviewed:** 23 September 2026
-**Latest verification:** 27 September 2026
+**Latest verification:** 30 September 2026
 **Source:** `Website Feedback.docx` supplied by the client
 **Scope:** Initial assessment plus an ongoing remediation ledger. The document's feature requests are the items being assessed; the user's direct request authorizes the implementation work.
 
@@ -9,7 +9,7 @@
 
 ## Direct feedback
 
-- [ ] **01 Partial — Google account prompt at registration.** Google is registered as an auth provider on the live site, and its button redirects to Google with the production callback. No TEST Google account completed the callback, account creation, or buyer login; those database and role effects remain unverified.
+- [ ] **01 Partial — Google account prompt at registration.** Google is registered as an auth provider on the live site, its production callback is exposed by the live providers endpoint, and the required Google/NextAuth environment entries are set on the production server (values not inspected). No TEST Google account completed the callback, account creation, or buyer login; those database and role effects remain unverified.
 - [x] **02 Completed — Show or hide the password while creating an account.** Signup and homepage registration controls have the toggle; the local browser check observed the label change to “Hide password.”
 - [x] **03 Completed — Bulk calculator and delivery estimator on shop category pages.** Both render on category pages, and the gypsum category was checked locally with its products scoped to that category.
 - [x] **04 Completed — All counties in the delivery estimator.** The live delivery-zones API returned 47 counties on 23 September. This completes the county-list request; the displayed freight fees are still placeholders.
@@ -30,7 +30,7 @@
 - [ ] **16 Partial — NCA, insurance/bonding, certifications, and years in business.** A credentials admin area and conditional About display exist. Verified evidence and approved public content have not been supplied/published.
 - [x] **17 Completed — Visible material unit prices.** Product cards display KES prices. This verifies the display feature, not the commercial accuracy of each product price.
 - [x] **18 Completed — Bulk-order quantity calculator.** The calculator computes product quantity × unit price and is available in the shop and on category pages; the gypsum category was checked locally.
-- [ ] **19 Partial — Build-cost estimator.** A product coverage/quantity estimator exists. It does not implement the document's floor-area/room-based whole-building estimate and excludes labour, delivery, and uncatalogued materials.
+- [ ] **19 Partial — Build-cost estimator.** The product coverage/quantity estimator now accepts either square metres or square feet, optional room count, and shows an estimated material cost with an explicit 10% allowance. It deliberately excludes labour, delivery, structure, and uncatalogued materials, so it is not represented as a whole-building quotation.
 - [ ] **20 Partial — Order tracking through delivery.** A tracking lookup and status page exist; admin status changes and privacy hardening are in code. No TEST order was taken through placement, status updates, customer viewing, and delivery in the deployed database.
 - [ ] **21 Partial — Deeper project portfolio.** Fields and pages support before/after media, timeline, budget range, year, country, and permission-controlled client names. Approved project evidence/content and database-backed display checks are still missing.
 - [ ] **22 Partial — Filter portfolio by type, country, and year.** The filters are implemented in the page. A populated, database-backed regression check has not been completed.
