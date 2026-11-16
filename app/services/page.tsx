@@ -4,8 +4,40 @@ import * as LucideIcons from "lucide-react";
 import SectionHero from "@/components/ui/SectionHero";
 import CTABanner from "@/components/sections/CTABanner";
 import { db } from "@/lib/db";
-import { services } from "@/lib/db/schema";
-import { asc, eq } from "drizzle-orm";
+import { products, services } from "@/lib/db/schema";
+import { asc, count, eq } from "drizzle-orm";
+import { getAllPlans } from "@/lib/plans-store";
+import { readSubsections } from "@/lib/services/subsections-read";
+import { materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
+
+type PackageCounts = { work: number; plans: number; materials: number };
+
+/** What each service's package builder offers: sub-services, house plans, materials. */
+async function loadPackageCounts(list: Array<typeof services.$inferSelect>): Promise<Record<string, PackageCounts>> {
+  const [subsections, plans, productCounts] = await Promise.all([
+    readSubsections({ serviceSlugs: list.map((s) => s.slug) }).catch(() => []),
+    getAllPlans().catch(() => []),
+    db.select({ category: products.category, n: count() }).from(products).where(eq(products.isActive, true)).groupBy(products.category).catch(() => []),
+  ]);
+  const perCategory = new Map(productCounts.map((row) => [row.category, Number(row.n)]));
+  return Object.fromEntries(list.map((srv) => {
+    const own = subsections.filter((sub) => sub.serviceSlug === srv.slug);
+    const categories = planCategoriesForService(srv.slug, own.map((sub) => sub.planType));
+    const materials = srv.materialProductIds.length > 0
+      ? srv.materialProductIds.length
+      : materialCategoriesForService(srv.slug).reduce((sum, category) => sum + (perCategory.get(category) ?? 0), 0);
+    return [srv.slug, { work: own.length, plans: plans.filter((plan) => categories.includes(plan.category)).length, materials }];
+  }));
+}
+
+function countsLine(counts: PackageCounts | undefined): string {
+  if (!counts) return "";
+  return [
+    counts.work > 0 ? `${counts.work} work ${counts.work === 1 ? "item" : "items"}` : null,
+    counts.plans > 0 ? `${counts.plans} house ${counts.plans === 1 ? "plan" : "plans"}` : null,
+    counts.materials > 0 ? `${counts.materials} ${counts.materials === 1 ? "material" : "materials"}` : null,
+  ].filter(Boolean).join(" · ");
+}
 
 export const metadata = {
   title: "Our Services — Ujenzi Dhabiti",
@@ -42,6 +74,8 @@ export default async function ServicesPage() {
   } catch (err) {
     console.error("Services page dynamic load failed:", err);
   }
+
+  const packageCounts = servicesList.length > 0 ? await loadPackageCounts(servicesList) : {};
 
   return (
     <>
@@ -101,18 +135,22 @@ export default async function ServicesPage() {
                     {srv.description}
                   </p>
 
+                  {countsLine(packageCounts[srv.slug]) && (
+                    <p className="text-xs font-semibold text-ud-dark/50">{countsLine(packageCounts[srv.slug])}</p>
+                  )}
+
                   <div className="flex flex-wrap gap-4 mt-6">
                     <Link
-                      href={`/services/${srv.slug}`}
+                      href={`/services/${srv.slug}#package`}
                       className="inline-flex items-center gap-2 bg-ud-burgundy text-white text-xs font-bold px-5 py-3 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap"
                     >
-                      View Service <LucideIcons.ArrowRight size={14} />
+                      <LucideIcons.PackagePlus size={14} /> Build your package
                     </Link>
                     <Link
-                      href={`/services/${srv.slug}#materials`}
+                      href={`/services/${srv.slug}`}
                       className="inline-flex items-center gap-2 border border-ud-dark/20 text-ud-dark/70 text-xs font-bold px-5 py-3 rounded-[4px] hover:border-ud-burgundy hover:text-ud-burgundy transition-colors whitespace-nowrap"
                     >
-                      Review Material Options
+                      View Service <LucideIcons.ArrowRight size={14} />
                     </Link>
                     <Link
                       href={`/request-a-quote?projectType=${encodeURIComponent(srv.title)}`}

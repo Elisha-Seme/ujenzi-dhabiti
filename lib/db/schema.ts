@@ -554,8 +554,11 @@ export const serviceSubsections = pgTable("service_subsections", {
   sectionId: text("section_id").notNull(), // e.g. "residential", "commercial", etc.
   title: text("title").notNull(),
   body: text("body").notNull(),
-  planType: text("plan_type"), // e.g. "Bungalow", etc.
+  planType: text("plan_type"), // e.g. "Bungalow", or a comma list / "Residential"
   bullets: text("bullets").array().notNull().default([]),
+  // Admin-set labour pricing. NULL rate = "Priced after site visit".
+  labourRateKES: integer("labour_rate_kes"),
+  labourUnit: text("labour_unit"), // sqm | m | item | lump (see lib/services/labour.ts)
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

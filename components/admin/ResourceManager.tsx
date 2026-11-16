@@ -10,7 +10,8 @@ export interface FieldDef {
   name: string;
   label: string;
   type: FieldType;
-  options?: string[];
+  /** Select options: a plain string is both value and label. */
+  options?: (string | { value: string; label: string })[];
   required?: boolean;
   help?: string;
   /** default for the "add new" form */
@@ -247,7 +248,10 @@ export default function ResourceManager({ title, subtitle, endpoint, fields, col
                     ) : f.type === "select" ? (
                       <select value={String(v ?? "")} onChange={(e) => setField(f.name, e.target.value)} className={`${cls} bg-white`}>
                         <option value="">Select…</option>
-                        {f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+                        {f.options?.map((o) => {
+                          const opt = typeof o === "string" ? { value: o, label: o } : o;
+                          return <option key={opt.value} value={opt.value}>{opt.label}</option>;
+                        })}
                       </select>
                     ) : f.type === "tags" ? (
                       <input

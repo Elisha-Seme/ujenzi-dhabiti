@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, services, serviceSubsections } from "@/lib/db";
-import { and, asc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { isAdmin, makeId } from "@/lib/admin-guard";
+import { parseLabourInput } from "@/lib/services/labour";
+import { isMissingColumnError, LABOUR_MIGRATION_MESSAGE, readSubsections } from "@/lib/services/subsections-read";
 
 export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  const rows = await db.select().from(serviceSubsections).orderBy(asc(serviceSubsections.serviceSlug), asc(serviceSubsections.sortOrder));
+  const rows = await readSubsections();
+  rows.sort((a, b) => a.serviceSlug.localeCompare(b.serviceSlug) || a.sortOrder - b.sortOrder);
   return NextResponse.json(rows);
 }
 
@@ -25,18 +28,27 @@ export async function POST(req: NextRequest) {
   const [duplicate] = await db.select({ id: serviceSubsections.id }).from(serviceSubsections)
     .where(and(eq(serviceSubsections.serviceSlug, serviceSlug), eq(serviceSubsections.sectionId, sectionId))).limit(1);
   if (duplicate) return NextResponse.json({ error: "This section anchor already exists for the selected service" }, { status: 409 });
-  const [row] = await db
-    .insert(serviceSubsections)
-    .values({
-      id: makeId("sub"),
-      serviceSlug,
-      sectionId,
-      title: b.title.trim(),
-      body: b.body.trim(),
-      planType: b.planType || null,
-      bullets: Array.isArray(b.bullets) ? b.bullets : [],
-      sortOrder: Number(b.sortOrder) || 0,
-    })
-    .returning();
-  return NextResponse.json(row, { status: 201 });
+  const labour = parseLabourInput(b.labourRateKES, b.labourUnit);
+  if (!labour.ok) return NextResponse.json({ error: labour.error }, { status: 400 });
+  try {
+    const [row] = await db
+      .insert(serviceSubsections)
+      .values({
+        id: makeId("sub"),
+        serviceSlug,
+        sectionId,
+        title: b.title.trim(),
+        body: b.body.trim(),
+        planType: b.planType || null,
+        bullets: Array.isArray(b.bullets) ? b.bullets : [],
+        labourRateKES: labour.labourRateKES,
+        labourUnit: labour.labourUnit,
+        sortOrder: Number(b.sortOrder) || 0,
+      })
+      .returning();
+    return NextResponse.json(row, { status: 201 });
+  } catch (err) {
+    if (isMissingColumnError(err)) return NextResponse.json({ error: LABOUR_MIGRATION_MESSAGE }, { status: 503 });
+    throw err;
+  }
 }

@@ -1,15 +1,19 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { and, eq } from "drizzle-orm";
+import { ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
-import { services, serviceSubsections, products } from "@/lib/db/schema";
-import { eq, asc, and, inArray } from "drizzle-orm";
+import { services } from "@/lib/db/schema";
 import SectionHero from "@/components/ui/SectionHero";
 import CTABanner from "@/components/sections/CTABanner";
-import { ServiceIntro, ServiceType, ServiceSection, ServiceMaterialsBar } from "@/components/services/ServicePrimitives";
+import { ServiceIntro, ServiceType, ServiceSection } from "@/components/services/ServicePrimitives";
 import ServiceEnquiry from "@/components/services/ServiceEnquiry";
-import ProductCard from "@/components/shop/ProductCard";
-import type { ProductCategory } from "@/lib/products";
+import { PackageProvider } from "@/components/services/package-context";
+import PackageBuilder from "@/components/services/PackageBuilder";
+import AddToPackageToggle from "@/components/services/AddToPackageToggle";
+import { loadServicePackage, type ServicePackageData } from "@/lib/services/package-data";
+import { expandPlanTypes } from "@/lib/services/package-links";
 
 export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const params = await paramsPromise;
@@ -27,47 +31,16 @@ export async function generateMetadata({ params: paramsPromise }: { params: Prom
 
 export default async function ServiceDetailPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
   const params = await paramsPromise;
-  let service: typeof services.$inferSelect | undefined;
-  let publishedServices: (typeof services.$inferSelect)[] = [];
+  let data: ServicePackageData | null;
   try {
-    publishedServices = await db
-      .select()
-      .from(services)
-      .where(eq(services.published, true))
-      .orderBy(asc(services.sortOrder));
-    service = publishedServices.find((row) => row.slug === params.slug);
+    data = await loadServicePackage(params.slug);
   } catch (err) {
     console.error("Service detail load failed:", err);
     return notFound();
   }
+  if (!data) return notFound();
 
-  if (!service) {
-    return notFound();
-  }
-
-  let subsections: (typeof serviceSubsections.$inferSelect)[] = [];
-  try {
-    subsections = await db
-      .select()
-      .from(serviceSubsections)
-      .where(eq(serviceSubsections.serviceSlug, params.slug))
-      .orderBy(asc(serviceSubsections.sortOrder));
-  } catch (err) {
-    console.error("Service subsection load failed:", err);
-  }
-
-  let materialProducts: (typeof products.$inferSelect)[] = [];
-  let materialLoadFailed = false;
-  if (service.materialProductIds.length > 0) {
-    try {
-      materialProducts = await db.select().from(products)
-        .where(and(inArray(products.id, service.materialProductIds), eq(products.isActive, true)));
-      materialProducts.sort((a, b) => service!.materialProductIds.indexOf(a.id) - service!.materialProductIds.indexOf(b.id));
-    } catch (err) {
-      console.error("Service materials load failed:", err);
-      materialLoadFailed = true;
-    }
-  }
+  const { service, subsections } = data;
 
   // Core catalogue services do not all have subsection rows yet. Keep their
   // dedicated pages useful by rendering the CMS description/includes instead
@@ -83,23 +56,26 @@ export default async function ServiceDetailPage({ params: paramsPromise }: { par
         bullets: service.includes,
       }];
 
-  // Build the sub-navigation array
-  const subnav = sections.map((sub) => ({
-    label: sub.title,
-    href: `#${sub.sectionId}`,
-  }));
+  const subnav = [{ label: "Build your package", href: "#package" }, ...sections.map((sub) => ({ label: sub.title, href: `#${sub.sectionId}` }))];
 
   return (
-    <>
-      <SectionHero
-        title={service.title}
-        subtitle={service.description}
-      />
+    <PackageProvider
+      config={{
+        slug: service.slug,
+        title: service.title,
+        areaMode: data.areaMode,
+        areaLabel: data.areaLabel,
+        items: data.items,
+        zones: data.zones,
+        materialsAreSuggested: data.materialsAreSuggested,
+      }}
+    >
+      <SectionHero title={service.title} subtitle={service.description} />
 
       <nav aria-label="Service pages" className="bg-white border-b border-ud-dark/10">
         <div className="max-w-content mx-auto px-6 flex gap-2 overflow-x-auto py-3">
           <Link href="/services" className="whitespace-nowrap rounded-[4px] px-3 py-2 text-sm font-semibold text-ud-dark/70 hover:text-ud-burgundy">All Services</Link>
-          {publishedServices.map((row) => (
+          {data.allServices.map((row) => (
             <Link
               key={row.id}
               href={`/services/${row.slug}`}
@@ -112,82 +88,59 @@ export default async function ServiceDetailPage({ params: paramsPromise }: { par
         </div>
       </nav>
 
-      {/* Sticky Sub-nav */}
-      {subnav.length > 0 && (
-        <div className="sticky top-16 md:top-20 z-30 bg-ud-dark/95 backdrop-blur-sm border-b border-white/10">
-          <div className="max-w-content mx-auto px-6 flex gap-1 overflow-x-auto">
-            {subnav.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="whitespace-nowrap text-xs md:text-sm font-semibold text-white/70 hover:text-white py-4 px-3 border-b-2 border-transparent hover:border-ud-burgundy transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
+      {/* Sticky sub-nav */}
+      <div className="sticky top-16 md:top-20 z-30 bg-ud-dark/95 backdrop-blur-sm border-b border-white/10">
+        <div className="max-w-content mx-auto px-6 flex gap-1 overflow-x-auto">
+          {subnav.map((item, index) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`whitespace-nowrap text-xs md:text-sm font-semibold py-4 px-3 border-b-2 transition-colors ${index === 0 ? "text-white border-ud-burgundy" : "text-white/70 hover:text-white border-transparent hover:border-ud-burgundy"}`}
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
-      )}
-
-      <div className="max-w-content mx-auto px-6">
-        <ServiceMaterialsBar quoteType={service.title} label={service.title} hasMaterials={materialProducts.length > 0} />
       </div>
 
-      {/* Render subsections dynamically */}
-      {sections.map((sub, idx) => {
-        const tone = idx % 2 === 0 ? "white" : "light";
-        return (
-          <ServiceSection key={sub.id} id={sub.sectionId} tone={tone}>
-            <ServiceIntro
-              eyebrow={service.title}
-              title={sub.title}
-              paragraphs={[sub.body]}
+      <PackageBuilder />
+
+      {sections.map((sub, idx) => (
+        <ServiceSection key={sub.id} id={sub.sectionId} tone={idx % 2 === 0 ? "white" : "light"}>
+          <ServiceIntro eyebrow={service.title} title={sub.title} paragraphs={[sub.body]} />
+          <div className="grid grid-cols-1 gap-6 mt-8">
+            <ServiceType
+              title="Service Details & Key Highlights"
+              bullets={sub.bullets}
+              planType={expandPlanTypes(sub.planType)[0]}
             />
+          </div>
+          <AddToPackageToggle itemId={`work:${sub.id}`} label={sub.title} />
+        </ServiceSection>
+      ))}
 
-            <div className="grid grid-cols-1 gap-6 mt-8">
-              <ServiceType
-                title="Service Details & Key Highlights"
-                bullets={sub.bullets}
-                planType={sub.planType ?? undefined}
-              />
-            </div>
-
-          </ServiceSection>
-        );
-      })}
-
-      <section id="materials" className="bg-white py-16 md:py-24 scroll-mt-20">
-        <div className="max-w-content mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-ud-dark">Shop Materials for {service.title}</h2>
-          <p className="text-sm text-ud-dark/60 mt-3 mb-8 max-w-2xl">These are selected catalogue materials, not a complete project bill of quantities. Choose quantities for your site or request a tailored quote.</p>
-          {materialProducts.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {materialProducts.map((product) => (
-                <ProductCard key={product.id} product={{
-                  id: product.id,
-                  name: product.name,
-                  category: product.category as ProductCategory,
-                  description: product.description,
-                  unit: product.unit,
-                  priceKES: product.priceKES,
-                  image: product.images[0] ?? "",
-                  inStock: product.stock > 0,
-                  specs: product.specs ?? undefined,
-                  coverageSqmPerUnit: product.coverageSqmPerUnit ?? undefined,
-                  brand: product.brand ?? undefined,
-                  materialType: product.materialType ?? undefined,
-                }} />
+      {data.related.length > 0 && (
+        <section aria-labelledby="related-heading" className="bg-white border-t border-ud-dark/10 py-14">
+          <div className="max-w-content mx-auto px-6">
+            <h2 id="related-heading" className="text-xl md:text-2xl font-bold text-ud-dark">Often combined with {service.title}</h2>
+            <p className="mt-2 text-sm text-ud-dark/60">Each service has its own package builder. Request them together and we&apos;ll coordinate one project.</p>
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {data.related.map((row) => (
+                <li key={row.slug}>
+                  <Link href={`/services/${row.slug}#package`} className="group flex h-full items-center justify-between gap-3 rounded-[6px] border border-ud-dark/10 bg-ud-light-gray/60 px-5 py-4 transition-colors hover:border-ud-burgundy/50 hover:bg-white">
+                    <span className="text-sm font-bold text-ud-dark">{row.title}</span>
+                    <ArrowRight size={16} aria-hidden className="text-ud-burgundy transition-transform duration-150 group-hover:translate-x-0.5" />
+                  </Link>
+                </li>
               ))}
-            </div>
-          ) : (
-            <p className="text-sm text-ud-dark/60">{materialLoadFailed ? "Materials are temporarily unavailable. Please request a quote." : "A materials selection has not been published for this service yet. Please request a quote for a project-specific list."}</p>
-          )}
-        </div>
-      </section>
+            </ul>
+          </div>
+        </section>
+      )}
 
-      <ServiceEnquiry projectType={service.title} serviceOptions={publishedServices.map((row) => row.title)} />
+      <ServiceEnquiry projectType={service.title} serviceOptions={data.allServices.map((row) => row.title)} />
       <CTABanner />
-    </>
+    </PackageProvider>
   );
 }
 

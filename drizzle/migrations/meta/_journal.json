@@ -113,6 +113,13 @@
       "when": 1794814934757,
       "tag": "0015_estimator_rates_and_plan_plot",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794824732606,
+      "tag": "0016_subsection_labour_rates",
+      "breakpoints": true
     }
   ]
 }

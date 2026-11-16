@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Menu, X, Search, User, ChevronDown } from "lucide-react";
+import { Menu, X, Search, User } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants";
 import CartButton from "@/components/shop/CartButton";
 import Logo from "@/components/layout/Logo";
+import ServicesMegaMenu from "@/components/layout/ServicesMegaMenu";
+import MobileServicesMenu from "@/components/layout/MobileServicesMenu";
 
 // Pages that DON'T have a dark hero behind the header — header should be solid dark from the start
 const SOLID_HEADER_PATHS = ["/shop", "/track", "/auth", "/admin", "/account"];
@@ -15,9 +17,6 @@ const SOLID_HEADER_PATHS = ["/shop", "/track", "/auth", "/admin", "/account"];
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [serviceMenuOpen, setServiceMenuOpen] = useState(false);
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [serviceLinks, setServiceLinks] = useState<Array<{ slug: string; title: string }>>([]);
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -31,6 +30,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
+    handleScroll(); // pages opened at an anchor (e.g. #package) start scrolled
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -44,20 +44,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => { setDrawerOpen(false); }, [pathname]);
-
-  useEffect(() => {
-    setServiceMenuOpen(false);
-    setMobileServicesOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/services/navigation", { signal: controller.signal })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Service navigation unavailable")))
-      .then((data: { services?: Array<{ slug: string; title: string }> }) => setServiceLinks(data.services ?? []))
-      .catch(() => { /* Keep the All Services link usable if the catalogue is unavailable. */ });
-    return () => controller.abort();
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
@@ -80,34 +66,7 @@ export default function Header() {
 
           <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
             {NAV_LINKS.map((link) => link.href === "/services" ? (
-              <div
-                key={link.href}
-                className="relative flex items-center gap-1"
-                onMouseEnter={() => setServiceMenuOpen(true)}
-                onMouseLeave={() => setServiceMenuOpen(false)}
-                onFocus={() => setServiceMenuOpen(true)}
-                onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setServiceMenuOpen(false); }}
-                onKeyDown={(event) => { if (event.key === "Escape") setServiceMenuOpen(false); }}
-              >
-                <Link href="/services" aria-current={pathname === "/services" ? "page" : undefined} className={`text-[13px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200 ${pathname.startsWith("/services") ? "text-ud-white border-b-2 border-ud-burgundy pb-0.5" : "text-white/80 hover:text-ud-white"}`}>
-                  Our Services
-                </Link>
-                <button type="button" aria-label="Show service pages" aria-expanded={serviceMenuOpen} aria-controls="desktop-service-menu" onClick={() => setServiceMenuOpen(true)} className="p-1 text-white/80 hover:text-white">
-                  <ChevronDown size={15} className={serviceMenuOpen ? "rotate-180" : ""} />
-                </button>
-                {serviceMenuOpen && (
-                  <div id="desktop-service-menu" className="absolute left-0 top-full pt-3 w-72 z-50">
-                    <div className="bg-ud-dark border border-white/15 rounded-[4px] shadow-xl p-2 max-h-[70vh] overflow-y-auto">
-                      <Link href="/services" className="block px-3 py-2.5 text-sm font-bold text-white hover:bg-white/10 rounded-[4px]">All Services</Link>
-                      {serviceLinks.map((service) => (
-                        <Link key={service.slug} href={`/services/${service.slug}`} aria-current={pathname === `/services/${service.slug}` ? "page" : undefined} className={`block px-3 py-2.5 text-sm rounded-[4px] ${pathname === `/services/${service.slug}` ? "bg-ud-burgundy text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}>
-                          {service.title}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <ServicesMegaMenu key={link.href} pathname={pathname} />
             ) : (
               <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} className={`text-[13px] font-semibold tracking-wide whitespace-nowrap transition-colors duration-200 ${pathname === link.href ? "text-ud-white border-b-2 border-ud-burgundy pb-0.5" : "text-white/80 hover:text-ud-white"}`}>
                 {link.label}
@@ -162,24 +121,7 @@ export default function Header() {
 
         <nav className="flex flex-col px-6 py-8 gap-2 flex-1 overflow-y-auto">
           {NAV_LINKS.map((link) => link.href === "/services" ? (
-            <div key={link.href} className="border-b border-white/10">
-              <div className="flex items-center justify-between">
-                <Link href="/services" className={`py-3 text-base font-semibold ${pathname.startsWith("/services") ? "text-white" : "text-white/70"}`}>Our Services</Link>
-                <button type="button" aria-label="Show service pages" aria-expanded={mobileServicesOpen} aria-controls="mobile-service-menu" onClick={() => setMobileServicesOpen((open) => !open)} className="p-2 text-white/80">
-                  <ChevronDown size={18} className={mobileServicesOpen ? "rotate-180" : ""} />
-                </button>
-              </div>
-              {mobileServicesOpen && (
-                <div id="mobile-service-menu" className="pb-3 pl-4 flex flex-col max-h-[45vh] overflow-y-auto">
-                  <Link href="/services" className="py-2 text-sm font-semibold text-white">All Services</Link>
-                  {serviceLinks.map((service) => (
-                    <Link key={service.slug} href={`/services/${service.slug}`} className={`py-2 text-sm ${pathname === `/services/${service.slug}` ? "text-white font-semibold" : "text-white/70"}`}>
-                      {service.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MobileServicesMenu key={link.href} pathname={pathname} onNavigate={() => setDrawerOpen(false)} />
           ) : (
             <Link key={link.href} href={link.href} className={`py-3 text-base font-semibold border-b border-white/10 transition-colors duration-200 ${pathname === link.href ? "text-ud-white" : "text-white/70 hover:text-ud-white"}`}>
               {link.label}

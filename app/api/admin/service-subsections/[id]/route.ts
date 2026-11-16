@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, services, serviceSubsections } from "@/lib/db";
 import { and, eq, ne } from "drizzle-orm";
 import { isAdmin } from "@/lib/admin-guard";
+import { parseLabourInput } from "@/lib/services/labour";
+import { isMissingColumnError, LABOUR_MIGRATION_MESSAGE } from "@/lib/services/subsections-read";
 
 export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json().catch(() => null);
   if (!b || typeof b !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  const [existing] = await db.select().from(serviceSubsections).where(eq(serviceSubsections.id, params.id)).limit(1);
+  // Explicit columns: a bare select() would also read the 0016 labour columns.
+  const [existing] = await db
+    .select({ id: serviceSubsections.id, serviceSlug: serviceSubsections.serviceSlug, sectionId: serviceSubsections.sectionId })
+    .from(serviceSubsections).where(eq(serviceSubsections.id, params.id)).limit(1);
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const required = ["serviceSlug", "sectionId", "title", "body"] as const;
   for (const key of required) {
@@ -34,10 +39,21 @@ export async function PATCH(req: NextRequest, { params: paramsPromise }: { param
   if (b.planType !== undefined) patch.planType = b.planType || null;
   if (b.bullets !== undefined) patch.bullets = Array.isArray(b.bullets) ? b.bullets : [];
   if (b.sortOrder !== undefined) patch.sortOrder = Number(b.sortOrder) || 0;
+  if (b.labourRateKES !== undefined || b.labourUnit !== undefined) {
+    const labour = parseLabourInput(b.labourRateKES, b.labourUnit);
+    if (!labour.ok) return NextResponse.json({ error: labour.error }, { status: 400 });
+    patch.labourRateKES = labour.labourRateKES;
+    patch.labourUnit = labour.labourUnit;
+  }
 
-  const [row] = await db.update(serviceSubsections).set(patch).where(eq(serviceSubsections.id, params.id)).returning();
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(row);
+  try {
+    const [row] = await db.update(serviceSubsections).set(patch).where(eq(serviceSubsections.id, params.id)).returning();
+    if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(row);
+  } catch (err) {
+    if (isMissingColumnError(err)) return NextResponse.json({ error: LABOUR_MIGRATION_MESSAGE }, { status: 503 });
+    throw err;
+  }
 }
 
 export async function DELETE(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {

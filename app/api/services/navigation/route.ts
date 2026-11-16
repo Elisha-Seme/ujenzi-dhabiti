@@ -1,16 +1,62 @@
 import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 import { db, services } from "@/lib/db";
+import { readSubsections } from "@/lib/services/subsections-read";
+import { architecturalSectionIdsForService, materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
 
 export const dynamic = "force-dynamic";
 
+const MAX_SUBSECTIONS = 6;
+const MAX_DESCRIPTION = 140;
+
+function trimDescription(text: string): string {
+  if (text.length <= MAX_DESCRIPTION) return text;
+  const cut = text.slice(0, MAX_DESCRIPTION);
+  return `${cut.slice(0, cut.lastIndexOf(" ") > 80 ? cut.lastIndexOf(" ") : MAX_DESCRIPTION).trimEnd()}…`;
+}
+
+// Header Services menu: published services with a preview of their sub-services.
 export async function GET() {
   try {
-    const rows = await db.select({ slug: services.slug, title: services.title })
+    const rows = await db
+      .select({ slug: services.slug, title: services.title, iconName: services.iconName, description: services.description, materialProductIds: services.materialProductIds })
       .from(services)
       .where(eq(services.published, true))
       .orderBy(asc(services.sortOrder));
-    return NextResponse.json({ services: rows });
+
+    let subsections: Awaited<ReturnType<typeof readSubsections>> = [];
+    try {
+      subsections = await readSubsections({ serviceSlugs: rows.map((row) => row.slug) });
+    } catch {
+      /* menu still works without sub-service previews */
+    }
+
+    return NextResponse.json({
+      services: rows.map((row) => {
+        const own = subsections.filter((sub) => sub.serviceSlug === row.slug);
+        const hasPlans = planCategoriesForService(row.slug, own.map((sub) => sub.planType)).length > 0;
+        const hasMaterials = row.materialProductIds.length > 0 || materialCategoriesForService(row.slug).length > 0;
+        const arch = architecturalSectionIdsForService(row.slug);
+        const hasArchitectural = (arch === "all" || arch.length > 0) && rows.some((r) => r.slug === "architectural");
+        const packageParts = [
+          "Labour",
+          ...(hasMaterials ? ["Materials"] : []),
+          ...(hasPlans ? ["House plans"] : []),
+          ...(hasArchitectural ? ["Architectural"] : []),
+          ...(hasMaterials || hasPlans ? ["Delivery"] : []),
+        ];
+        return {
+          slug: row.slug,
+          title: row.title,
+          iconName: row.iconName,
+          description: trimDescription(row.description),
+          hasPlans,
+          packageParts,
+          subsectionCount: own.length,
+          subsections: own.slice(0, MAX_SUBSECTIONS).map((sub) => ({ sectionId: sub.sectionId, title: sub.title })),
+        };
+      }),
+    });
   } catch {
     return NextResponse.json({ services: [], error: "Service navigation is temporarily unavailable" }, { status: 503 });
   }

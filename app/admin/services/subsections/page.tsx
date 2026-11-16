@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import ResourceManager, { FieldDef } from "@/components/admin/ResourceManager";
+import { LABOUR_UNITS, LABOUR_UNIT_LABEL } from "@/lib/services/labour";
 
 const DETAIL_FIELDS: FieldDef[] = [
   { name: "sectionId", label: "Section Anchor ID", type: "text", required: true, help: "e.g. residential, commercial, renovation, boundary-walls, murram-roads, cabro-paving, road-drainage" },
   { name: "title", label: "Subsection Title", type: "text", required: true },
   { name: "body", label: "Subsection Description", type: "textarea", required: true },
-  { name: "planType", label: "Plan Category Link", type: "text", help: "Optional. Link this to a House Plan catalog filter, e.g. Bungalow, Villa, Townhouse." },
+  { name: "planType", label: "Plan Category Link", type: "text", help: "Optional. One or more house plan categories, comma-separated (e.g. Bungalow, Villa), or Residential / Commercial." },
   { name: "bullets", label: "Bullet Points Highlights", type: "tags", help: "Comma-separated key highlights for this subsection." },
+  { name: "labourRateKES", label: "Labour rate (KES)", type: "number", help: "Leave empty to show \"Priced after site visit\"." },
+  { name: "labourUnit", label: "Labour unit", type: "select", options: LABOUR_UNITS.map((unit) => ({ value: unit, label: LABOUR_UNIT_LABEL[unit] })), help: "How the rate is charged in the customer's package builder." },
   { name: "sortOrder", label: "Sort Order", type: "number", default: 0, help: "Higher or lower numbers specify sorting sequence." },
 ];
 
@@ -43,7 +46,7 @@ export default function AdminServiceSubsectionsPage() {
       subtitle="Manage individual subsection cards and copy shown inside specific service subpages."
       endpoint="/api/admin/service-subsections"
       fields={fields}
-      columns={["serviceSlug", "sectionId", "title", "sortOrder"]}
+      columns={["serviceSlug", "sectionId", "title", "labourRateKES", "labourUnit", "sortOrder"]}
       rowHref={(row) => `/services/${row.serviceSlug}#${row.sectionId}`}
     />
   );
