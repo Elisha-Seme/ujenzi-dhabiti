@@ -19,6 +19,8 @@ export interface PackageItem {
   options?: { digitalKES: number; printKES: number };
   /** Optional context shown under the label (e.g. plan category, product unit). */
   detail?: string;
+  /** Heading this line is grouped under (parent sub-service, add-on service, plan type). */
+  section?: string;
   /** Materials only: how many m² one unit covers (drives quantity from area). */
   coverageSqmPerUnit?: number;
   /** Materials and plans: what the cart needs to add this line. */
@@ -138,7 +140,12 @@ export function formatKES(amount: number): string {
   return `KES ${Math.round(amount).toLocaleString("en-KE")}`;
 }
 
-const UNIT_TEXT: Record<string, string> = { sqm: "m²", m: "m", item: "item(s)", each: "", lump: "" };
+/** "Group › Item" when the line sits under a heading, so e.g. renovation vs. new-build bungalows stay distinct. */
+function lineName(item: PackageItem): string {
+  return item.section ? `${item.section} › ${item.label}` : item.label;
+}
+
+const UNIT_TEXT: Record<string, string> ={ sqm: "m²", m: "m", item: "item(s)", each: "", lump: "" };
 
 export interface QuoteMessageInput {
   serviceTitle: string;
@@ -166,15 +173,15 @@ export function formatQuoteMessage(input: QuoteMessageInput): string {
       const sel = selection[item.id];
       const amount = lineTotal(item, sel);
       if (amount === null) {
-        lines.push(`- ${item.label} — Priced after site visit`);
+        lines.push(`- ${lineName(item)} — Priced after site visit`);
       } else if (item.kind === "plan") {
-        lines.push(`- ${item.label} (${sel.mode === "print" ? "Printed copy" : "Digital download"}) — ${formatKES(amount)}`);
+        lines.push(`- ${lineName(item)} (${sel.mode === "print" ? "Printed copy" : "Digital download"}) — ${formatKES(amount)}`);
       } else if (item.unit === "lump") {
-        lines.push(`- ${item.label} — lump sum ${formatKES(amount)}`);
+        lines.push(`- ${lineName(item)} — lump sum ${formatKES(amount)}`);
       } else {
         const qty = clampQty(sel.qty);
         const unit = UNIT_TEXT[item.unit ?? "each"] ?? "";
-        lines.push(`- ${item.label} — ${qty}${unit ? ` ${unit}` : ""} × ${formatKES(item.rateKES ?? 0)} = ${formatKES(amount)}`);
+        lines.push(`- ${lineName(item)} — ${qty}${unit ? ` ${unit}` : ""} × ${formatKES(item.rateKES ?? 0)} = ${formatKES(amount)}`);
       }
     }
     lines.push("");

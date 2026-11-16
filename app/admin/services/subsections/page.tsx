@@ -6,6 +6,7 @@ import { LABOUR_UNITS, LABOUR_UNIT_LABEL } from "@/lib/services/labour";
 
 const DETAIL_FIELDS: FieldDef[] = [
   { name: "sectionId", label: "Section Anchor ID", type: "text", required: true, help: "e.g. residential, commercial, renovation, boundary-walls, murram-roads, cabro-paving, road-drainage" },
+  { name: "parentSectionId", label: "Parent section (optional)", type: "text", help: "Section Anchor ID of another sub-service on the same service, to group this one under it (e.g. residential). Leave empty for a top-level sub-service." },
   { name: "title", label: "Subsection Title", type: "text", required: true },
   { name: "body", label: "Subsection Description", type: "textarea", required: true },
   { name: "planType", label: "Plan Category Link", type: "text", help: "Optional. One or more house plan categories, comma-separated (e.g. Bungalow, Villa), or Residential / Commercial." },

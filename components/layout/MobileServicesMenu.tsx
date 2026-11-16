@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronDown, PackagePlus } from "lucide-react";
@@ -8,18 +8,21 @@ import { DUR, EASE_IN, EASE_OUT } from "@/lib/motion";
 import ServiceIcon from "./ServiceIcon";
 import { useServiceNavigation } from "./useServiceNavigation";
 
-function Collapse({ open, id, children }: { open: boolean; id: string; children: ReactNode }) {
+function Collapse({ open, id, children, onOpened }: { open: boolean; id: string; children: ReactNode; onOpened?: (el: HTMLElement) => void }) {
   const reduce = useReducedMotion() ?? false;
+  const ref = useRef<HTMLDivElement>(null);
   return (
     <AnimatePresence initial={false}>
       {open && (
         <motion.div
+          ref={ref}
           id={id}
           key={id}
           className="overflow-hidden"
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1, transition: { duration: reduce ? 0 : DUR.standard, ease: EASE_OUT } }}
           exit={{ height: 0, opacity: 0, transition: { duration: reduce ? 0 : DUR.quick, ease: EASE_IN } }}
+          onAnimationComplete={() => { if (open && ref.current) onOpened?.(ref.current); }}
         >
           {children}
         </motion.div>
@@ -43,6 +46,10 @@ export default function MobileServicesMenu({ pathname, onNavigate }: { pathname:
   const { services, loaded } = useServiceNavigation();
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const reduce = useReducedMotion() ?? false;
+  // After a section opens, bring it into view inside the scrolling drawer.
+  const revealInDrawer = (el: HTMLElement) => el.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
 
   return (
     <div className="border-b border-white/10">
@@ -88,7 +95,7 @@ export default function MobileServicesMenu({ pathname, onNavigate }: { pathname:
                         </span>
                         {service.title}
                       </Link>
-                      {service.subsections.length > 0 && (
+                      {(service.groups ?? []).length > 0 && (
                         <button
                           type="button"
                           aria-label={isOpen ? `Hide ${service.title} services` : `Show ${service.title} services`}
@@ -101,25 +108,53 @@ export default function MobileServicesMenu({ pathname, onNavigate }: { pathname:
                         </button>
                       )}
                     </div>
-                    <Collapse open={isOpen} id={panelId}>
+                    <Collapse open={isOpen} id={panelId} onOpened={revealInDrawer}>
                       <div className="border-l-2 border-ud-burgundy/60 ml-5 mb-2 pl-3">
-                        {service.subsections.map((sub) => (
-                          <Link
-                            key={sub.sectionId}
-                            href={`/services/${service.slug}#${sub.sectionId}`}
-                            onClick={onNavigate}
-                            className="block py-2 text-[13px] text-white/65 hover:text-white"
-                          >
-                            {sub.title}
-                          </Link>
-                        ))}
+                        {/* Primary action first, so long lists never push it out of reach. */}
                         <Link
                           href={`/services/${service.slug}#package`}
                           onClick={onNavigate}
-                          className="mt-1 inline-flex items-center gap-1.5 py-2 text-[13px] font-bold text-white"
+                          className="inline-flex items-center gap-1.5 py-2 text-[13px] font-bold text-white"
                         >
                           <PackagePlus size={14} aria-hidden className="text-ud-burgundy" /> Build your package
+                          <span className="font-normal text-white/40">· {service.subsectionCount} items</span>
                         </Link>
+                        {service.groups.filter((g) => g.children.length === 0).map((g) => (
+                          <Link key={g.sectionId} href={`/services/${service.slug}#${g.sectionId}`} onClick={onNavigate} className="block py-2 text-[13px] text-white/65 hover:text-white">
+                            {g.title}
+                          </Link>
+                        ))}
+                        {service.groups.filter((g) => g.children.length > 0).map((g) => {
+                          const groupKey = `${service.slug}/${g.sectionId}`;
+                          const groupOpen = openGroup === groupKey;
+                          const groupPanel = `mobile-group-${service.slug}-${g.sectionId}`;
+                          return (
+                            <div key={g.sectionId}>
+                              <button
+                                type="button"
+                                aria-expanded={groupOpen}
+                                aria-controls={groupPanel}
+                                onClick={() => setOpenGroup(groupOpen ? null : groupKey)}
+                                className="flex min-h-11 w-full items-center justify-between gap-2 py-2 text-left text-[13px] font-semibold text-white/80"
+                              >
+                                <span>{g.title} <span className="font-normal text-white/40">· {g.children.length}</span></span>
+                                <Chevron open={groupOpen} />
+                              </button>
+                              <Collapse open={groupOpen} id={groupPanel} onOpened={revealInDrawer}>
+                                <div className="mb-1 border-l border-white/15 pl-3">
+                                  <Link href={`/services/${service.slug}#${g.sectionId}`} onClick={onNavigate} className="block py-1.5 text-[12px] font-semibold text-white/50 hover:text-white">
+                                    Overview
+                                  </Link>
+                                  {g.children.map((c) => (
+                                    <Link key={c.sectionId} href={`/services/${service.slug}#${c.sectionId}`} onClick={onNavigate} className="block py-1.5 text-[13px] text-white/65 hover:text-white">
+                                      {c.title}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </Collapse>
+                            </div>
+                          );
+                        })}
                       </div>
                     </Collapse>
                   </li>

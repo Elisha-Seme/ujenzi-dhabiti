@@ -11,7 +11,7 @@ import { usePackage } from "./package-context";
 import { AnimatedAmount, CheckMark, QtyStepper, SegmentedRadio } from "./package-ui";
 import { MobileSummaryBar, SummaryContent } from "./PackageSummary";
 
-const COLLAPSE_AFTER = 8;
+const COLLAPSE_AFTER = 6;
 
 const QTY_UNIT: Record<string, string> = { sqm: "m²", m: "metres", item: "items", each: "units" };
 
@@ -97,30 +97,51 @@ function PackageRow({ item }: { item: PackageItem }) {
   );
 }
 
-function GroupCard({ group, title, hint, icon }: { group: PackageGroup; title: string; hint: string; icon: React.ReactNode }) {
+/** One heading's lines inside a group card. Long lists collapse, never hiding a selected line. */
+function SectionBlock({ heading, rows, collapsible }: { heading: string; rows: PackageItem[]; collapsible: boolean }) {
   const pkg = usePackage();
   const [expanded, setExpanded] = useState(false);
+  const canCollapse = collapsible && rows.length > COLLAPSE_AFTER;
+  const visible = expanded || !canCollapse ? rows : rows.filter((item, index) => index < COLLAPSE_AFTER || pkg.selection[item.id]);
+  const picked = rows.filter((item) => pkg.selection[item.id]).length;
+  return (
+    <div className="mt-5 first:mt-4">
+      {heading && (
+        <p className="mb-2 flex items-baseline justify-between gap-3 text-[11px] font-bold uppercase tracking-[0.14em] text-ud-dark/45">
+          <span>{heading}</span>
+          {picked > 0 && <span className="normal-case tracking-normal text-ud-burgundy">{picked} selected</span>}
+        </p>
+      )}
+      <ul className="space-y-2">
+        {visible.map((item) => <PackageRow key={item.id} item={item} />)}
+      </ul>
+      {canCollapse && (
+        <button type="button" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)} className="mt-2 text-xs font-bold text-ud-burgundy hover:underline">
+          {expanded ? "Show fewer" : `Show all ${rows.length}${heading ? ` in ${heading}` : ""}`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function GroupCard({ group, title, hint, icon }: { group: PackageGroup; title: string; hint: string; icon: React.ReactNode }) {
+  const pkg = usePackage();
   const items = pkg.items.filter((item) => item.group === group);
   if (items.length === 0) return null;
 
   const selectedCount = items.filter((item) => pkg.selection[item.id]).length;
-  // Design stays fully open (plans are grouped, and architectural add-ons must
-  // stay visible). Long work/material lists collapse, never hiding a selected line.
-  const collapsible = group !== "design" && items.length > COLLAPSE_AFTER;
-  const visible = expanded || !collapsible
-    ? items
-    : items.filter((item, index) => index < COLLAPSE_AFTER || pkg.selection[item.id]);
-
-  // Design: house plans grouped by category, then architectural add-ons.
-  const sections = group === "design"
-    ? Object.entries(
-        visible.reduce<Record<string, PackageItem[]>>((acc, item) => {
-          const key = item.kind === "plan" ? `${item.detail?.split(" · ")[0] ?? "House"} plans` : "Architectural services";
-          (acc[key] ??= []).push(item);
-          return acc;
-        }, {}),
-      )
-    : [["", visible] as [string, PackageItem[]]];
+  // Lines are grouped by their heading (parent sub-service, add-on service,
+  // plan type), in first-appearance order; ungrouped lines come first.
+  const sections: [string, PackageItem[]][] = [];
+  for (const item of items) {
+    const key = item.section ?? "";
+    const existing = sections.find(([heading]) => heading === key);
+    if (existing) existing[1].push(item);
+    else sections.push([key, [item]]);
+  }
+  sections.sort(([a], [b]) => (a === "" ? -1 : b === "" ? 1 : 0));
+  // Design stays fully open so every plan and architectural add-on is visible.
+  const collapsible = group !== "design";
 
   return (
     <section aria-labelledby={`pkg-group-${group}`} className="rounded-[8px] border border-ud-dark/10 bg-white p-5 shadow-sm md:p-6">
@@ -145,19 +166,8 @@ function GroupCard({ group, title, hint, icon }: { group: PackageGroup; title: s
       </div>
 
       {sections.map(([heading, rows]) => (
-        <div key={heading || "all"} className="mt-4">
-          {heading && <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-ud-dark/45">{heading}</p>}
-          <ul className="space-y-2">
-            {rows.map((item) => <PackageRow key={item.id} item={item} />)}
-          </ul>
-        </div>
+        <SectionBlock key={heading || "all"} heading={heading} rows={rows} collapsible={collapsible} />
       ))}
-
-      {collapsible && (
-        <button type="button" onClick={() => setExpanded((value) => !value)} className="mt-3 text-xs font-bold text-ud-burgundy hover:underline">
-          {expanded ? "Show fewer" : `Show all ${items.length}`}
-        </button>
-      )}
     </section>
   );
 }

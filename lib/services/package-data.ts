@@ -10,11 +10,14 @@ import { PRODUCTS, type ProductCategory } from "@/lib/products";
 import { getPublishedDeliveryZones, type PublishedZone } from "@/lib/delivery-server";
 import { isLabourUnit } from "./labour";
 import {
+  addOnServicesForService,
   architecturalSectionIdsForService,
   areaLabelForService,
   areaModeForService,
+  groupSubsections,
   materialCategoriesForService,
   planCategoriesForService,
+  planMatchForSection,
   relatedServiceSlugs,
   type AreaMode,
 } from "./package-links";
@@ -33,9 +36,11 @@ export interface ServicePackageData {
   related: { slug: string; title: string }[];
   zones: PublishedZone[];
   allServices: { id: string; slug: string; title: string }[];
+  /** House plans illustrating each property-type sub-service, keyed by its sectionId. */
+  plansBySection: Record<string, { itemId: string; name: string; fromKES: number; href: string }[]>;
 }
 
-function labourItem(row: SubsectionRow, group: "work" | "design", detail?: string): PackageItem {
+function labourItem(row: SubsectionRow, group: "work" | "design", opts: { detail?: string; section?: string } = {}): PackageItem {
   const unit = isLabourUnit(row.labourUnit) ? row.labourUnit : null;
   return {
     id: `${group === "work" ? "work" : "arch"}:${row.id}`,
@@ -45,8 +50,23 @@ function labourItem(row: SubsectionRow, group: "work" | "design", detail?: strin
     rateKES: unit && row.labourRateKES !== null ? row.labourRateKES : null,
     unit,
     defaultQty: 1,
-    detail,
+    detail: opts.detail,
+    section: opts.section,
   };
+}
+
+/** A service's own sub-services as work items: a parent with children becomes their heading. */
+function workItems(rows: SubsectionRow[], sectionPrefix?: string): PackageItem[] {
+  const out: PackageItem[] = [];
+  for (const { row, children } of groupSubsections(rows)) {
+    if (children.length === 0) {
+      out.push(labourItem(row, "work", { section: sectionPrefix }));
+    } else {
+      const heading = sectionPrefix ? `${sectionPrefix} › ${row.title}` : row.title;
+      children.forEach((child) => out.push(labourItem(child, "work", { section: heading })));
+    }
+  }
+  return out;
 }
 
 interface MaterialSource {
@@ -112,14 +132,28 @@ export async function loadServicePackage(slug: string): Promise<ServicePackageDa
 
   const items: PackageItem[] = [];
 
-  // Work items: the service's own sub-services (or one overview item).
+  // Work items: the service's own sub-services (children grouped under their
+  // parent), or one overview item when the service has none.
   if (subsections.length > 0) {
-    subsections.forEach((row) => items.push(labourItem(row, "work")));
+    items.push(...workItems(subsections));
   } else {
     items.push({ id: `work:${service.id}-overview`, group: "work", label: `${service.title} services`, kind: "labour", rateKES: null, unit: null, defaultQty: 1 });
   }
 
-  // Design: matching house plans.
+  // Work items from add-on services (e.g. cabro and drainage inside Civil Works),
+  // each grouped under that service's name.
+  for (const addOnSlug of addOnServicesForService(slug)) {
+    const addOn = published.find((row) => row.slug === addOnSlug);
+    if (!addOn) continue;
+    try {
+      items.push(...workItems(await readSubsections({ serviceSlug: addOnSlug }), addOn.title));
+    } catch (err) {
+      console.error(`Package add-on ${addOnSlug} load failed:`, err);
+    }
+  }
+
+  // Design: matching house plans, grouped by plan category.
+  const plansBySection: ServicePackageData["plansBySection"] = {};
   const planCategories = planCategoriesForService(slug, subsections.map((row) => row.planType));
   if (planCategories.length > 0) {
     try {
@@ -132,9 +166,18 @@ export async function loadServicePackage(slug: string): Promise<ServicePackageDa
           id: `plan:${plan.id}`, group: "design", label: plan.name, kind: "plan", rateKES: null, unit: null, defaultQty: 1,
           options: { digitalKES: plan.priceDigitalKES, printKES: plan.pricePrintKES },
           detail: facts.join(" · "),
+          section: `${plan.category} plans`,
           cart: { productId: plan.id, name: plan.name, unit: "plan", image: plan.image },
           href: `/shop/plans/${plan.id}`,
         });
+      }
+      // The profile asks for each property type's plans "here as well": match them per sub-service.
+      for (const row of subsections) {
+        const match = planMatchForSection(row.sectionId);
+        if (!match) continue;
+        plansBySection[row.sectionId] = plans
+          .filter((plan) => plan.category === match.category && (!match.pattern || match.pattern.test(`${plan.name} ${plan.planType}`)))
+          .map((plan) => ({ itemId: `plan:${plan.id}`, name: plan.name, fromKES: plan.priceDigitalKES, href: `/shop/plans/${plan.id}` }));
       }
     } catch (err) {
       console.error("Package plans load failed:", err);
@@ -148,7 +191,7 @@ export async function loadServicePackage(slug: string): Promise<ServicePackageDa
     try {
       const archRows = (await readSubsections({ serviceSlug: "architectural" }))
         .filter((row) => archIds === "all" || archIds.includes(row.sectionId));
-      archRows.forEach((row) => items.push(labourItem(row, "design", "Architectural")));
+      archRows.forEach((row) => items.push(labourItem(row, "design", { section: "Architectural services" })));
     } catch (err) {
       console.error("Package architectural add-ons load failed:", err);
     }
@@ -187,5 +230,6 @@ export async function loadServicePackage(slug: string): Promise<ServicePackageDa
     related,
     zones: await getPublishedDeliveryZones(),
     allServices: published.map((row) => ({ id: row.id, slug: row.slug, title: row.title })),
+    plansBySection,
   };
 }

@@ -61,14 +61,62 @@ const MATERIAL_CATEGORIES: Record<string, ProductCategory[]> = {
   "cabro-road-works": ["Cabro & Road Works"],
   plumbing: ["Plumbing"],
   "building-works": ["Structural Materials", "Hardware", "Electrical", "Plumbing"],
-  "civil-works": ["Cabro & Road Works", "Structural Materials"],
-  "interior-design": ["Gypsum & Ceilings", "Hardware", "Electrical"],
+  "civil-works": ["Cabro & Road Works", "Structural Materials", "Plumbing"],
+  "interior-design": ["Gypsum & Ceilings", "Hardware", "Electrical", "Flooring", "Paint & Finishes"],
   architectural: [],
 };
 
 /** Suggested product categories, used only when the admin hasn't curated materials. */
 export function materialCategoriesForService(slug: string): ProductCategory[] {
   return [...(MATERIAL_CATEGORIES[slug] ?? [])];
+}
+
+/**
+ * Other services whose sub-services can be ticked inside this service's package,
+ * matching the company profile's grouping: Civil Works covers murram roads, cabro
+ * paving and road drainage; Interior Design covers partitioning, glass & aluminium,
+ * gypsum, flooring and painting.
+ */
+const ADD_ON_SERVICES: Record<string, string[]> = {
+  "civil-works": ["cabro-road-works", "plumbing"],
+  "interior-design": ["gypsum-ceilings", "flooring", "paint-finishes"],
+};
+
+export function addOnServicesForService(slug: string): string[] {
+  return [...(ADD_ON_SERVICES[slug] ?? [])];
+}
+
+/** Nests sub-services under their parent (by sectionId), keeping the input order. */
+export function groupSubsections<T extends { sectionId: string; parentSectionId: string | null }>(rows: T[]): { row: T; children: T[] }[] {
+  const ids = new Set(rows.map((row) => row.sectionId));
+  const isChild = (row: T) => Boolean(row.parentSectionId && row.parentSectionId !== row.sectionId && ids.has(row.parentSectionId));
+  return rows
+    .filter((row) => !isChild(row))
+    .map((row) => ({ row, children: rows.filter((child) => isChild(child) && child.parentSectionId === row.sectionId) }));
+}
+
+/** Which house plans illustrate a property-type sub-service (construction types only). */
+const PLAN_MATCH: Record<string, { category: PlanCategory; pattern?: RegExp }> = {
+  "residential-bungalows": { category: "Bungalow" },
+  "residential-townhouses": { category: "Townhouse" },
+  "residential-maisonettes": { category: "Maisonette" },
+  "residential-villas": { category: "Villa" },
+  "residential-apartments": { category: "Apartment" },
+  "apartments-studio": { category: "Apartment", pattern: /studio|bedsitter/i },
+  "apartments-one-bedroom": { category: "Apartment", pattern: /one-bedroom|1-bed/i },
+  "apartments-two-bedroom": { category: "Apartment", pattern: /two-bedroom|2-bed/i },
+  "apartments-three-bedroom": { category: "Apartment", pattern: /three-bedroom|3-bed/i },
+  "apartments-executive": { category: "Apartment", pattern: /executive|luxury|penthouse/i },
+  "apartments-serviced": { category: "Apartment", pattern: /serviced/i },
+  "commercial-warehouses": { category: "Commercial", pattern: /warehouse|industrial|logistic/i },
+  "commercial-strip-malls": { category: "Commercial", pattern: /mall|retail|shop/i },
+  "commercial-mixed-use": { category: "Commercial", pattern: /mixed/i },
+  "commercial-offices": { category: "Commercial", pattern: /office/i },
+  "commercial-schools": { category: "Commercial", pattern: /school|education|institution|college/i },
+};
+
+export function planMatchForSection(sectionId: string): { category: PlanCategory; pattern?: RegExp } | null {
+  return PLAN_MATCH[sectionId] ?? null;
 }
 
 /** Groups of services commonly bought together; every member relates to the others. */

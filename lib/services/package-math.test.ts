@@ -105,6 +105,19 @@ test("quote message never states a KES 0 total when everything is unpriced", () 
   assert.doesNotMatch(message, /KES 0\b/);
 });
 
+test("quote message names each line's group so same-named items stay distinct", () => {
+  const renoBungalow: PackageItem = { id: "work:r", group: "work", label: "Bungalows", kind: "labour", rateKES: null, unit: null, defaultQty: 1, section: "Renovation & Remodeling Services" };
+  const message = formatQuoteMessage({
+    serviceTitle: "Building Works",
+    areaSqm: 100,
+    areaLabel: "Floor area",
+    county: null,
+    items: [renoBungalow],
+    selection: { "work:r": { qty: 1 } },
+  });
+  assert.match(message, /- Renovation & Remodeling Services › Bungalows — Priced after site visit/);
+});
+
 test("quote message itemises lines, unpriced work and the total", () => {
   const message = formatQuoteMessage({
     serviceTitle: "Flooring & Tiling",

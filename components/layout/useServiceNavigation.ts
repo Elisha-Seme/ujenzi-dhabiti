@@ -10,8 +10,10 @@ export interface NavService {
   hasPlans: boolean;
   /** What this service's package builder can combine, e.g. Labour, Materials, House plans. */
   packageParts: string[];
+  /** Selectable sub-services (a parent with children counts as its children). */
   subsectionCount: number;
-  subsections: { sectionId: string; title: string }[];
+  /** Every sub-service; children (e.g. Bungalows) nested under their parent (e.g. Residential). */
+  groups: { sectionId: string; title: string; children: { sectionId: string; title: string }[] }[];
 }
 
 // One request per page load, shared by the desktop and mobile menus.

@@ -552,6 +552,9 @@ export const serviceSubsections = pgTable("service_subsections", {
     .notNull()
     .references(() => services.slug, { onDelete: "cascade" }),
   sectionId: text("section_id").notNull(), // e.g. "residential", "commercial", etc.
+  // Optional: sectionId of a parent sub-service on the same service. Children are
+  // grouped under their parent on the page, in the package builder and in the menu.
+  parentSectionId: text("parent_section_id"),
   title: text("title").notNull(),
   body: text("body").notNull(),
   planType: text("plan_type"), // e.g. "Bungalow", or a comma list / "Residential"

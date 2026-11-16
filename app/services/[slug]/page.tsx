@@ -13,7 +13,59 @@ import { PackageProvider } from "@/components/services/package-context";
 import PackageBuilder from "@/components/services/PackageBuilder";
 import AddToPackageToggle from "@/components/services/AddToPackageToggle";
 import { loadServicePackage, type ServicePackageData } from "@/lib/services/package-data";
-import { expandPlanTypes } from "@/lib/services/package-links";
+import { expandPlanTypes, groupSubsections } from "@/lib/services/package-links";
+import { formatKES } from "@/lib/services/package-math";
+import type { SubsectionRow } from "@/lib/services/subsections-read";
+
+/** A child sub-service (e.g. Bungalows) as a card: profile text, its house plans, Add to package. */
+function ChildServiceCard({ child, serviceTitle, plans }: { child: SubsectionRow; serviceTitle: string; plans?: ServicePackageData["plansBySection"][string] }) {
+  const [lead, ...rest] = child.body.split(/\n\s*\n/);
+  return (
+    <article id={child.sectionId} className="scroll-mt-36 flex flex-col rounded-[6px] border border-ud-dark/10 border-t-[3px] border-t-ud-burgundy bg-white p-6 shadow-sm">
+      <h3 className="text-lg font-bold text-ud-dark">{child.title}</h3>
+      <p className="mt-2 text-sm font-light leading-relaxed text-ud-dark/70">{lead}</p>
+      {child.bullets.length > 0 && (
+        <ul className="mt-3 space-y-1.5">
+          {child.bullets.map((bullet) => (
+            <li key={bullet} className="flex items-start gap-2 text-sm text-ud-dark/70">
+              <span aria-hidden className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-ud-burgundy" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {rest.map((paragraph, i) => <p key={i} className="mt-3 text-sm font-light leading-relaxed text-ud-dark/70">{paragraph}</p>)}
+
+      {plans !== undefined && (
+        <div className="mt-5 rounded-[4px] bg-ud-light-gray p-4">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-ud-dark/50">House plans for {child.title}</p>
+          {plans.length > 0 ? (
+            <ul className="mt-2 divide-y divide-ud-dark/10">
+              {plans.map((plan) => (
+                <li key={plan.itemId} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
+                  <span className="min-w-0">
+                    <Link href={plan.href} className="text-sm font-semibold text-ud-dark hover:text-ud-burgundy">{plan.name}</Link>
+                    <span className="block text-xs text-ud-dark/50">from {formatKES(plan.fromKES)}</span>
+                  </span>
+                  <AddToPackageToggle itemId={plan.itemId} label={plan.name} compact />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-ud-dark/60">
+              No ready-made plan for this type yet.{" "}
+              <Link href={`/request-a-quote?projectType=${encodeURIComponent(`${serviceTitle} — ${child.title}`)}`} className="font-semibold text-ud-burgundy hover:underline">Request a custom design</Link>
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mt-auto">
+        <AddToPackageToggle itemId={`work:${child.id}`} label={child.title} />
+      </div>
+    </article>
+  );
+}
 
 export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const params = await paramsPromise;
@@ -45,18 +97,27 @@ export default async function ServiceDetailPage({ params: paramsPromise }: { par
   // Core catalogue services do not all have subsection rows yet. Keep their
   // dedicated pages useful by rendering the CMS description/includes instead
   // of returning a hero followed by an empty page.
-  const sections = subsections.length > 0
+  const sections: SubsectionRow[] = subsections.length > 0
     ? subsections
     : [{
         id: `${service.id}-overview`,
+        serviceSlug: service.slug,
         sectionId: "overview",
         title: `${service.title} Services`,
         body: service.description,
         planType: null,
+        parentSectionId: null,
         bullets: service.includes,
+        labourRateKES: null,
+        labourUnit: null,
+        sortOrder: 0,
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
       }];
 
-  const subnav = [{ label: "Build your package", href: "#package" }, ...sections.map((sub) => ({ label: sub.title, href: `#${sub.sectionId}` }))];
+  // Children (e.g. Bungalows under Residential) render as cards inside their parent.
+  const grouped = groupSubsections(sections);
+  const subnav = [{ label: "Build your package", href: "#package" }, ...grouped.map(({ row }) => ({ label: row.title, href: `#${row.sectionId}` }))];
 
   return (
     <PackageProvider
@@ -105,17 +166,25 @@ export default async function ServiceDetailPage({ params: paramsPromise }: { par
 
       <PackageBuilder />
 
-      {sections.map((sub, idx) => (
+      {grouped.map(({ row: sub, children }, idx) => (
         <ServiceSection key={sub.id} id={sub.sectionId} tone={idx % 2 === 0 ? "white" : "light"}>
           <ServiceIntro eyebrow={service.title} title={sub.title} paragraphs={[sub.body]} />
           <div className="grid grid-cols-1 gap-6 mt-8">
             <ServiceType
               title="Service Details & Key Highlights"
               bullets={sub.bullets}
-              planType={expandPlanTypes(sub.planType)[0]}
+              planType={children.length === 0 ? expandPlanTypes(sub.planType)[0] : undefined}
             />
           </div>
-          <AddToPackageToggle itemId={`work:${sub.id}`} label={sub.title} />
+          {children.length === 0 ? (
+            <AddToPackageToggle itemId={`work:${sub.id}`} label={sub.title} />
+          ) : (
+            <div className="mt-10 grid gap-5 md:grid-cols-2">
+              {children.map((child) => (
+                <ChildServiceCard key={child.id} child={child} serviceTitle={service.title} plans={data.plansBySection[child.sectionId]} />
+              ))}
+            </div>
+          )}
         </ServiceSection>
       ))}
 

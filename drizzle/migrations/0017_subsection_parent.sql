@@ -1,0 +1,1 @@
+ALTER TABLE "service_subsections" ADD COLUMN "parent_section_id" text;

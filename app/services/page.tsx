@@ -8,7 +8,7 @@ import { products, services } from "@/lib/db/schema";
 import { asc, count, eq } from "drizzle-orm";
 import { getAllPlans } from "@/lib/plans-store";
 import { readSubsections } from "@/lib/services/subsections-read";
-import { materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
+import { groupSubsections, materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
 
 type PackageCounts = { work: number; plans: number; materials: number };
 
@@ -29,7 +29,7 @@ async function loadPackageCounts(list: Array<typeof services.$inferSelect>): Pro
     const materials = srv.materialProductIds.length > 0
       ? srv.materialProductIds.filter((id) => active.has(id)).length
       : materialCategoriesForService(srv.slug).reduce((sum, category) => sum + (perCategory.get(category) ?? 0), 0);
-    return [srv.slug, { work: own.length, plans: plans.filter((plan) => categories.includes(plan.category)).length, materials }];
+    return [srv.slug, { work: groupSubsections(own).reduce((sum, g) => sum + (g.children.length || 1), 0), plans: plans.filter((plan) => categories.includes(plan.category)).length, materials }];
   }));
 }
 

@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion
 import { ArrowRight, ChevronDown, ChevronRight, House, PackagePlus } from "lucide-react";
 import { DUR, EASE_IN, EASE_OUT, STAGGER } from "@/lib/motion";
 import { shouldPreviewOnTap } from "@/lib/ui-helpers";
+import ScrollFade from "./ScrollFade";
 import ServiceIcon from "./ServiceIcon";
 import { useServiceNavigation } from "./useServiceNavigation";
 
@@ -164,7 +165,7 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
 
       <AnimatePresence>
         {open && (
-          <div key="panel" className="fixed left-1/2 top-20 z-50 -translate-x-1/2" style={{ width: "min(820px, calc(100vw - 2rem))" }}>
+          <div key="panel" className="fixed left-1/2 top-20 z-50 -translate-x-1/2" style={{ width: "min(880px, calc(100vw - 2rem))" }}>
             {/* Invisible bridge so the pointer can cross the header gap without closing the menu. */}
             <div aria-hidden className="absolute -top-8 left-0 right-0 h-8" />
             <motion.div
@@ -175,7 +176,7 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: reduce ? DUR.quick : DUR.standard, ease: EASE_OUT } }}
               exit={reduce ? { opacity: 0, transition: { duration: DUR.quick } } : { opacity: 0, y: 4, scale: 0.99, transition: { duration: DUR.quick, ease: EASE_IN } }}
-              className="relative mt-2 overflow-hidden rounded-[6px] border border-white/10 bg-[#16181c] shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]"
+              className="relative mt-2 max-h-[calc(100dvh_-_6rem)] overflow-hidden rounded-[6px] border border-white/10 bg-[#16181c] shadow-[0_24px_60px_-12px_rgba(0,0,0,0.65)]"
             >
               {/* Ambient: a soft burgundy glow anchored to the preview side. */}
               <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full" style={{ background: "radial-gradient(circle, rgba(138,14,51,0.28), transparent 70%)" }} />
@@ -191,6 +192,7 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
                   ) : services.length === 0 ? (
                     <p className="px-3 py-4 text-sm text-white/55">The service list is unavailable right now.</p>
                   ) : (
+                    <ScrollFade className="max-h-[max(12rem,calc(100dvh_-_13rem))] pr-1" fadeColor="#16181c">
                     <motion.ul variants={list} initial="hidden" animate="show" className="space-y-0.5">
                       {services.map((service, index) => {
                         const isActive = active?.slug === service.slug;
@@ -238,6 +240,7 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
                         );
                       })}
                     </motion.ul>
+                    </ScrollFade>
                   )}
                 </div>
 
@@ -264,29 +267,43 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
                           )}
                         </div>
 
-                        {active.subsections.length > 0 && (
-                          <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-1">
-                            {active.subsections.map((sub) => (
-                              <li key={sub.sectionId}>
-                                <Link
-                                  href={`/services/${active.slug}#${sub.sectionId}`}
-                                  onClick={() => close()}
-                                  className="group flex items-center gap-1.5 rounded-[4px] py-1.5 text-[13px] text-white/70 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-ud-burgundy"
-                                >
-                                  <ChevronRight size={13} aria-hidden className="flex-shrink-0 text-ud-burgundy transition-transform duration-150 group-hover:translate-x-0.5" />
-                                  <span className="truncate">{sub.title}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        {active.subsectionCount > active.subsections.length && (
-                          <Link href={`/services/${active.slug}`} onClick={() => close()} className="mt-2 self-start text-xs font-semibold text-white/45 hover:text-white">
-                            + {active.subsectionCount - active.subsections.length} more
-                          </Link>
+                        {(active.groups ?? []).length > 0 && (
+                          // Every sub-service, grouped; scrolls inside the panel with fade cues on shorter screens.
+                          <ScrollFade className="mt-5 max-h-[min(22rem,max(7rem,calc(100dvh_-_25rem)))] pr-2" fadeColor="#16181c" hint watch={active.slug}>
+                            {(() => {
+                              const flat = active.groups.filter((g) => g.children.length === 0);
+                              const parents = active.groups.filter((g) => g.children.length > 0);
+                              const subLink = (sectionId: string, title: string) => (
+                                <li key={sectionId}>
+                                  <Link
+                                    href={`/services/${active.slug}#${sectionId}`}
+                                    onClick={() => close()}
+                                    title={title}
+                                    className="group flex items-center gap-1.5 rounded-[4px] py-1.5 text-[13px] text-white/70 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-ud-burgundy"
+                                  >
+                                    <ChevronRight size={13} aria-hidden className="flex-shrink-0 text-ud-burgundy transition-transform duration-150 group-hover:translate-x-0.5" />
+                                    <span className="truncate">{title}</span>
+                                  </Link>
+                                </li>
+                              );
+                              return (
+                                <>
+                                  {flat.length > 0 && <ul className="grid grid-cols-2 gap-x-5 gap-y-0.5">{flat.map((g) => subLink(g.sectionId, g.title))}</ul>}
+                                  {parents.map((g) => (
+                                    <div key={g.sectionId} className={flat.length > 0 ? "mt-4" : "mt-4 first:mt-0"}>
+                                      <Link href={`/services/${active.slug}#${g.sectionId}`} onClick={() => close()} className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45 hover:text-white">
+                                        {g.title} <span className="font-semibold normal-case tracking-normal text-white/30">· {g.children.length}</span>
+                                      </Link>
+                                      <ul className="mt-1 grid grid-cols-2 gap-x-5 gap-y-0.5">{g.children.map((c) => subLink(c.sectionId, c.title))}</ul>
+                                    </div>
+                                  ))}
+                                </>
+                              );
+                            })()}
+                          </ScrollFade>
                         )}
 
-                        <div className="mt-auto pt-6">
+                        <div className="mt-auto pt-5">
                           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/35">Build a package with</p>
                           <ul className="mt-2 flex flex-wrap gap-2">
                             {(active.packageParts ?? []).map((part) => (

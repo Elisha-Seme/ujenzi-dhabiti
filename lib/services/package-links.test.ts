@@ -1,13 +1,57 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  addOnServicesForService,
   architecturalSectionIdsForService,
   areaModeForService,
   expandPlanTypes,
+  groupSubsections,
   materialCategoriesForService,
   planCategoriesForService,
+  planMatchForSection,
   relatedServiceSlugs,
 } from "./package-links";
+
+test("civil works packages include cabro and road drainage; interior design includes gypsum, flooring, painting", () => {
+  assert.deepEqual(addOnServicesForService("civil-works"), ["cabro-road-works", "plumbing"]);
+  assert.deepEqual(addOnServicesForService("interior-design"), ["gypsum-ceilings", "flooring", "paint-finishes"]);
+  assert.deepEqual(addOnServicesForService("flooring"), []);
+});
+
+test("materials follow the add-on services", () => {
+  assert.deepEqual(materialCategoriesForService("interior-design"), ["Gypsum & Ceilings", "Hardware", "Electrical", "Flooring", "Paint & Finishes"]);
+  assert.deepEqual(materialCategoriesForService("civil-works"), ["Cabro & Road Works", "Structural Materials", "Plumbing"]);
+});
+
+test("groupSubsections nests children under their parent and keeps order", () => {
+  const rows = [
+    { sectionId: "residential", parentSectionId: null },
+    { sectionId: "residential-villas", parentSectionId: "residential" },
+    { sectionId: "boundary-walls", parentSectionId: null },
+    { sectionId: "residential-bungalows", parentSectionId: "residential" },
+  ];
+  const grouped = groupSubsections(rows);
+  assert.deepEqual(grouped.map((g) => g.row.sectionId), ["residential", "boundary-walls"]);
+  assert.deepEqual(grouped[0].children.map((c) => c.sectionId), ["residential-villas", "residential-bungalows"]);
+  assert.deepEqual(grouped[1].children, []);
+});
+
+test("groupSubsections treats a child with a missing parent as top-level", () => {
+  const grouped = groupSubsections([{ sectionId: "orphan", parentSectionId: "gone" }]);
+  assert.deepEqual(grouped.map((g) => g.row.sectionId), ["orphan"]);
+});
+
+test("planMatchForSection maps property types to the right house plans", () => {
+  assert.deepEqual(planMatchForSection("residential-bungalows"), { category: "Bungalow" });
+  const studio = planMatchForSection("apartments-studio");
+  assert.equal(studio?.category, "Apartment");
+  assert.ok(studio?.pattern?.test("Urban Studio / Bedsitter Block"));
+  assert.ok(!studio?.pattern?.test("Metro One-Bedroom Apartment Block"));
+  assert.ok(planMatchForSection("commercial-warehouses")?.pattern?.test("Logistix Warehouse & Yard"));
+  assert.ok(planMatchForSection("commercial-offices")?.pattern?.test("Summit Office Block"));
+  assert.equal(planMatchForSection("renovation-bungalows"), null);
+  assert.equal(planMatchForSection("tile-flooring"), null);
+});
 
 test("building and architectural measure floor area; finishes measure coverage", () => {
   assert.equal(areaModeForService("building-works"), "floor");

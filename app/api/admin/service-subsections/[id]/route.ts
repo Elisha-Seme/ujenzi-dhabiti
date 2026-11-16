@@ -3,6 +3,7 @@ import { db, services, serviceSubsections } from "@/lib/db";
 import { and, eq, ne } from "drizzle-orm";
 import { isAdmin } from "@/lib/admin-guard";
 import { parseLabourInput } from "@/lib/services/labour";
+import { parseParentSectionId } from "@/lib/services/subsection-input";
 import { isMissingColumnError, LABOUR_MIGRATION_MESSAGE } from "@/lib/services/subsections-read";
 
 export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
@@ -39,6 +40,11 @@ export async function PATCH(req: NextRequest, { params: paramsPromise }: { param
   if (b.planType !== undefined) patch.planType = b.planType || null;
   if (b.bullets !== undefined) patch.bullets = Array.isArray(b.bullets) ? b.bullets : [];
   if (b.sortOrder !== undefined) patch.sortOrder = Number(b.sortOrder) || 0;
+  if (b.parentSectionId !== undefined) {
+    const parentSection = parseParentSectionId(b.parentSectionId, sectionId);
+    if (!parentSection.ok) return NextResponse.json({ error: parentSection.error }, { status: 400 });
+    patch.parentSectionId = parentSection.value;
+  }
   if (b.labourRateKES !== undefined || b.labourUnit !== undefined) {
     const labour = parseLabourInput(b.labourRateKES, b.labourUnit);
     if (!labour.ok) return NextResponse.json({ error: labour.error }, { status: 400 });

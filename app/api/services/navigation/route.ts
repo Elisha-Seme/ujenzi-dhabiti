@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 import { db, services } from "@/lib/db";
 import { readSubsections } from "@/lib/services/subsections-read";
-import { architecturalSectionIdsForService, materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
+import { addOnServicesForService, architecturalSectionIdsForService, groupSubsections, materialCategoriesForService, planCategoriesForService } from "@/lib/services/package-links";
 
 export const dynamic = "force-dynamic";
 
-const MAX_SUBSECTIONS = 6;
 const MAX_DESCRIPTION = 140;
 
 function trimDescription(text: string): string {
@@ -15,7 +14,7 @@ function trimDescription(text: string): string {
   return `${cut.slice(0, cut.lastIndexOf(" ") > 80 ? cut.lastIndexOf(" ") : MAX_DESCRIPTION).trimEnd()}…`;
 }
 
-// Header Services menu: published services with a preview of their sub-services.
+// Header Services menu: published services with all their sub-services, grouped.
 export async function GET() {
   try {
     const rows = await db
@@ -38,13 +37,23 @@ export async function GET() {
         const hasMaterials = row.materialProductIds.length > 0 || materialCategoriesForService(row.slug).length > 0;
         const arch = architecturalSectionIdsForService(row.slug);
         const hasArchitectural = (arch === "all" || arch.length > 0) && rows.some((r) => r.slug === "architectural");
+        const addOns = addOnServicesForService(row.slug)
+          .map((slug) => rows.find((r) => r.slug === slug)?.title)
+          .filter((title): title is string => Boolean(title));
         const packageParts = [
           "Labour",
+          ...addOns,
           ...(hasMaterials ? ["Materials"] : []),
           ...(hasPlans ? ["House plans"] : []),
           ...(hasArchitectural ? ["Architectural"] : []),
           ...(hasMaterials || hasPlans ? ["Delivery"] : []),
         ];
+        // Every sub-service, children nested under their parent (no cap: the menu scrolls).
+        const groups = groupSubsections(own).map(({ row: sub, children }) => ({
+          sectionId: sub.sectionId,
+          title: sub.title,
+          children: children.map((child) => ({ sectionId: child.sectionId, title: child.title })),
+        }));
         return {
           slug: row.slug,
           title: row.title,
@@ -52,8 +61,9 @@ export async function GET() {
           description: trimDescription(row.description),
           hasPlans,
           packageParts,
-          subsectionCount: own.length,
-          subsections: own.slice(0, MAX_SUBSECTIONS).map((sub) => ({ sectionId: sub.sectionId, title: sub.title })),
+          // Selectable items: a parent with children is a heading, not an item.
+          subsectionCount: groups.reduce((sum, group) => sum + (group.children.length || 1), 0),
+          groups,
         };
       }),
     });

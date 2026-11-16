@@ -3,6 +3,7 @@ import { db, services, serviceSubsections } from "@/lib/db";
 import { and, eq } from "drizzle-orm";
 import { isAdmin, makeId } from "@/lib/admin-guard";
 import { parseLabourInput } from "@/lib/services/labour";
+import { parseParentSectionId } from "@/lib/services/subsection-input";
 import { isMissingColumnError, LABOUR_MIGRATION_MESSAGE, readSubsections } from "@/lib/services/subsections-read";
 
 export async function GET() {
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
   if (duplicate) return NextResponse.json({ error: "This section anchor already exists for the selected service" }, { status: 409 });
   const labour = parseLabourInput(b.labourRateKES, b.labourUnit);
   if (!labour.ok) return NextResponse.json({ error: labour.error }, { status: 400 });
+  const parentSection = parseParentSectionId(b.parentSectionId, sectionId);
+  if (!parentSection.ok) return NextResponse.json({ error: parentSection.error }, { status: 400 });
   try {
     const [row] = await db
       .insert(serviceSubsections)
@@ -43,6 +46,7 @@ export async function POST(req: NextRequest) {
         bullets: Array.isArray(b.bullets) ? b.bullets : [],
         labourRateKES: labour.labourRateKES,
         labourUnit: labour.labourUnit,
+        parentSectionId: parentSection.value,
         sortOrder: Number(b.sortOrder) || 0,
       })
       .returning();
