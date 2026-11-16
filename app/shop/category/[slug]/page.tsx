@@ -31,7 +31,8 @@ const BANNER_MAP: Record<string, string> = {
   "Hardware": "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=1600&q=80",
 };
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
+export default async function CategoryPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  const params = await paramsPromise;
   const categoryName = SLUG_MAP[params.slug];
   
   if (!categoryName) {

@@ -13,8 +13,9 @@ const PAID_STATUSES = new Set(["paid", "processing", "dispatched", "delivered"])
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { orderId: string; planId: string } }
+  { params: paramsPromise }: { params: Promise<{ orderId: string; planId: string }> }
 ) {
+  const params = await paramsPromise;
   const { orderId, planId } = params;
   const token = req.nextUrl.searchParams.get("token") ?? "";
 

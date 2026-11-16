@@ -13,12 +13,14 @@ async function loadPost(slug: string) {
   } catch { return null; }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  const params = await paramsPromise;
   const post = await loadPost(params.slug);
   return post ? { title: `${post.title} — Ujenzi Dhabiti`, description: post.excerpt } : { title: "Resource not found — Ujenzi Dhabiti" };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  const params = await paramsPromise;
   const post = await loadPost(params.slug);
   if (!post) notFound();
   return (

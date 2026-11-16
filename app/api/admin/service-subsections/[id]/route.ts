@@ -3,7 +3,8 @@ import { db, services, serviceSubsections } from "@/lib/db";
 import { and, eq, ne } from "drizzle-orm";
 import { isAdmin } from "@/lib/admin-guard";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json().catch(() => null);
   if (!b || typeof b !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -39,7 +40,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(row);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   await db.delete(serviceSubsections).where(eq(serviceSubsections.id, params.id));
   return NextResponse.json({ success: true });

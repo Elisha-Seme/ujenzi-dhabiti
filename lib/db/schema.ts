@@ -337,6 +337,9 @@ export const housePlans = pgTable("house_plans", {
   bathrooms: integer("bathrooms"),
   floors: integer("floors").notNull().default(1),
   plinthAreaSqM: integer("plinth_area_sqm").notNull().default(0),
+  plotWidthM: integer("plot_width_m"),
+  plotDepthM: integer("plot_depth_m"),
+  architecturalStyle: text("architectural_style"),
   downloadFile: text("download_file"),
   downloadSizeBytes: integer("download_size_bytes"),
   published: boolean("published").notNull().default(true),
@@ -555,6 +558,21 @@ export const serviceSubsections = pgTable("service_subsections", {
   bullets: text("bullets").array().notNull().default([]),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// ─── Whole-building estimator rates (admin-approved, public /estimator) ──────
+
+export const estimatorRates = pgTable("estimator_rates", {
+  id: text("id").primaryKey(),
+  buildingType: text("building_type").notNull(),
+  finishLevel: text("finish_level").notNull(),
+  ratePerSqM: integer("rate_per_sqm").notNull(),
+  labourPercent: integer("labour_percent").notNull().default(30),
+  wastagePercent: integer("wastage_percent").notNull().default(5),
+  locationFactor: integer("location_factor").notNull().default(100),
+  notes: text("notes"),
+  published: boolean("published").notNull().default(true),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

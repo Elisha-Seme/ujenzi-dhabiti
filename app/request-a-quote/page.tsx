@@ -11,7 +11,8 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function RequestQuotePage({ searchParams }: { searchParams: { product?: string; projectType?: string } }) {
+export default async function RequestQuotePage({ searchParams: searchParamsPromise }: { searchParams: Promise<{ product?: string; projectType?: string }> }) {
+  const searchParams = await searchParamsPromise;
   const product = searchParams?.product;
   const defaultDescription = product ? `Bulk quote for: ${product}` : "";
   const serviceOptions = await getPublishedServiceTitles();

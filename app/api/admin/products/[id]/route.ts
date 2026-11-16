@@ -5,7 +5,8 @@ import { isAdmin } from "@/lib/admin-guard";
 
 const NUMERIC = ["priceKES", "stock"];
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json();
 
@@ -22,7 +23,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(row);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   await db.delete(products).where(eq(products.id, params.id));
   return NextResponse.json({ ok: true });

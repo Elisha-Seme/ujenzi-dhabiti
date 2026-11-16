@@ -3,7 +3,8 @@ import { eq } from "drizzle-orm";
 import { companyCredentials, db } from "@/lib/db";
 import { isAdmin } from "@/lib/admin-guard";
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json();
   const patch: Record<string, unknown> = { updatedAt: new Date() };
@@ -15,7 +16,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return row ? NextResponse.json(row) : NextResponse.json({ error: "Not found" }, { status: 404 });
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   await db.delete(companyCredentials).where(eq(companyCredentials.id, params.id));
   return NextResponse.json({ success: true });

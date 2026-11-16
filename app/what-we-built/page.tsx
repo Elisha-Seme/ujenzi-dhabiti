@@ -26,7 +26,8 @@ async function loadProjects() {
   }
 }
 
-export default async function WhatWeBuiltPage({ searchParams }: { searchParams?: { category?: string; country?: string; year?: string } }) {
+export default async function WhatWeBuiltPage({ searchParams: searchParamsPromise }: { searchParams?: Promise<{ category?: string; country?: string; year?: string }> }) {
+  const searchParams = await searchParamsPromise;
   const allRows = await loadProjects();
   const category = searchParams?.category || "";
   const country = searchParams?.country || "";

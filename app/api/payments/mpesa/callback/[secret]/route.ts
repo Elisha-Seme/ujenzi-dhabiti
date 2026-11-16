@@ -11,8 +11,9 @@ import { notifyAfterPayment } from "@/lib/payment-notifications";
 // internal failures — otherwise Safaricom retries forever and floods us.
 export async function POST(
   req: NextRequest,
-  { params }: { params: { secret: string } }
+  { params: paramsPromise }: { params: Promise<{ secret: string }> }
 ) {
+  const params = await paramsPromise;
   const ACK = { ResultCode: 0, ResultDesc: "Accepted" };
 
   // ─── 1. Validate the shared secret in the URL ──────────────────

@@ -3,13 +3,14 @@ import { db, housePlans } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { isAdmin } from "@/lib/admin-guard";
 
-const NUMERIC = ["priceDigitalKES", "pricePrintKES", "bedrooms", "bathrooms", "floors", "plinthAreaSqM", "downloadSizeBytes"];
+const NUMERIC = ["priceDigitalKES", "pricePrintKES", "bedrooms", "bathrooms", "floors", "plinthAreaSqM", "plotWidthM", "plotDepthM", "downloadSizeBytes"];
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const b = await req.json();
   const patch: Record<string, unknown> = { updatedAt: new Date() };
-  for (const k of ["name", "category", "planType", "description", "image", "downloadFile"]) {
+  for (const k of ["name", "category", "planType", "description", "image", "downloadFile", "architecturalStyle"]) {
     if (b[k] !== undefined) patch[k] = b[k];
   }
   for (const k of NUMERIC) {
@@ -27,7 +28,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(row);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   if (!(await isAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   await db.delete(housePlans).where(eq(housePlans.id, params.id));
   return NextResponse.json({ success: true });

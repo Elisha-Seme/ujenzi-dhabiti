@@ -81,7 +81,8 @@ const CATEGORY_TO_SHOP: Record<string, string> = {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProjectDetailPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   const project = await loadProject(params.id);
   if (!project) notFound();
 

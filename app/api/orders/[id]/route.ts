@@ -14,8 +14,9 @@ const PAID_STATUSES = new Set(["paid", "processing", "dispatched", "delivered"])
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
+  const params = await paramsPromise;
   try {
     noStore();
     const [order] = await db

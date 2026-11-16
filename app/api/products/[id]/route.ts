@@ -6,7 +6,8 @@ import { getProduct } from "@/lib/products";
 export const dynamic = "force-dynamic";
 
 // Single materials product — DB first, static catalogue as fallback.
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   try {
     const [row] = await db
       .select({

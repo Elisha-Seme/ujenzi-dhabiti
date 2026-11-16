@@ -11,7 +11,8 @@ import ServiceEnquiry from "@/components/services/ServiceEnquiry";
 import ProductCard from "@/components/shop/ProductCard";
 import type { ProductCategory } from "@/lib/products";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params: paramsPromise }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await paramsPromise;
   try {
     const [service] = await db.select({ title: services.title, description: services.description })
       .from(services)
@@ -24,7 +25,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title: "Service Not Found — Ujenzi Dhabiti" };
 }
 
-export default async function ServiceDetailPage({ params }: { params: { slug: string } }) {
+export default async function ServiceDetailPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  const params = await paramsPromise;
   let service: typeof services.$inferSelect | undefined;
   let publishedServices: (typeof services.$inferSelect)[] = [];
   try {

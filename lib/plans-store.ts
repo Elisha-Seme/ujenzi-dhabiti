@@ -29,6 +29,9 @@ function rowToPlan(r: HousePlanRow): HousePlan {
     bathrooms: r.bathrooms ?? undefined,
     floors: r.floors,
     plinthAreaSqM: r.plinthAreaSqM,
+    plotWidthM: r.plotWidthM ?? undefined,
+    plotDepthM: r.plotDepthM ?? undefined,
+    architecturalStyle: r.architecturalStyle ?? undefined,
     downloadFile: r.downloadFile ?? undefined,
     downloadSizeBytes: r.downloadSizeBytes ?? undefined,
   };
@@ -39,6 +42,7 @@ export async function getAllPlans(): Promise<HousePlan[]> {
   try {
     // Table exists → DB is authoritative (even if empty: admin deleted them).
     const rows = await db.select().from(housePlans);
+    if (rows.length === 0 && process.env.NODE_ENV !== "production") return HOUSE_PLANS;
     return rows.filter((r) => r.published).map(rowToPlan);
   } catch {
     // Table not migrated yet → fall back to the static seed so the shop still works.

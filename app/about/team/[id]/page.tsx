@@ -9,7 +9,8 @@ import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
-export default async function TeamMemberPage({ params }: { params: { id: string } }) {
+export default async function TeamMemberPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise;
   let member: typeof teamMembers.$inferSelect | undefined;
   try {
     [member] = await db.select().from(teamMembers).where(eq(teamMembers.id, params.id)).limit(1);
