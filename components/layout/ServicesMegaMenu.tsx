@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { ArrowRight, ChevronDown, ChevronRight, House, PackagePlus } from "lucide-react";
 import { DUR, EASE_IN, EASE_OUT, STAGGER } from "@/lib/motion";
+import { shouldPreviewOnTap } from "@/lib/ui-helpers";
 import ServiceIcon from "./ServiceIcon";
 import { useServiceNavigation } from "./useServiceNavigation";
 
@@ -22,6 +23,9 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const closeTimer = useRef<number | null>(null);
   const focusFirstOnOpen = useRef(false);
+  const lastPointer = useRef<string | null>(null);
+  const wasActiveAtPress = useRef(false);
+  const triggerPointer = useRef<string | null>(null);
   const panelId = useId();
 
   const currentSlug = pathname.startsWith("/services/") ? pathname.split("/")[2] : null;
@@ -52,14 +56,25 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
     return () => window.cancelAnimationFrame(frame);
   }, [open, services.length]);
 
-  // Tap/click outside closes (touch devices never fire hover-out).
+  // Tap/click outside closes (touch devices never fire hover-out). Escape
+  // closes from anywhere, including a menu opened by hover with focus elsewhere;
+  // focus returns to the trigger only if it was inside the menu.
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) close();
     };
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      close(Boolean(wrapperRef.current?.contains(document.activeElement)));
+    };
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open, close]);
 
   const onPointerEnter = (event: ReactPointerEvent) => {
@@ -74,11 +89,7 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && open) {
-      event.preventDefault();
-      close(true);
-      return;
-    }
+    lastPointer.current = null; // keyboard activation is never a "preview tap"
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
     if (!open) {
@@ -113,7 +124,13 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onKeyDown={onKeyDown}
-      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) close(); }}
+      onBlur={(event) => {
+        // Only close when focus actually moves to something outside the menu.
+        // Clicking plain panel text blurs with no relatedTarget: keep it open
+        // (outside clicks are handled by the pointerdown listener).
+        const next = event.relatedTarget as Node | null;
+        if (next && !event.currentTarget.contains(next)) close();
+      }}
     >
       <Link
         href="/services"
@@ -128,7 +145,16 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
         aria-label={open ? "Hide services menu" : "Show services menu"}
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => (open ? close() : setOpen(true))}
+        onPointerDown={(event) => { triggerPointer.current = event.pointerType; }}
+        onClick={() => {
+          // A mouse has already opened the menu on hover, so a click must not
+          // toggle it shut again; keyboard and touch keep the open/close toggle.
+          const viaMouse = triggerPointer.current === "mouse";
+          triggerPointer.current = null;
+          if (viaMouse) { cancelClose(); setOpen(true); }
+          else if (open) close();
+          else setOpen(true);
+        }}
         className="p-1.5 -m-0.5 text-white/80 hover:text-white rounded-[4px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-ud-burgundy"
       >
         <motion.span className="block" animate={{ rotate: open ? 180 : 0 }} transition={{ duration: reduce ? 0 : DUR.quick, ease: EASE_OUT }}>
@@ -174,9 +200,22 @@ export default function ServicesMegaMenu({ pathname }: { pathname: string }) {
                               ref={(el) => { itemRefs.current[index] = el; }}
                               href={`/services/${service.slug}`}
                               aria-current={currentSlug === service.slug ? "page" : undefined}
-                              onPointerEnter={() => setActiveSlug(service.slug)}
+                              onPointerEnter={(event) => { if (event.pointerType === "mouse") setActiveSlug(service.slug); }}
+                              onPointerDown={(event) => {
+                                lastPointer.current = event.pointerType;
+                                wasActiveAtPress.current = isActive;
+                              }}
                               onFocus={() => setActiveSlug(service.slug)}
-                              onClick={() => close()}
+                              onClick={(event) => {
+                                // Touch: the first tap previews this service's sub-links; a second tap opens it.
+                                if (shouldPreviewOnTap(lastPointer.current, wasActiveAtPress.current)) {
+                                  event.preventDefault();
+                                  setActiveSlug(service.slug);
+                                } else {
+                                  close();
+                                }
+                                lastPointer.current = null;
+                              }}
                               className="relative flex items-center gap-3 rounded-[4px] px-3 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ud-burgundy/70"
                             >
                               {isActive && (

@@ -126,7 +126,7 @@ export function ServiceMaterialsBar({
       </div>
       <div className="flex flex-wrap gap-3 flex-shrink-0">
         {hasMaterials && (
-          <Link href="#materials" className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white text-xs font-bold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap">
+          <Link href="#package" className="inline-flex items-center gap-1.5 bg-ud-burgundy text-white text-xs font-bold px-4 py-2.5 rounded-[4px] hover:bg-ud-burgundy-hover transition-colors whitespace-nowrap">
             Shop These Materials <ArrowRight size={13} />
           </Link>
         )}

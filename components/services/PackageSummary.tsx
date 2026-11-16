@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { CheckCircle2, ClipboardList, Loader2, Send, ShoppingCart, X } from "lucide-react";
@@ -13,6 +13,8 @@ function TotalAmount({ totals, className, live = false }: { totals: PackageTotal
   if (totalIsUnconfirmed(totals)) return <span className={className} aria-live={live ? "polite" : undefined}>To be confirmed</span>;
   return <AnimatedAmount value={totals.total} live={live} className={className} />;
 }
+import { cartLineId } from "@/lib/cart-line";
+import { cartSyncPlan, isLikelyPhone } from "@/lib/ui-helpers";
 import { usePackage } from "./package-context";
 import { AnimatedAmount } from "./package-ui";
 
@@ -32,8 +34,14 @@ function QuoteForm({ onCancel }: { onCancel: () => void }) {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.consent) {
-      setState({ status: "error", message: "Please confirm we may contact you about this quote." });
+    const problem =
+      !form.name.trim() ? "Please enter your name."
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) ? "Please enter a valid email address."
+      : !isLikelyPhone(form.phone) ? "Please enter a phone number we can call, e.g. 0712 345 678."
+      : !form.consent ? "Please confirm we may contact you about this quote."
+      : null;
+    if (problem) {
+      setState({ status: "error", message: problem });
       return;
     }
     setState({ status: "sending" });
@@ -82,8 +90,8 @@ function QuoteForm({ onCancel }: { onCancel: () => void }) {
         <input id="pkg-email" type="email" required autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} />
       </div>
       <div>
-        <label htmlFor="pkg-phone" className="mb-1 block text-xs font-semibold text-white/70">Phone</label>
-        <input id="pkg-phone" type="tel" autoComplete="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={field} />
+        <label htmlFor="pkg-phone" className="mb-1 block text-xs font-semibold text-white/70">Phone *</label>
+        <input id="pkg-phone" type="tel" required autoComplete="tel" placeholder="0712 345 678" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={field} />
       </div>
       <div>
         <label htmlFor="pkg-notes" className="mb-1 block text-xs font-semibold text-white/70">Notes for our team</label>
@@ -106,9 +114,9 @@ function QuoteForm({ onCancel }: { onCancel: () => void }) {
 }
 
 /** Totals + actions. Used in the desktop sticky card and the mobile sheet. */
-export function SummaryContent() {
+export function SummaryContent({ onBeforeCart }: { onBeforeCart?: () => void } = {}) {
   const pkg = usePackage();
-  const { addItem } = useCart();
+  const { addItem, items: cartItems, updateQty, openCart } = useCart();
   const reduce = useReducedMotion() ?? false;
   const [quoting, setQuoting] = useState(false);
   const [addedCount, setAddedCount] = useState<number | null>(null);
@@ -119,19 +127,29 @@ export function SummaryContent() {
 
   useEffect(() => { setAddedCount(null); }, [pkg.selection]);
 
+  // Sets the cart to match the package: new lines are added, lines already in
+  // the cart get the package quantity, so pressing it twice never doubles up.
   const addToCart = () => {
-    for (const item of cartLines) {
+    onBeforeCart?.();
+    const lines = cartLines.flatMap((item) => {
       const sel = pkg.selection[item.id];
       const price = lineTotal(item, { ...sel, qty: 1 });
-      if (!item.cart || price === null) continue;
-      if (item.kind === "plan") {
-        const mode = sel.mode === "print" ? "print" : "digital";
-        addItem({ productId: item.cart.productId, kind: "plan", name: item.cart.name, unit: mode === "digital" ? "digital download" : "printed copy", priceKES: price, image: item.cart.image, sellerId: "", sellerName: "Ujenzi Dhabiti", deliveryMode: mode });
+      if (!item.cart || price === null) return [];
+      const mode: "digital" | "print" | undefined = item.kind === "plan" ? (sel.mode === "print" ? "print" : "digital") : undefined;
+      return [{ item, sel, price, mode, lineId: cartLineId(item.cart.productId, mode) }];
+    });
+    const plan = cartSyncPlan(cartItems.map((line) => line.lineId), lines.map((line) => ({ lineId: line.lineId, qty: line.item.kind === "plan" ? 1 : line.sel.qty })));
+    for (const { lineId, qty } of plan.update) updateQty(lineId, qty);
+    for (const line of lines.filter((l) => plan.add.includes(l.lineId))) {
+      const cart = line.item.cart!;
+      if (line.item.kind === "plan") {
+        addItem({ productId: cart.productId, kind: "plan", name: cart.name, unit: line.mode === "digital" ? "digital download" : "printed copy", priceKES: line.price, image: cart.image, sellerId: "", sellerName: "Ujenzi Dhabiti", deliveryMode: line.mode });
       } else {
-        addItem({ productId: item.cart.productId, kind: "material", name: item.cart.name, unit: item.cart.unit, priceKES: item.rateKES ?? 0, image: item.cart.image, sellerId: "", sellerName: "Ujenzi Dhabiti" }, sel.qty);
+        addItem({ productId: cart.productId, kind: "material", name: cart.name, unit: cart.unit, priceKES: line.item.rateKES ?? 0, image: cart.image, sellerId: "", sellerName: "Ujenzi Dhabiti" }, line.sel.qty);
       }
     }
-    setAddedCount(cartLines.length);
+    if (plan.add.length === 0) openCart(); // addItem already opens the cart
+    setAddedCount(lines.length);
   };
 
   return (
@@ -208,7 +226,7 @@ export function SummaryContent() {
               </button>
               {addedCount !== null && (
                 <p role="status" className="flex items-center justify-between gap-2 text-xs text-emerald-300">
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} aria-hidden /> {addedCount} {addedCount === 1 ? "line" : "lines"} added to your cart</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} aria-hidden /> Cart updated: {addedCount} {addedCount === 1 ? "line" : "lines"} from this package</span>
                   <Link href="/shop/checkout" className="font-semibold text-white underline-offset-2 hover:underline">Checkout</Link>
                 </p>
               )}
@@ -233,6 +251,34 @@ export function MobileSummaryBar() {
   const reduce = useReducedMotion() ?? false;
   const [open, setOpen] = useState(false);
   const barVisible = totals.selectedCount > 0 && !open;
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const reviewRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
+
+  // Focus moves into the sheet when it opens and back to "Review package" (or
+  // the builder heading, if the package was cleared) when it closes.
+  useEffect(() => {
+    if (open) {
+      wasOpen.current = true;
+      const frame = window.requestAnimationFrame(() => closeRef.current?.focus());
+      return () => window.cancelAnimationFrame(frame);
+    }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    const frame = window.requestAnimationFrame(() => (reviewRef.current ?? document.getElementById("package-heading"))?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
+
+  // The sheet is phone/tablet only: close it if the screen widens to desktop,
+  // otherwise the page would stay scroll-locked behind a hidden sheet.
+  useEffect(() => {
+    if (!open) return;
+    const query = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => { if (query.matches) setOpen(false); };
+    onChange();
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, [open]);
 
   // Lets the floating WhatsApp button lift itself above the bar instead of covering it.
   useEffect(() => {
@@ -266,7 +312,7 @@ export function MobileSummaryBar() {
                 <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">{totals.selectedCount} {totals.selectedCount === 1 ? "item" : "items"} · indicative</p>
                 <TotalAmount totals={totals} className="text-lg font-bold text-white" />
               </div>
-              <button type="button" onClick={() => setOpen(true)} className="rounded-[4px] bg-ud-burgundy px-5 py-3 text-sm font-bold text-white">Review package</button>
+              <button ref={reviewRef} type="button" onClick={() => setOpen(true)} className="rounded-[4px] bg-ud-burgundy px-5 py-3 text-sm font-bold text-white">Review package</button>
             </div>
           </motion.div>
         )}
@@ -283,10 +329,11 @@ export function MobileSummaryBar() {
               exit={{ y: reduce ? 0 : "100%", transition: { duration: reduce ? 0 : DUR.standard, ease: EASE_IN } }}
             >
               <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" aria-hidden />
-              <button type="button" onClick={() => setOpen(false)} aria-label="Close package summary" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center text-white/60 hover:text-white">
+              <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close package summary" className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center text-white/60 hover:text-white">
                 <X size={18} aria-hidden />
               </button>
-              <SummaryContent />
+              {/* Close the sheet first so the cart panel opens in front, not behind it. */}
+              <SummaryContent onBeforeCart={() => setOpen(false)} />
             </motion.div>
           </div>
         )}

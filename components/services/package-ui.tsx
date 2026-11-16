@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Minus, Plus } from "lucide-react";
 import { DUR, EASE_IN, EASE_OUT } from "@/lib/motion";
 import { formatKES } from "@/lib/services/package-math";
+import { nextRadioIndex, parseQtyDraft } from "@/lib/ui-helpers";
 
 /** Visual checkbox; pair with a visually hidden <input type="checkbox" className="peer sr-only"> before it. */
 export function CheckMark({ checked }: { checked: boolean }) {
@@ -49,7 +51,74 @@ export function AnimatedAmount({ value, className = "", live = false }: { value:
   );
 }
 
+/**
+ * Accessible segmented control (role="radiogroup"): one tab stop, arrow keys
+ * move the selection, Home/End jump. Optional layoutId animates the highlight.
+ */
+export function SegmentedRadio<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+  layoutId,
+  className = "",
+}: {
+  label: string;
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (value: T) => void;
+  layoutId?: string;
+  className?: string;
+}) {
+  const reduce = useReducedMotion() ?? false;
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const index = Math.max(0, options.findIndex((o) => o.value === value));
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const next = nextRadioIndex(event.key, index, options.length);
+    if (next === null) return;
+    event.preventDefault();
+    onChange(options[next].value);
+    refs.current[next]?.focus();
+  };
+
+  return (
+    <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className={`inline-flex rounded-[4px] border border-ud-dark/15 bg-white p-0.5 ${className}`}>
+      {options.map((option, i) => {
+        const active = i === index;
+        return (
+          <button
+            key={option.value}
+            ref={(el) => { refs.current[i] = el; }}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            tabIndex={active ? 0 : -1}
+            onClick={() => onChange(option.value)}
+            className={`relative rounded-[3px] px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ud-burgundy ${active ? "text-white" : "text-ud-dark/65 hover:text-ud-dark"} ${active && !layoutId ? "bg-ud-dark" : ""}`}
+          >
+            {active && layoutId && (
+              <motion.span layoutId={layoutId} aria-hidden className="absolute inset-0 rounded-[3px] bg-ud-dark" transition={{ duration: reduce ? 0 : DUR.quick, ease: EASE_OUT }} />
+            )}
+            <span className="relative">{option.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function QtyStepper({ value, onChange, unit, label }: { value: number; onChange: (qty: number) => void; unit: string; label: string }) {
+  // Local draft so clearing the field to retype doesn't snap it to 1 (e.g. "40" → "140").
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => { setDraft(String(value)); }, [value]);
+  const commit = () => {
+    const parsed = parseQtyDraft(draft);
+    if (parsed === null) setDraft(String(value));
+    else if (parsed !== value) onChange(parsed);
+    else setDraft(String(value));
+  };
+
   return (
     <div className="inline-flex items-center gap-2">
       <div className="inline-flex items-stretch overflow-hidden rounded-[4px] border border-ud-dark/15 bg-white">
@@ -61,8 +130,14 @@ export function QtyStepper({ value, onChange, unit, label }: { value: number; on
           inputMode="numeric"
           min={1}
           aria-label={label}
-          value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
+          value={draft}
+          onChange={(event) => {
+            setDraft(event.target.value);
+            const parsed = parseQtyDraft(event.target.value);
+            if (parsed !== null && parsed !== value) onChange(parsed);
+          }}
+          onBlur={commit}
+          onKeyDown={(event) => { if (event.key === "Enter") commit(); }}
           className="w-16 border-x border-ud-dark/10 text-center text-sm font-semibold tabular-nums text-ud-dark outline-none focus:bg-ud-burgundy/[0.04] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <button type="button" aria-label={`Increase ${label}`} onClick={() => onChange(value + 1)} className="flex h-10 w-10 items-center justify-center text-ud-dark/70 hover:bg-ud-dark/5 sm:h-9 sm:w-9">

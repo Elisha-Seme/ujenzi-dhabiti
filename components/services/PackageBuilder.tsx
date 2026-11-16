@@ -8,7 +8,7 @@ import { DUR, EASE_IN, EASE_OUT } from "@/lib/motion";
 import { LABOUR_UNIT_LABEL } from "@/lib/services/labour";
 import { formatKES, lineTotal, needsQuantity, type PackageGroup, type PackageItem } from "@/lib/services/package-math";
 import { usePackage } from "./package-context";
-import { AnimatedAmount, CheckMark, QtyStepper } from "./package-ui";
+import { AnimatedAmount, CheckMark, QtyStepper, SegmentedRadio } from "./package-ui";
 import { MobileSummaryBar, SummaryContent } from "./PackageSummary";
 
 const COLLAPSE_AFTER = 8;
@@ -69,24 +69,16 @@ function PackageRow({ item }: { item: PackageItem }) {
           >
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-4 pl-12">
               {item.kind === "plan" && item.options ? (
-                <div role="radiogroup" aria-label={`Format for ${item.label}`} className="inline-flex rounded-[4px] border border-ud-dark/15 bg-white p-0.5">
-                  {(["digital", "print"] as const).map((mode) => {
-                    const active = (sel?.mode ?? "digital") === mode;
-                    return (
-                      <button
-                        key={mode}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        onClick={() => pkg.setMode(item.id, mode)}
-                        className={`relative rounded-[3px] px-3 py-1.5 text-xs font-semibold transition-colors ${active ? "text-white" : "text-ud-dark/65 hover:text-ud-dark"}`}
-                      >
-                        {active && <motion.span layoutId={`fmt-${item.id}`} className="absolute inset-0 rounded-[3px] bg-ud-dark" transition={{ duration: reduce ? 0 : DUR.quick, ease: EASE_OUT }} aria-hidden />}
-                        <span className="relative">{mode === "digital" ? "Digital" : "Printed"} · {formatKES(mode === "digital" ? item.options!.digitalKES : item.options!.printKES)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <SegmentedRadio
+                  label={`Format for ${item.label}`}
+                  value={sel?.mode ?? "digital"}
+                  onChange={(mode) => pkg.setMode(item.id, mode)}
+                  layoutId={`fmt-${item.id}`}
+                  options={[
+                    { value: "digital", label: `Digital · ${formatKES(item.options.digitalKES)}` },
+                    { value: "print", label: `Printed · ${formatKES(item.options.printKES)}` },
+                  ]}
+                />
               ) : needsQuantity(item) ? (
                 <QtyStepper value={sel.qty} onChange={(qty) => pkg.setQty(item.id, qty)} unit={QTY_UNIT[item.unit ?? "each"] ?? ""} label={`Quantity for ${item.label}`} />
               ) : null}
@@ -190,20 +182,13 @@ function ProjectInputs() {
               onChange={(event) => pkg.setAreaRaw(event.target.value.slice(0, 12))}
               className="min-w-0 flex-1 rounded-l-[4px] border border-r-0 border-ud-dark/15 px-3 py-2.5 text-sm tabular-nums text-ud-dark outline-none focus:border-ud-burgundy"
             />
-            <div role="radiogroup" aria-label="Area unit" className="flex rounded-r-[4px] border border-ud-dark/15 p-0.5">
-              {(["sqm", "sqft"] as const).map((unit) => (
-                <button
-                  key={unit}
-                  type="button"
-                  role="radio"
-                  aria-checked={pkg.areaUnit === unit}
-                  onClick={() => pkg.setAreaUnit(unit)}
-                  className={`rounded-[3px] px-3 text-xs font-semibold transition-colors ${pkg.areaUnit === unit ? "bg-ud-dark text-white" : "text-ud-dark/60 hover:text-ud-dark"}`}
-                >
-                  {unit === "sqm" ? "m²" : "ft²"}
-                </button>
-              ))}
-            </div>
+            <SegmentedRadio
+              label="Area unit"
+              value={pkg.areaUnit}
+              onChange={pkg.setAreaUnit}
+              className="rounded-l-none"
+              options={[{ value: "sqm", label: "m²" }, { value: "sqft", label: "ft²" }]}
+            />
           </div>
           <p className="mt-1.5 text-[11px] leading-relaxed text-ud-dark/50">
             {pkg.areaMode === "floor"
@@ -260,7 +245,7 @@ export default function PackageBuilder() {
       <div className="mx-auto max-w-content px-6">
         <div className="max-w-2xl">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-ud-burgundy">Build your package</p>
-          <h2 id="package-heading" className="text-2xl font-bold text-ud-dark md:text-3xl">Put together your {pkg.title} package</h2>
+          <h2 id="package-heading" tabIndex={-1} className="text-2xl font-bold text-ud-dark outline-none md:text-3xl">Put together your {pkg.title} package</h2>
           <p className="mt-3 text-sm leading-relaxed text-ud-dark/65">
             Tick what you need and untick what you don&apos;t: our work, house plans, design services and materials. Your indicative total updates as you go, and you can send it to us as a quote request.
           </p>

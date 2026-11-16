@@ -9,14 +9,13 @@ import {
   ReactNode,
 } from "react";
 import { CartItem } from "@/lib/types";
+import { cartLineId } from "@/lib/cart-line";
 
 const CART_KEY = "ujenzi:cart:v2";
 
 type NewCartItem = Omit<CartItem, "quantity" | "lineId">;
 
-function makeLineId(productId: string, deliveryMode?: string): string {
-  return `${productId}::${deliveryMode ?? "std"}`;
-}
+const makeLineId = cartLineId;
 
 interface CartContextValue {
   items: CartItem[];

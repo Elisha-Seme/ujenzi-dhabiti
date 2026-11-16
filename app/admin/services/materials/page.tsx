@@ -108,7 +108,7 @@ export default function ServiceMaterialsAdminPage() {
           </div>
           <div className="flex flex-wrap gap-3 items-center">
             <button type="button" onClick={save} disabled={saving} className="bg-ud-burgundy text-white px-5 py-3 rounded-[4px] text-sm font-semibold disabled:opacity-50">{saving ? "Saving…" : "Save service materials"}</button>
-            {currentService && <Link href={`/services/${currentService.slug}#materials`} target="_blank" className="text-sm font-semibold text-ud-burgundy underline">Preview on site</Link>}
+            {currentService && <Link href={`/services/${currentService.slug}#package`} target="_blank" className="text-sm font-semibold text-ud-burgundy underline">Preview on site</Link>}
           </div>
         </>
       )}

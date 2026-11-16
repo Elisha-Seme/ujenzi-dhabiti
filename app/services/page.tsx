@@ -14,17 +14,20 @@ type PackageCounts = { work: number; plans: number; materials: number };
 
 /** What each service's package builder offers: sub-services, house plans, materials. */
 async function loadPackageCounts(list: Array<typeof services.$inferSelect>): Promise<Record<string, PackageCounts>> {
-  const [subsections, plans, productCounts] = await Promise.all([
+  const [subsections, plans, productCounts, activeIds] = await Promise.all([
     readSubsections({ serviceSlugs: list.map((s) => s.slug) }).catch(() => []),
     getAllPlans().catch(() => []),
     db.select({ category: products.category, n: count() }).from(products).where(eq(products.isActive, true)).groupBy(products.category).catch(() => []),
+    db.select({ id: products.id }).from(products).where(eq(products.isActive, true)).catch(() => []),
   ]);
   const perCategory = new Map(productCounts.map((row) => [row.category, Number(row.n)]));
+  const active = new Set(activeIds.map((row) => row.id));
   return Object.fromEntries(list.map((srv) => {
     const own = subsections.filter((sub) => sub.serviceSlug === srv.slug);
     const categories = planCategoriesForService(srv.slug, own.map((sub) => sub.planType));
+    // Curated materials count only while the product is still active (as the builder shows them).
     const materials = srv.materialProductIds.length > 0
-      ? srv.materialProductIds.length
+      ? srv.materialProductIds.filter((id) => active.has(id)).length
       : materialCategoriesForService(srv.slug).reduce((sum, category) => sum + (perCategory.get(category) ?? 0), 0);
     return [srv.slug, { work: own.length, plans: plans.filter((plan) => categories.includes(plan.category)).length, materials }];
   }));
